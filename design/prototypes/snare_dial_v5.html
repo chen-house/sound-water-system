@@ -298,10 +298,12 @@
     font-size: 22px;
     letter-spacing: 0;
   }
-  .notch-hit { fill: transparent; cursor: pointer; }
-  .notch-group:hover .rod { filter: brightness(1.5); }
-  .notch-group:hover .label-year { fill: #000; }
-  .notch-group:hover .label-name { fill: #000; }
+  /* 标签 + 张力杆 + notch-hit 全部不接收鼠标事件:
+     1) 鼠标穿过它们落到底下的鼓棒,鼓棒在重叠区还能 grab
+     2) 点击文字也不会跳转——导航只剩下"拖鼓棒"和键盘箭头
+     hover 高亮也撤掉(没法 hover 触发了),保留 .current 高亮做"当前选中"提示 */
+  .notch-group { pointer-events: none; }
+  .notch-hit { fill: transparent; }
   .notch-group.current .rod { filter: brightness(1.3); }
   .notch-group.current .label-year { fill: #000; font-weight: 600; }
   .notch-group.current .label-name { fill: #000; }
@@ -338,9 +340,9 @@
   /* 封面态:鼓棒搁在鼓的右下方,可点击进入 */
   body.cover #stick-hit { cursor: grab; }
   body.cover #stick-group:hover { filter: brightness(1.08); }
-  /* overlay 打开 → 左面鼓盘锁住:鼠标提示不可拖,所有 hit 区不响应 */
-  body.overlay-open #stick-hit,
-  body.overlay-open .notch-hit { cursor: default; pointer-events: none; }
+  /* overlay 打开 → 左面鼓盘锁住:鼓棒不可拖。
+     (notch 已全局 pointer-events: none,无需再写) */
+  body.overlay-open #stick-hit { cursor: default; pointer-events: none; }
 
   /* (cover-hint 文字已删 — 让位置自己讲故事:鼓棒悬在 ragtime 旁,自然让人想"拿起来贴上") */
 
