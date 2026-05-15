@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段 9 · Fusion · 1969 · 拒绝给自己画句号</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c11;
+    --bg-deep: #050609;
+    --white: #ece6dc;
+    --white-soft: rgba(236, 230, 220, 0.62);
+    --white-fade: rgba(236, 230, 220, 0.30);
+    --electric: #18d2e8;
+    --electric-deep: #0aa8ba;
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); }
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: var(--font-serif);
+    overflow-x: hidden;
+    padding-bottom: 80px;
+    position: relative;
+  }
+  .top-marker {
+    position: absolute; top: 40px; left: 56px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--white-fade);
+  }
+  .stage { min-height: 100vh; position: relative; padding: 110px 56px 60px; }
+
+  .where {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px; letter-spacing: 0.42em;
+    color: var(--white-fade); margin-bottom: 48px;
+  }
+
+  /* —— 棚里那一堆"插了电的东西" —— */
+  .gear {
+    max-width: 920px; margin: 0 auto 64px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  }
+  .gear .item {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.3em; color: var(--white-soft);
+    padding: 16px 12px;
+    border: 1px solid rgba(236, 230, 220, 0.14);
+    text-align: center;
+  }
+  .gear .item b { display: block; color: var(--white); font-weight: 400; font-family: var(--font-serif); font-size: 13px; margin-top: 6px; letter-spacing: 0.04em; }
+  .gear .item.live { border-color: var(--electric-deep); }
+  .gear .item.live b { color: var(--electric); }
+  .gear .item.live::before {
+    content: '⚡ ';
+    color: var(--electric);
+  }
+
+  /* —— 一道电进来 —— */
+  .surge {
+    max-width: 880px; margin: 0 auto 64px;
+    position: relative;
+    height: 4px;
+    background: linear-gradient(90deg, transparent 0%, var(--white-fade) 20%, var(--electric) 50%, var(--white-fade) 80%, transparent 100%);
+  }
+  .surge-label {
+    text-align: center;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.42em; color: var(--electric);
+    margin-bottom: 24px;
+  }
+
+  /* Layer A · Miles 43 岁(DJ 串场) */
+  .miles-frame {
+    max-width: 580px; margin: 0 auto 64px;
+    text-align: center;
+    color: var(--white-soft);
+    font-size: 19px; line-height: 1.65;
+    letter-spacing: 0.02em;
+  }
+  .miles-frame p { margin-bottom: 1.2em; }
+  .miles-frame em { font-style: italic; color: var(--white); }
+  .miles-frame strong { font-weight: 500; color: var(--white); }
+  .miles-frame .age {
+    font-family: var(--font-mono);
+    font-size: 64px; letter-spacing: 0.04em;
+    color: var(--electric); font-weight: 300;
+    margin: 8px 0;
+    line-height: 1;
+  }
+
+  /* Layer B · 拒绝给自己画句号(重锤) */
+  .refusal {
+    text-align: center; max-width: 880px; margin: 0 auto 24px;
+    font-size: 32px; line-height: 1.4; letter-spacing: 0.04em;
+    color: var(--white); font-weight: 400;
+    text-wrap: balance;
+  }
+  .refusal strong { color: var(--electric); font-weight: 500; }
+  .refusal-attr {
+    text-align: center;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.3em; color: var(--white-soft);
+    margin-bottom: 72px;
+  }
+
+  /* Layer C · 正文 + Layer B 段尾重锤 */
+  .article {
+    max-width: 540px; margin: 0 auto;
+    color: var(--white-soft);
+    font-size: 17px; line-height: 1.55;
+    letter-spacing: 0.02em;
+  }
+  .article p { margin-bottom: 0.8em; }
+  .article em { font-style: italic; color: var(--white); }
+  .article strong { font-weight: 500; color: var(--white); }
+  .article .pull {
+    margin-top: 2.5em; text-align: center;
+    font-size: 24px; line-height: 1.4;
+    color: var(--white); letter-spacing: 0.04em;
+    text-wrap: balance;
+  }
+  .article .pull strong { color: var(--electric); }
+
+  .converse { max-width: 920px; margin: 100px auto 0; border-top: 1px solid rgba(236,230,220,0.18); padding-top: 44px; }
+  .converse-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.38em; color: var(--white-fade); text-align: center; margin-bottom: 36px; }
+  .converse-row { display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; }
+  .neighbor { display: block; text-align: center; text-decoration: none; color: var(--white-soft); padding: 22px 28px; border: 1px solid rgba(236,230,220,0.16); min-width: 200px; transition: border-color 0.4s, color 0.4s; }
+  .neighbor:hover { color: var(--white); border-color: var(--electric); }
+  .neighbor .rel { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.3em; color: var(--white-fade); margin-bottom: 10px; }
+  .neighbor .name { font-family: var(--font-serif); font-size: 15px; letter-spacing: 0.04em; }
+
+  .back { position: fixed; bottom: 24px; left: 24px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.32em; color: var(--white-fade); text-decoration: none; }
+  .back:hover { color: var(--white); }
+
+</style>
+</head>
+<body>
+
+<div class="top-marker">SECTION 09 · FUSION · BITCHES BREW</div>
+
+<div class="stage">
+
+  <div class="where">1969 · AUGUST &nbsp;&nbsp; NEW YORK · COLUMBIA STUDIO B</div>
+
+  <div class="gear">
+    <div class="item">TRUMPET<b>Miles Davis</b></div>
+    <div class="item live">ELECTRIC PIANO<b>×3 KEYBOARDS</b></div>
+    <div class="item live">ELECTRIC GUITAR<b>John McLaughlin</b></div>
+    <div class="item live">ELECTRIC BASS<b>Harvey Brooks</b></div>
+    <div class="item">DRUMS × 2<b>DeJohnette / White</b></div>
+    <div class="item">PERCUSSION<b>×3 PLAYERS</b></div>
+    <div class="item">SOPRANO SAX<b>Wayne Shorter</b></div>
+    <div class="item">BASS CLARINET<b>Bennie Maupin</b></div>
+  </div>
+
+  <div class="surge-label">P L U G &nbsp;&nbsp; I N</div>
+  <div class="surge"></div>
+
+  <div class="miles-frame">
+    <p>前一年,Miles 刚交了 <em>In a Silent Way</em>。</p>
+    <p>前十年,他交过 <em>Kind of Blue</em>。</p>
+    <p>他可以靠这些专辑吃一辈子。</p>
+    <p style="margin-top: 2em;">这一年 Miles</p>
+    <div class="age">43</div>
+    <p>身体已经在垮。</p>
+  </div>
+
+  <div class="refusal"><strong>他不是在追求更多听众。<br>他是在拒绝给自己画句号。</strong></div>
+  <div class="refusal-attr">—— BITCHES BREW · 1969—1970</div>
+
+  <div class="article">
+    <p>1969 年 8 月,纽约 Columbia Studio B。Miles Davis 把 12 个乐手叫进棚子——3 个键盘手同时坐着、电吉他、电贝斯、两套鼓、一堆打击乐。他<strong>不发完整谱子</strong>,只给一个节拍数,几个和弦,一句调性提示。然后录音机开了。3 天,他们就这么吹。</p>
+    <p>录完后,Teo Macero 把磁带剪开、拼接、循环。1970 年 3 月,这张双 LP 出来,叫 <em>Bitches Brew</em>。</p>
+    <p>他用 funk 的节奏底层来支撑爵士的独奏——Jack DeJohnette 和 Lenny White 打的鼓不再是 swing 的摇摆,而是 <strong>funk 的紧致 backbeat</strong>。底下的电贝斯 vamp 一个 funk groove 一弹就是 10 分钟。上面 Miles 的小号自由飞翔。</p>
+    <p>老派爵士迷觉得这是<em>叛变</em>。但年轻人爱死了。70 年代涌出 <strong>Herbie Hancock 的 Head Hunters</strong>、<strong>Weather Report</strong>、<strong>Mahavishnu Orchestra</strong>、<strong>Return to Forever</strong>——爵士融合统治了整个 70 年代的"严肃流行音乐"。</p>
+    <p class="pull">重复一张被市场认证的专辑,在他的算账方式里,<strong>不是稳定,是 Game Over</strong>。</p>
+  </div>
+
+</div>
+
+<a class="back" href="snare_dial_v4.html">← 回到鼓面</a>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  const SECTION_ID = 'fusion';
+  try { window.parent.postMessage({ type: 'section-shown', sectionId: SECTION_ID }, '*'); } catch (e) {}
+  const back = document.querySelector('.back');
+  if (back) back.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'close-overlay' }, '*'); } catch (e2) {}
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段 6 · Cool / Hard Bop · 1949 / 1958 · 从冷到热再回来</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cool: #d0d5d4;
+    --cool-deep: #b6bdbb;
+    --cool-ink: #1b2528;
+    --cool-soft: rgba(27, 37, 40, 0.62);
+    --cool-fade: rgba(27, 37, 40, 0.32);
+
+    --warm: #e8d7b6;
+    --warm-deep: #cdb98e;
+    --warm-ink: #2e1908;
+    --warm-soft: rgba(46, 25, 8, 0.66);
+    --warm-fade: rgba(46, 25, 8, 0.36);
+    --ember: #b04018;
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--cool); min-height: 100vh; }
+  body { overflow-x: hidden; padding-bottom: 80px; position: relative; font-family: var(--font-serif); }
+
+  /* —— 上半:COOL —— */
+  .half-cool {
+    background: linear-gradient(180deg, #e0e3e1 0%, var(--cool) 70%, var(--cool-deep) 100%);
+    color: var(--cool-ink);
+    min-height: 80vh;
+    padding: 110px 56px 120px;
+    position: relative;
+  }
+  .top-marker {
+    position: absolute; top: 40px; left: 56px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--cool-fade);
+  }
+  .where-cool {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px; letter-spacing: 0.42em;
+    color: var(--cool-fade); margin-bottom: 56px;
+  }
+  /* Layer A · DJ 串场(冷调) */
+  .dj-cool {
+    max-width: 580px; margin: 0 auto 64px;
+    text-align: center;
+    color: var(--cool-soft);
+    font-size: 19px; line-height: 1.65;
+    letter-spacing: 0.02em;
+  }
+  .dj-cool p { margin-bottom: 1.2em; }
+  .dj-cool strong { font-weight: 500; color: var(--cool-ink); }
+  .dj-cool em { font-style: italic; color: var(--cool-ink); }
+
+  /* Layer B · 冷调重锤 */
+  .cool-quote {
+    text-align: center; max-width: 700px; margin: 0 auto 72px;
+    font-size: 30px; line-height: 1.4; letter-spacing: 0.04em;
+    color: var(--cool-ink); font-weight: 300;
+    text-wrap: balance;
+  }
+  .cool-quote::before, .cool-quote::after {
+    content: ''; display: block; width: 28px; height: 1px;
+    background: var(--cool-fade); margin: 32px auto;
+  }
+
+  /* Layer C · 冷调正文 */
+  .cool-art {
+    max-width: 540px; margin: 0 auto;
+    color: var(--cool-soft);
+    font-size: 17px; line-height: 1.55;
+    letter-spacing: 0.02em;
+    text-align: center;
+  }
+  .cool-art p { margin-bottom: 0.8em; }
+  .cool-art em { font-style: italic; color: var(--cool-ink); }
+  .cool-art strong { font-weight: 500; color: var(--cool-ink); }
+
+  /* —— 中间过渡 —— */
+  .transition {
+    background: linear-gradient(180deg, var(--cool-deep) 0%, var(--warm) 100%);
+    padding: 56px 24px;
+    text-align: center;
+  }
+  .transition .turn {
+    font-family: var(--font-serif);
+    font-size: 24px; letter-spacing: 0.06em;
+    color: #4a3530;
+    font-weight: 300;
+  }
+  .transition .turn strong { color: var(--ember); font-weight: 500; }
+
+  /* —— 下半:HARD BOP —— */
+  .half-hard {
+    background: linear-gradient(180deg, var(--warm) 0%, var(--warm-deep) 100%);
+    color: var(--warm-ink);
+    padding: 72px 56px 100px;
+    position: relative;
+  }
+  .where-hard {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px; letter-spacing: 0.42em;
+    color: var(--warm-fade); margin-bottom: 48px;
+  }
+  .hard-name {
+    text-align: center;
+    font-size: 30px; letter-spacing: 0.1em;
+    color: var(--warm-ink); font-weight: 500;
+    margin-bottom: 12px;
+  }
+  .hard-sub {
+    text-align: center;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.38em; color: var(--warm-soft);
+    margin-bottom: 56px;
+  }
+
+  /* Layer B · 热调重锤 */
+  .hard-quote {
+    text-align: center; max-width: 700px; margin: 0 auto 32px;
+    font-size: 30px; line-height: 1.4; letter-spacing: 0.04em;
+    color: var(--warm-ink); font-weight: 400;
+    text-wrap: balance;
+  }
+  .hard-quote strong { color: var(--ember); font-weight: 500; }
+  .hard-attr {
+    text-align: center;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.3em; color: var(--warm-soft);
+    margin-bottom: 56px;
+  }
+
+  /* Layer C · 热调正文 */
+  .hard-art {
+    max-width: 540px; margin: 0 auto;
+    color: var(--warm-soft);
+    font-size: 17px; line-height: 1.55;
+    letter-spacing: 0.02em;
+  }
+  .hard-art p { margin-bottom: 0.8em; }
+  .hard-art em { font-style: italic; color: var(--warm-ink); }
+  .hard-art strong { font-weight: 500; color: var(--warm-ink); }
+  .hard-art .pull {
+    margin-top: 3em; text-align: center;
+    font-size: 22px; color: var(--warm-ink); letter-spacing: 0.04em;
+  }
+  .hard-art .pull strong { color: var(--ember); }
+
+  /* —— 邻居 —— */
+  .converse { max-width: 920px; margin: 88px auto 0; border-top: 1px solid rgba(46, 25, 8, 0.2); padding: 44px 24px 0; }
+  .converse-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.38em; color: var(--warm-fade); text-align: center; margin-bottom: 36px; }
+  .converse-row { display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; }
+  .neighbor { display: block; text-align: center; text-decoration: none; color: var(--warm-soft); padding: 22px 28px; border: 1px solid rgba(46, 25, 8, 0.22); min-width: 200px; transition: border-color 0.4s, color 0.4s; }
+  .neighbor:hover { color: var(--warm-ink); border-color: var(--ember); }
+  .neighbor .rel { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.3em; color: var(--warm-fade); margin-bottom: 10px; }
+  .neighbor .name { font-family: var(--font-serif); font-size: 15px; letter-spacing: 0.04em; }
+
+  .back { position: fixed; bottom: 24px; left: 24px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.32em; color: rgba(255,255,255,0.5); text-decoration: none; mix-blend-mode: difference; }
+  .back:hover { color: white; }
+
+</style>
+</head>
+<body>
+
+<div class="top-marker">SECTION 06 · COOL / HARD BOP</div>
+
+<!-- ===== 上半:COOL ===== -->
+<div class="half-cool">
+
+  <div class="where-cool">1949 &nbsp;&nbsp; LOS ANGELES · BIRTH OF THE COOL</div>
+
+  <div class="dj-cool">
+    <p>Bebop 太烈,烈到自己受不了。</p>
+    <p>40 年代末,Miles Davis 把 bebop 关到了室内乐里——<strong>慢下来,柔下来,呼吸感强了</strong>。</p>
+    <p>乐队拉到加州,这一帮人把音乐推到内敛、克制、冷静的方向。</p>
+  </div>
+
+  <div class="cool-quote">这就是 cool jazz —— bebop 的降温版。</div>
+
+  <div class="cool-art">
+    <p>1949 年,Miles Davis 召集一群乐手录了一张专辑叫 <em>Birth of the Cool</em>——名字就是态度。</p>
+    <p>乐器编制里加入了 French horn 和 tuba,<strong>像欧洲室内乐</strong>。</p>
+    <p>Miles Davis、Gerry Mulligan、Chet Baker——这一代往加州走,把音乐往内敛、克制、冷静的方向推。</p>
+  </div>
+
+</div>
+
+<!-- ===== 过渡 ===== -->
+<div class="transition">
+  <div class="turn">但 cool 太冷了。<br><strong>有人不耐烦。</strong></div>
+</div>
+
+<!-- ===== 下半:HARD BOP ===== -->
+<div class="half-hard">
+
+  <div class="where-hard">1954—1958 &nbsp;&nbsp; NEW YORK · JAZZ MESSENGERS</div>
+
+  <div class="hard-name">HARD BOP</div>
+  <div class="hard-sub">把火接回来</div>
+
+  <div class="hard-quote"><strong>"爵士不能丢掉灵魂。"</strong></div>
+  <div class="hard-attr">—— ART BLAKEY &amp; HORACE SILVER · 1954</div>
+
+  <div class="hard-art">
+    <p>鼓手 <strong>Art Blakey</strong> 和钢琴手 <strong>Horace Silver</strong> 在纽约组了一个乐队叫 <em>Jazz Messengers</em>。他们把 bebop 的头脑、cool 的优雅,和 <strong>gospel、blues 的初心</strong>,聚到了一起。</p>
+    <p>这就是 hard bop。</p>
+    <p>听 hard bop 的代表作 <em>Moanin'</em>(Bobby Timmons 1958 年作曲,Jazz Messengers 录制)——前奏的钢琴 lick 直接是 <strong>gospel 的味道</strong>,但和声是 bebop 的复杂度,节奏是 swing 的摇摆。</p>
+    <p class="pull">爵士第一次<strong>重新拥抱自己的非洲那一面</strong>。</p>
+  </div>
+
+</div>
+
+<a class="back" href="snare_dial_v4.html">← 回到鼓面</a>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  const SECTION_ID = 'cool';
+  try { window.parent.postMessage({ type: 'section-shown', sectionId: SECTION_ID }, '*'); } catch (e) {}
+  const back = document.querySelector('.back');
+  if (back) back.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'close-overlay' }, '*'); } catch (e2) {}
+  });
+})();
+</script>
+
+</body>
+</html>

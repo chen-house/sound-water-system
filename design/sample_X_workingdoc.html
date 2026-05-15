@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>方向 X · 节目工作稿</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&family=Courier+Prime:wght@400;700&family=Noto+Serif+SC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ebe3cf;
+    --paper-deep: #d9cfb3;
+    --paper-stain: rgba(120, 85, 40, 0.08);
+    --ink: #1f1a12;
+    --ink-soft: #3f3a30;
+    --ink-faded: #6b6353;
+    --redmark: #a8321e;
+    --pencil: #2c3a5a;
+    --rule: #8a7f6a;
+    
+    --font-type: 'Special Elite', 'Courier Prime', 'Noto Serif SC', monospace;
+    --font-hand: 'Caveat', cursive;
+    --font-hand-thin: 'Kalam', cursive;
+    --font-cn: 'Noto Serif SC', serif;
+  }
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background: #2a2520;
+    min-height: 100vh;
+    font-family: var(--font-type);
+    padding: 40px 20px;
+    overflow-x: hidden;
+  }
+  
+  /* === 纸张容器 === */
+  .sheet {
+    max-width: 720px;
+    margin: 0 auto 80px;
+    background: var(--paper);
+    padding: 64px 56px 80px;
+    position: relative;
+    
+    /* 纸张本身的纹理:多层渐变模拟纤维和污渍 */
+    background-image: 
+      radial-gradient(ellipse 200px 80px at 20% 15%, var(--paper-stain), transparent 70%),
+      radial-gradient(ellipse 120px 60px at 85% 70%, rgba(140,90,40,0.12), transparent 70%),
+      radial-gradient(circle 30px at 70% 30%, rgba(120,60,30,0.15), transparent 70%),
+      radial-gradient(ellipse 300px 100px at 50% 95%, rgba(100,70,30,0.06), transparent 70%),
+      linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%);
+    
+    /* 纸张边缘和阴影 */
+    box-shadow: 
+      0 1px 0 rgba(255,250,235,0.4) inset,
+      0 -2px 0 rgba(0,0,0,0.05) inset,
+      0 20px 60px rgba(0,0,0,0.5),
+      0 4px 12px rgba(0,0,0,0.3);
+    
+    /* 微微倾斜,显示"不是一张精心摆放的纸" */
+    transform: rotate(-0.4deg);
+  }
+  
+  /* 纸张折痕 */
+  .sheet::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; left: 33%;
+    width: 1px;
+    background: linear-gradient(180deg, 
+      transparent 0%, 
+      rgba(60,40,20,0.08) 20%, 
+      rgba(60,40,20,0.04) 50%, 
+      rgba(60,40,20,0.08) 80%, 
+      transparent 100%);
+    pointer-events: none;
+  }
+  
+  /* 咖啡杯渍 */
+  .sheet::after {
+    content: '';
+    position: absolute;
+    top: 30px; right: 80px;
+    width: 70px; height: 70px;
+    border-radius: 50%;
+    border: 2px solid rgba(120,70,30,0.18);
+    background: radial-gradient(circle, transparent 60%, rgba(120,70,30,0.06) 70%, transparent 80%);
+    pointer-events: none;
+  }
+  
+  /* === 文件头(打字机打的元数据) === */
+  .doc-header {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 16px;
+    margin-bottom: 32px;
+    font-family: var(--font-type);
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.6;
+    position: relative;
+  }
+  
+  .doc-header .row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    letter-spacing: 0.02em;
+  }
+  
+  .doc-header .label {
+    color: var(--ink-faded);
+    letter-spacing: 0.15em;
+    font-size: 11px;
+  }
+  
+  .doc-header .stamp {
+    position: absolute;
+    top: -10px; right: -10px;
+    transform: rotate(8deg);
+    border: 2px solid var(--redmark);
+    color: var(--redmark);
+    padding: 6px 12px;
+    font-family: var(--font-type);
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    font-weight: bold;
+    opacity: 0.85;
+  }
+  
+  /* === 大标题 === */
+  .title-block {
+    margin-bottom: 48px;
+    position: relative;
+  }
+  
+  .title-block .h1 {
+    font-family: var(--font-type);
+    font-size: 32px;
+    line-height: 1.2;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+    /* 让打字机字体看起来不那么干净 */
+    text-shadow: 0 0.5px 0 rgba(0,0,0,0.15);
+  }
+  
+  .title-block .h1 .strike {
+    position: relative;
+    color: var(--ink-faded);
+  }
+  
+  .title-block .h1 .strike::after {
+    content: '';
+    position: absolute;
+    left: -2px; right: -2px;
+    top: 50%;
+    height: 2px;
+    background: var(--ink);
+    transform: rotate(-1deg);
+  }
+  
+  .title-block .h2 {
+    font-family: var(--font-hand);
+    font-size: 36px;
+    color: var(--redmark);
+    transform: rotate(-1.5deg);
+    display: inline-block;
+    margin-top: 8px;
+    margin-left: 12px;
+  }
+  
+  .title-block .note-margin {
+    position: absolute;
+    right: -30px;
+    top: 20px;
+    transform: rotate(4deg);
+    font-family: var(--font-hand-thin);
+    font-size: 17px;
+    color: var(--pencil);
+    line-height: 1.3;
+    max-width: 120px;
+  }
+  
+  .title-block .arrow-margin {
+    position: absolute;
+    right: 90px;
+    top: 45px;
+    color: var(--pencil);
+    font-size: 24px;
+    transform: rotate(-25deg);
+    font-family: var(--font-hand);
+  }
+  
+  /* === 段:track === */
+  .track {
+    margin-bottom: 48px;
+    position: relative;
+  }
+  
+  /* track number 大字,手写圈起来 */
+  .track-num {
+    position: absolute;
+    left: -68px;
+    top: -4px;
+    font-family: var(--font-hand);
+    font-size: 42px;
+    color: var(--redmark);
+    font-weight: 700;
+    transform: rotate(-3deg);
+  }
+  
+  .track-num::after {
+    content: '';
+    position: absolute;
+    top: -8px; left: -10px;
+    width: 60px; height: 60px;
+    border: 2px solid var(--redmark);
+    border-radius: 50%;
+    transform: rotate(8deg) scale(1.05, 0.95);
+    opacity: 0.7;
+  }
+  
+  .track-meta-row {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 8px;
+    font-family: var(--font-type);
+    font-size: 14px;
+    color: var(--ink);
+    flex-wrap: wrap;
+  }
+  
+  .track-meta-row .name {
+    font-size: 22px;
+    font-weight: bold;
+  }
+  
+  .track-meta-row .by {
+    color: var(--ink-faded);
+    font-size: 14px;
+  }
+  
+  .track-meta-row .timecode {
+    margin-left: auto;
+    color: var(--ink-faded);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+  }
+  
+  /* DJ 串场词 = 打字机打的正文 */
+  .dj-body {
+    font-family: var(--font-type);
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--ink);
+    margin-top: 24px;
+    letter-spacing: 0.01em;
+  }
+  
+  .dj-body p { margin-bottom: 12px; }
+  
+  /* 手写体覆盖在打字机文字上 —— 关键引语 */
+  .dj-body .quote-hand {
+    font-family: var(--font-hand);
+    font-size: 28px;
+    color: var(--redmark);
+    font-weight: 600;
+    display: inline-block;
+    transform: rotate(-1deg);
+    line-height: 1;
+    padding: 0 4px;
+  }
+  
+  /* 行间手写批注 */
+  .annotation {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .annotation::after {
+    content: attr(data-note);
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    font-family: var(--font-hand-thin);
+    font-size: 14px;
+    color: var(--pencil);
+    white-space: nowrap;
+    font-weight: 700;
+  }
+  
+  .annotation {
+    text-decoration: underline;
+    text-decoration-style: wavy;
+    text-decoration-color: var(--pencil);
+    text-underline-offset: 3px;
+  }
+  
+  /* 删除线(打字机式的 xxxx) */
+  .typed-strike {
+    color: var(--ink-faded);
+    position: relative;
+  }
+  
+  .typed-strike::after {
+    content: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    overflow: hidden;
+    color: var(--ink);
+    letter-spacing: -1px;
+  }
+  
+  /* === 听一耳朵 = 手画的方框按钮 === */
+  .play-box {
+    display: inline-block;
+    margin-top: 24px;
+    padding: 12px 20px;
+    border: none;
+    background: transparent;
+    color: var(--ink);
+    font-family: var(--font-hand);
+    font-size: 22px;
+    cursor: pointer;
+    position: relative;
+    transform: rotate(-0.8deg);
+  }
+  
+  .play-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2.5px solid var(--ink);
+    border-radius: 4px;
+    /* 手画感:不完全规则的边 */
+    transform: rotate(0.5deg);
+    box-shadow: 2px 2px 0 rgba(0,0,0,0.15);
+  }
+  
+  .play-box .arrow-hand {
+    display: inline-block;
+    margin-right: 8px;
+    transform: translateY(1px);
+  }
+  
+  .play-box:hover { transform: rotate(-0.4deg) translate(-1px, -1px); }
+  
+  /* === 底部批注栏 === */
+  .footnote-area {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px dashed var(--rule);
+    position: relative;
+  }
+  
+  .footnote-area .pin {
+    position: absolute;
+    top: -20px; left: 30%;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #d83a2a, #8a1808);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4), inset -1px -1px 2px rgba(0,0,0,0.3);
+  }
+  
+  .footnote-area .pin::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 6px; height: 6px;
+    background: rgba(255,180,160,0.8);
+    border-radius: 50%;
+    transform: translate(-130%, -130%);
+  }
+  
+  .footnote-area .fn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 32px;
+    font-family: var(--font-hand-thin);
+    font-size: 16px;
+    color: var(--ink-soft);
+    line-height: 1.4;
+  }
+  
+  .footnote-area .fn-grid .fn .k {
+    font-family: var(--font-type);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--ink-faded);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+  }
+  
+  /* === 下一张稿子 === */
+  .next-sheet {
+    text-align: center;
+    color: var(--paper);
+    font-family: var(--font-hand);
+    font-size: 24px;
+    margin-top: -40px;
+    margin-bottom: 80px;
+    opacity: 0.5;
+  }
+  
+  /* === sheet 二:放在第一张下面 + 偏一点 === */
+  .sheet-peek {
+    max-width: 720px;
+    margin: -120px auto 0;
+    background: var(--paper-deep);
+    padding: 40px 56px 60px;
+    transform: rotate(0.6deg);
+    opacity: 0.5;
+    position: relative;
+    z-index: -1;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    color: var(--ink-faded);
+    font-family: var(--font-type);
+    font-size: 14px;
+    min-height: 200px;
+  }
+  
+  @media (max-width: 640px) {
+    body { padding: 20px 12px; }
+    .sheet { padding: 48px 32px 60px; transform: none; }
+    .sheet::before { left: 25%; }
+    .title-block .h1 { font-size: 24px; }
+    .title-block .h2 { font-size: 28px; }
+    .title-block .note-margin { display: none; }
+    .title-block .arrow-margin { display: none; }
+    .track-num { left: 0; position: relative; display: block; margin-bottom: 8px; }
+    .track-num::after { width: 50px; height: 50px; }
+    .footnote-area .fn-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+
+  <div class="doc-header">
+    <div class="stamp">DRAFT</div>
+    <div class="row"><span class="label">PROGRAM</span><span>声音水系 · 深夜电台</span></div>
+    <div class="row"><span class="label">EPISODE</span><span>02 / JAZZ — 1899 - 1969</span></div>
+    <div class="row"><span class="label">DATE</span><span>2026 / / </span></div>
+    <div class="row"><span class="label">RUNTIME</span><span>~ 9 tracks · TBD</span></div>
+  </div>
+
+  <div class="title-block">
+    <div class="h1">
+      <span class="strike">Jazz 简史</span>
+    </div>
+    <div class="h1">Jazz 的 100 年:</div>
+    <div class="h2">这帮人就是不肯重复自己</div>
+    <div class="arrow-margin">↘</div>
+    <div class="note-margin">不是讲流派,是讲反叛</div>
+  </div>
+
+  <article class="track">
+    <div class="track-num">01</div>
+    <div class="track-meta-row">
+      <span class="name">KIND OF BLUE</span>
+      <span class="by">— Miles Davis · 1959</span>
+      <span class="timecode">[ 开篇 / 4'30" ]</span>
+    </div>
+
+    <div class="dj-body">
+      <p>1959 年 8 月 17 日,纽约 Columbia 录音棚。</p>
+      <p>Miles Davis 给六个乐手每人发了一张纸条,上面只写了几个调。<span class="quote-hand">"我们就这么吹"</span>——他说。</p>
+      <p>没有彩排,接下来这张专辑,就出自这次<span class="annotation" data-note="!!!">集体即兴</span>, <em>Kind of Blue</em>。</p>
+    </div>
+
+    <button class="play-box">
+      <span class="arrow-hand">▶</span>放一段 So What
+    </button>
+  </article>
+
+  <div class="footnote-area">
+    <div class="pin"></div>
+    <div class="fn-grid">
+      <div class="fn">
+        <div class="k">recorded</div>
+        1959.3.2 + 4.22
+      </div>
+      <div class="fn">
+        <div class="k">studio</div>
+        Columbia 30th Street
+      </div>
+      <div class="fn">
+        <div class="k">sextet</div>
+        Miles · Coltrane · Adderley<br>Evans · Chambers · Cobb
+      </div>
+      <div class="fn">
+        <div class="k">takes</div>
+        多数 first take 即过
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="next-sheet">↓ 下一张稿子 · track 02 · ragtime ↓</div>
+
+<div class="sheet-peek">
+  <div class="row" style="border-bottom: 1px solid var(--ink-faded); padding-bottom: 8px; margin-bottom: 16px;">
+    <span style="letter-spacing: 0.15em; font-size: 11px;">TRACK 02 / 09 — ragtime — 1899</span>
+  </div>
+  <p style="margin-top: 12px;">[ 下一段工作稿正在准备... ]</p>
+</div>
+
+</body>
+</html>

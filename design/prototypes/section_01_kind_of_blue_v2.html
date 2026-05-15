@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段 1 · Kind of Blue · 1959 · v2 文章版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0b1018;
+    --night-deep: #060a12;
+    --ivory: #ede5d2;
+    --ivory-soft: rgba(237, 229, 210, 0.78);
+    --ivory-fade: rgba(237, 229, 210, 0.34);
+    --paper: #e6dec6;
+    --paper-edge: #cfc4a4;
+    --paper-shadow: rgba(0, 0, 0, 0.55);
+    --gold: #b29659;
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--night); }
+
+  body {
+    background:
+      radial-gradient(ellipse 1100px 700px at 50% 26%, #131a23 0%, var(--night) 65%, var(--night-deep) 100%);
+    min-height: 100vh;
+    color: var(--ivory);
+    font-family: var(--font-serif);
+    overflow-x: hidden;
+    padding-bottom: 80px;
+    position: relative;
+  }
+
+  .top-marker {
+    position: absolute;
+    top: 32px;
+    left: 56px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--ivory-fade);
+  }
+
+  .stage {
+    min-height: 100vh;
+    position: relative;
+    padding: 76px 48px 60px;
+  }
+
+  /* —— 视觉本体:6 张纸条(本段的形式呼应) —— */
+  .slips {
+    position: relative;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto 56px;
+    height: 280px;
+  }
+
+  .slip {
+    position: absolute;
+    width: 144px;
+    padding: 18px 16px 18px;
+    background: linear-gradient(180deg, var(--paper) 0%, var(--paper-edge) 100%);
+    color: #2a2418;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.5;
+    letter-spacing: 0.06em;
+    box-shadow:
+      0 22px 36px var(--paper-shadow),
+      0 8px 14px rgba(0,0,0,0.4),
+      0 1px 0 rgba(255,250,235,0.35) inset;
+    transform-origin: center;
+  }
+
+  .slip .who {
+    font-family: var(--font-serif);
+    font-size: 13px;
+    color: #1a1610;
+    margin-bottom: 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .slip .mark {
+    color: #6a5b3e;
+    letter-spacing: 0.3em;
+    font-size: 10px;
+  }
+
+  .slip:nth-child(1) { top: 8px;   left: 2%;   transform: rotate(-5deg); }
+  .slip:nth-child(2) { top: 40px;  left: 22%;  transform: rotate(2.5deg); }
+  .slip:nth-child(3) { top: 4px;   left: 42%;  transform: rotate(-1.5deg); }
+  .slip:nth-child(4) { top: 46px;  left: 62%;  transform: rotate(3.8deg); }
+  .slip:nth-child(5) { top: 150px; left: 12%;  transform: rotate(1.5deg); }
+  .slip:nth-child(6) { top: 162px; left: 50%;  transform: rotate(-3.2deg); }
+
+  .date-stamp {
+    text-align: center;
+    margin: 0 auto 64px;
+    font-family: var(--font-mono);
+    color: var(--ivory-fade);
+    font-size: 12px;
+    letter-spacing: 0.42em;
+  }
+
+  /* —— 文章主体:左对齐流式散文,杂志内文密度 —— */
+  .article {
+    max-width: 640px;
+    margin: 0 auto;
+    color: var(--ivory);
+    font-size: 17px;
+    line-height: 1.75;
+    letter-spacing: 0.01em;
+    text-align: left;
+  }
+  .article > p {
+    margin-bottom: 1em;
+  }
+  .article em {
+    font-style: italic;
+    color: var(--ivory);
+  }
+  .article strong {
+    font-weight: 500;
+    color: var(--ivory);
+  }
+
+  /* —— blockquote:段尾的金句,左侧金线 + 缩进 + italic + 归属 —— */
+  .article blockquote {
+    margin: 1.8em 0 0.8em;
+    padding-left: 24px;
+    border-left: 2px solid var(--gold);
+    font-style: italic;
+    font-size: 19px;
+    line-height: 1.6;
+    color: var(--ivory);
+  }
+  .article blockquote cite {
+    display: block;
+    margin-top: 8px;
+    font-style: normal;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--ivory-fade);
+  }
+  .article blockquote cite::before { content: '— '; }
+
+  /* —— 段尾收束 —— */
+  .article > p:last-child {
+    margin-top: 1.4em;
+  }
+
+  /* —— 回到鼓面 —— */
+  .back {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--ivory-fade);
+    text-decoration: none;
+  }
+  .back:hover { color: var(--ivory); }
+
+  .next {
+    position: fixed; bottom: 24px; right: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: var(--ivory-fade);
+    text-decoration: none;
+    text-align: right;
+  }
+  .next:hover { color: var(--ivory); }
+
+</style>
+</head>
+<body>
+
+<div class="top-marker">SECTION 01 · KIND OF BLUE · 1959</div>
+
+<div class="stage">
+
+  <div class="slips">
+    <div class="slip"><div class="who">MILES</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">COLTRANE</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">CANNONBALL</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">BILL EVANS</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">PAUL CHAMBERS</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">JIMMY COBB</div><div class="mark">— · — · —</div></div>
+  </div>
+
+  <div class="date-stamp">1959 · 08 · 17 &nbsp;&nbsp;&nbsp; COLUMBIA STUDIO &nbsp;&nbsp;&nbsp; NEW YORK</div>
+
+  <div class="article">
+    <p>1959 年 8 月 17 日,纽约 Columbia 录音棚。Miles Davis 召集了一支六人乐队——John Coltrane、Cannonball Adderley、Bill Evans、Paul Chambers、Jimmy Cobb——录一张专辑叫 <em>Kind of Blue</em>。</p>
+
+    <p>录音前,Miles 没排练,没写完整谱子。他<strong>只发给每个乐手一张纸条</strong>,上面写着几个调和大概的节奏方向。"我们就这么吹。"他说。</p>
+
+    <p>整张专辑 5 首歌,<strong>每一首都是一遍过</strong>。没有彩排,没有第二条录音。Bill Evans 后来回忆:那种感觉就像六个人坐进一间黑屋子,每个人手里有一支蜡烛,一边走一边互相看见对方在哪儿。</p>
+
+    <p><em>Kind of Blue</em> 后来成为<strong>爵士史上销量最高的专辑</strong>——它甚至被全世界很多不听爵士的人买回家放着。</p>
+
+    <p>但你如果问 Miles 为什么要这样录,他不会跟你聊销量、也不会聊艺术理念。他会说一句很简单的话——</p>
+
+    <blockquote>
+      上一代爵士的规矩太紧了。我得松一松。
+      <cite>Miles Davis</cite>
+    </blockquote>
+  </div>
+
+</div>
+
+<a class="back" href="snare_dial_v5.html">← 回到鼓面</a>
+<a class="next" href="section_02_ragtime_v2.html">下一段 · 1899 · RAGTIME →</a>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  const SECTION_ID = 'modal';
+  try { window.parent.postMessage({ type: 'section-shown', sectionId: SECTION_ID }, '*'); } catch (e) {}
+  const back = document.querySelector('.back');
+  if (back) back.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'close-overlay' }, '*'); } catch (e2) {}
+  });
+})();
+</script>
+
+</body>
+</html>

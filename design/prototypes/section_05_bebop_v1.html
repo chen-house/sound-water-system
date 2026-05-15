@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段 5 · Bebop · 1945 · 形式呼应内容 v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #050505;
+    --black-deep: #000;
+    --white: #f4f1ec;
+    --white-soft: rgba(244, 241, 236, 0.6);
+    --white-fade: rgba(244, 241, 236, 0.3);
+    --red: #e63b0e;
+
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--black); }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+    position: relative;
+  }
+
+  .top-marker {
+    position: absolute;
+    top: 40px;
+    left: 56px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--white-fade);
+  }
+
+  /* —— 入口:克制的时间地点 + DJ 串场词,慢慢起势 —— */
+  .entry {
+    padding: 110px 56px 0;
+    text-align: center;
+  }
+  .where {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.42em;
+    color: var(--white-fade);
+    margin-bottom: 48px;
+  }
+  /* Layer A · DJ 串场 */
+  .dj-pre {
+    max-width: 580px;
+    margin: 0 auto 0;
+    text-align: center;
+    color: var(--white-soft);
+    font-family: var(--font-serif);
+    font-size: 19px;
+    line-height: 1.65;
+    letter-spacing: 0.02em;
+  }
+  .dj-pre p { margin-bottom: 1.2em; }
+  .dj-pre em { font-style: italic; color: var(--white); }
+  .dj-pre strong { font-weight: 500; color: var(--white); }
+
+  .transition {
+    text-align: center;
+    margin: 72px auto 56px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.42em;
+    color: var(--white-fade);
+  }
+  .transition::after {
+    content: '';
+    display: block;
+    width: 14px;
+    height: 2px;
+    background: var(--red);
+    margin: 28px auto 0;
+  }
+
+  /* —— 撞击区:文字密度突变 3 倍 —— */
+  .wall {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 24px 0;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.4;
+    letter-spacing: -0.003em;
+    color: var(--white);
+    column-count: 3;
+    column-gap: 32px;
+    column-rule: 1px solid rgba(244,241,236,0.08);
+    text-align: left;
+  }
+  .wall p {
+    margin-bottom: 0.9em;
+    break-inside: avoid-column;
+  }
+  .wall em {
+    font-style: normal;
+    color: var(--red);
+    font-weight: 500;
+  }
+  .wall strong {
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  /* —— 沉默 —— */
+  .silence-1 { height: 180px; }
+  .silence-2 { height: 120px; }
+
+  /* Layer B · 命令式单句(重锤) */
+  .command {
+    max-width: 880px;
+    margin: 0 auto;
+    text-align: center;
+    font-family: var(--font-serif);
+    font-weight: 300;
+    font-size: 32px;
+    line-height: 1.4;
+    letter-spacing: 0.04em;
+    color: var(--white);
+    padding: 0 32px;
+    text-wrap: balance;
+  }
+  .command::after {
+    content: '';
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: var(--red);
+    margin: 56px auto 0;
+  }
+
+  /* —— 余震:Ko-Ko 名字与一行注脚 —— */
+  .aftershock {
+    max-width: 580px;
+    margin: 0 auto;
+    text-align: center;
+    color: var(--white-soft);
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.55;
+    letter-spacing: 0.02em;
+  }
+  .aftershock p { margin-bottom: 0.8em; }
+  .aftershock em { font-style: italic; color: var(--white); }
+
+  /* —— 和我说话的人 —— */
+  .converse {
+    max-width: 920px;
+    margin: 100px auto 0;
+    border-top: 1px solid rgba(244,241,236,0.1);
+    padding: 44px 24px 0;
+  }
+  .converse-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.38em;
+    color: var(--white-fade);
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .converse-row {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .neighbor {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    color: var(--white-soft);
+    padding: 22px 28px;
+    border: 1px solid rgba(244,241,236,0.14);
+    min-width: 200px;
+    transition: border-color 0.4s, color 0.4s;
+  }
+  .neighbor:hover { color: var(--white); border-color: var(--red); }
+  .neighbor .rel {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--white-fade);
+    margin-bottom: 10px;
+  }
+  .neighbor .name { font-family: var(--font-serif); font-size: 15px; letter-spacing: 0.04em; }
+
+  .back {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--white-fade);
+    text-decoration: none;
+  }
+  .back:hover { color: var(--white); }
+
+</style>
+</head>
+<body>
+
+<div class="top-marker">SECTION 05 · BEBOP · KO-KO</div>
+
+<div class="entry">
+
+  <div class="where">1945 &nbsp;&nbsp; NEW YORK · 52ND STREET &nbsp;&nbsp; THREE DEUCES</div>
+
+  <div class="dj-pre">
+    <p>1945 年。纽约 52 街,一家叫 Three Deuces 的小俱乐部。</p>
+    <p>Charlie Parker 上台,没说话,直接吹了第一个音。</p>
+    <p>跳舞的人在地板上停下了。</p>
+    <p><strong>他们听不懂这是什么。</strong></p>
+  </div>
+
+  <div class="transition">下面是这帮人在干的事</div>
+
+  <div class="wall">
+    <p>二战结束。一群年轻爵士手从战场回来,对 swing 已经不耐烦了。</p>
+    <p>他们觉得 swing 太<strong>商业化</strong>——每首歌都是给跳舞的人写的,长度被卡死,独奏空间被卡死,和声被卡死。爵士成了一个为了让别人跳舞而存在的工业。</p>
+    <p>这群年轻人里最重要的两个:<strong>Charlie Parker</strong>(萨克斯)和 <strong>Dizzy Gillespie</strong>(小号)。1940 到 1942 年,他们每周晚上聚在纽约 Harlem 一家叫 <strong>Minton's Playhouse</strong> 的小酒吧。</p>
+    <p>他们在 swing 标准曲的和声基础上,<em>用三倍的速度演奏</em>。</p>
+    <p>他们在原本的和弦上<em>叠上更复杂的扩展和弦</em>——9 度、11 度、13 度。</p>
+    <p>他们在每一拍上<em>塞进 4 到 8 个音符</em>——快得让大多数舞者跟不上。</p>
+    <p>bebop 故意<strong>反舞曲</strong>。它不是给人跳舞的,是给人坐着听的。</p>
+    <p>爵士第一次从"流行音乐"变成"艺术音乐"——它要求听众<strong>专心听</strong>,而不是<strong>用身体感受</strong>。</p>
+    <p>bebop 的代表作里,<strong>Charlie Parker 1945 年录的 Ko-Ko</strong>——主旋律快得像机关枪,所有的乐句都在 swing 听众听不懂的位置上拐弯。</p>
+    <p>第一次听这首歌的人很多都<em>生气了</em>——他们觉得这不是爵士,这是噪音。</p>
+    <p>但下一代爵士手听了之后,<strong>全部跪下了</strong>。</p>
+  </div>
+
+  <div class="silence-1"></div>
+
+  <div class="command">建议你先坐下来。</div>
+
+  <div class="silence-2"></div>
+
+  <div class="aftershock">
+    <p>接下来这首,叫 <em>Ko-Ko</em>。</p>
+  </div>
+
+</div>
+
+<a class="back" href="snare_dial_v4.html">← 回到鼓面</a>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  const SECTION_ID = 'bebop';
+  try { window.parent.postMessage({ type: 'section-shown', sectionId: SECTION_ID }, '*'); } catch (e) {}
+  const back = document.querySelector('.back');
+  if (back) back.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'close-overlay' }, '*'); } catch (e2) {}
+  });
+})();
+</script>
+
+</body>
+</html>

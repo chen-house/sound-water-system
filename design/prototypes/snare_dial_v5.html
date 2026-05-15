@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>声音水系 · Jazz · v5 主页(鼓面 + DJ 串场 + Spotify)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #ede5d2;
+    --cream-deep: #e3d9bf;
+    --head: #f7f2e3;
+    --head-edge: #d0c4a4;
+    --rim: #9da3a8;
+    --rim-bright: #c8ced1;
+    --rim-shadow: #2a2d30;
+    --rim-deep: #5a6063;
+    --ink: #3a342a;
+    --ink-soft: rgba(58, 52, 42, 0.66);
+    --ink-fade: rgba(58, 52, 42, 0.38);
+    --ink-faint: rgba(58, 52, 42, 0.30);
+    --leader: rgba(58, 52, 42, 0.18);
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--cream); height: 100vh; overflow: hidden; }
+  body {
+    color: var(--ink);
+    font-family: var(--font-serif);
+    display: grid;
+    grid-template-columns: 1fr 20px 1fr;  /* 鼓盘 / 唱片侧脊 / 段落面板 */
+    position: relative;
+    transition: grid-template-columns 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  /* —— 封面态:鼓盘扩到左侧大部分,段落面板折叠到 0,通道条仍在 —— */
+  body.cover {
+    grid-template-columns: 1fr 20px 0fr;
+  }
+
+  /* —— 左侧:鼓面 —— */
+  .stage {
+    height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 24px;
+    position: relative;
+  }
+  .dial-wrap {
+    width: 100%;
+    max-width: 640px;       /* 把鼓盘的最大尺寸压住,封面 → 展开时不剧烈缩小 */
+    margin: 0 auto;
+    transition: max-width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  /* 封面态可以让鼓盘略放大一点,有个小喘气感 */
+  body.cover .dial-wrap { max-width: 720px; }
+  .dial { display: block; width: 100%; height: auto; outline: none; }
+  .dial:focus-visible {
+    outline: 1px dashed var(--ink-fade);
+    outline-offset: 6px;
+    border-radius: 8px;
+  }
+
+  /* —— 右侧:DJ 面板 —— */
+  .dj-panel {
+    height: 100vh;
+    overflow-y: auto;
+    padding: 80px 56px;
+    background: var(--cream);
+    transition: opacity 0.4s ease;
+    min-width: 0;
+  }
+  body.cover .dj-panel {
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* —— 中间分隔条:LP 唱片套侧脊,内含一张唱片(封面态藏在套内,打开态浮出半截) —— */
+  .dj-strip {
+    height: 100vh;
+    position: relative;
+    background: linear-gradient(90deg,
+      #b89e6c 0%,
+      #cdb88a 30%,
+      #cdb88a 70%,
+      #b89e6c 100%);
+    /* 套的四条边:上下边线 + 左右两道暗影,做出"纸板侧脊"的厚度感 */
+    box-shadow:
+      inset 0  1px 0 rgba(58, 52, 42, 0.32),
+      inset 0 -1px 0 rgba(58, 52, 42, 0.32),
+      inset  1px 0 0 rgba(58, 52, 42, 0.18),
+      inset -1px 0 0 rgba(58, 52, 42, 0.18);
+    overflow: visible;
+  }
+  /* 唱片本体:52px 黑胶 + 中央红色 label。比 20px 套宽,左右各超出 16px */
+  /* 位置:正好在右面 h3 标题(约 y=109)上方,和它"对齐"作为开篇标记 */
+  .vinyl-peek {
+    position: absolute;
+    left: 50%;
+    top: 56px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle at center,
+      #c1463a 0%,
+      #c1463a 14%,
+      #1a1410 14%,
+      #1a1410 16%,
+      #0a0608 100%);
+    box-shadow:
+      0 4px 10px rgba(0, 0, 0, 0.45),
+      inset 0 0 6px rgba(0, 0, 0, 0.4);
+    /* 封面态:藏在套内 + 完全透明,看不到 */
+    transform: translate(-50%, 22px);
+    opacity: 0;
+    transition:
+      opacity 0.5s ease,
+      transform 0.8s cubic-bezier(0.2, 0.85, 0.25, 1);
+  }
+  /* 打开态:浮出 + 完全可见 */
+  body:not(.cover) .vinyl-peek {
+    transform: translate(-50%, -8px);
+    opacity: 1;
+  }
+  /* (旧 channel strip 子元素 CSS 已删,等定方向后再加) */
+
+  .dj-block {
+    display: none;
+    max-width: 480px;
+    margin: 0 auto;
+    animation: fadein 0.4s ease;
+  }
+  .dj-block.active { display: block; }
+
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .dj-block .meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.34em;
+    color: var(--ink-fade);
+    margin-bottom: 12px;
+  }
+  .dj-block h3 {
+    font-family: var(--font-serif);
+    font-size: 30px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 32px;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+  }
+  .dj-block .dj-text p {
+    font-family: var(--font-serif);
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--ink);
+    margin-bottom: 1em;
+  }
+  .dj-block .dj-text strong {
+    font-weight: 500;
+    color: #000;
+  }
+  .dj-block .dj-text em {
+    font-style: italic;
+  }
+
+  /* —— Spotify 嵌入 —— */
+  .audio-block {
+    margin: 32px 0 24px;
+  }
+  .audio-block .audio-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--ink-fade);
+    margin-bottom: 10px;
+  }
+  .audio-block iframe {
+    width: 100%;
+    height: 80px;
+    border: none;
+    border-radius: 8px;
+  }
+  .audio-block .audio-todo {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-fade);
+    padding: 16px;
+    border: 1px dashed rgba(58, 52, 42, 0.28);
+    border-radius: 8px;
+    line-height: 1.5;
+  }
+
+  /* —— 读全文按钮 —— */
+  .open-article {
+    display: inline-block;
+    padding: 12px 28px;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    text-decoration: none;
+    font-family: var(--font-serif);
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+  }
+  .open-article:hover {
+    background: var(--ink);
+    color: var(--cream);
+  }
+  .open-article::after {
+    content: '  →';
+    margin-left: 4px;
+  }
+
+  /* —— SVG 内样式 —— */
+  .disc-base { fill: var(--head); }
+  .disc-grain { fill: #2b2418; }   /* 仅作为 filter 输入参照,实际由 turbulence 注入 */
+  .rim-hoop { fill: none; stroke: url(#rim-grad); stroke-width: 12; }
+  .rim-inner-shade { fill: none; stroke: var(--rim-deep); stroke-width: 1.2; opacity: 0.55; }
+  .rim-outer-shade { fill: none; stroke: var(--rim-deep); stroke-width: 1.2; opacity: 0.5; }
+  .bearing-edge { fill: none; stroke: var(--head-edge); stroke-width: 0.6; opacity: 0.7; }
+  /* —— 张力杆螺丝(方形铆头 + 金属反光,代替之前的小圆点)—— */
+  .rod {
+    fill: url(#bolt-grad);
+    stroke: rgba(0, 0, 0, 0.45);
+    stroke-width: 0.4;
+    transition: filter 0.25s;
+  }
+  .rod-socket {
+    fill: url(#socket-grad);
+    stroke: rgba(0, 0, 0, 0.7);
+    stroke-width: 0.3;
+    pointer-events: none;
+  }
+
+  /* —— 鼓棒:立体木杆 + 棒头 + 投影,常驻可见 —— */
+  .stick-shadow {
+    fill: rgba(0, 0, 0, 0.18);
+  }
+  .stick-shaft {
+    fill: url(#stick-grad);
+    stroke: rgba(0, 0, 0, 0.3);
+    stroke-width: 0.4;
+  }
+  .stick-tip {
+    fill: url(#tip-grad);
+    stroke: rgba(0, 0, 0, 0.4);
+    stroke-width: 0.4;
+  }
+  .stick-highlight {
+    stroke: rgba(250, 225, 185, 0.5);
+    stroke-width: 1;
+    stroke-linecap: round;
+    pointer-events: none;
+  }
+  .needle { stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
+  .needle-tip { fill: var(--ink); }
+  .leader { stroke: var(--leader); stroke-width: 0.6; }
+  /* —— 标签:海报式两行排,年份在上(小,细),流派名在下(大,正) —— */
+  .label {
+    font-family: var(--font-serif);
+    fill: var(--ink);
+    transition: fill 0.25s;
+  }
+  .label-year {
+    font-family: var(--font-serif);
+    font-size: 14px;
+    font-weight: 300;
+    font-feature-settings: "lnum";
+    letter-spacing: 0.32em;
+    fill: var(--ink-soft);
+    transition: fill 0.25s;
+  }
+  .label-name {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    fill: var(--ink);
+    transition: fill 0.25s;
+  }
+  .label-name.cn {
+    letter-spacing: 0.06em;
+    font-size: 28px;
+    font-weight: 500;
+  }
+  .label-name.compound {
+    font-size: 22px;
+    letter-spacing: 0;
+  }
+  .notch-hit { fill: transparent; cursor: pointer; }
+  .notch-group:hover .rod { filter: brightness(1.5); }
+  .notch-group:hover .label-year { fill: #000; }
+  .notch-group:hover .label-name { fill: #000; }
+  .notch-group.current .rod { filter: brightness(1.3); }
+  .notch-group.current .label-year { fill: #000; font-weight: 600; }
+  .notch-group.current .label-name { fill: #000; }
+
+  /* —— 鼓皮牌子:JAZZ 大写居中 + 年份在右下角 —— */
+  .brand-jazz {
+    font-family: var(--font-serif);
+    font-size: 48px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    fill: var(--ink-faint);
+    text-anchor: middle;
+  }
+  .brand-years {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 0.24em;
+    fill: var(--ink-faint);
+    text-anchor: end;
+  }
+
+  /* —— 鼓棒可拖 & CSS-driven 旋转 / 封面态贴在 ragtime 旁 —— */
+  #stick-group {
+    transform-origin: 400px 400px;
+    /* 磁头感 ease curve:开始时被磁力拉得快,接近槽位时速度强烈衰减"贴上"去 */
+    transition: transform 0.55s cubic-bezier(0.2, 0.85, 0.25, 1);
+  }
+  body.is-dragging #stick-group { transition: none; }
+  #stick-hit { cursor: grab; }
+  body.is-dragging,
+  body.is-dragging #stick-hit { cursor: grabbing; }
+  body.is-dragging .notch-group { cursor: default; }
+  /* 封面态:鼓棒搁在鼓的右下方,可点击进入 */
+  body.cover #stick-hit { cursor: grab; }
+  body.cover #stick-group:hover { filter: brightness(1.08); }
+  /* overlay 打开 → 左面鼓盘锁住:鼠标提示不可拖,所有 hit 区不响应 */
+  body.overlay-open #stick-hit,
+  body.overlay-open .notch-hit { cursor: default; pointer-events: none; }
+
+  /* (cover-hint 文字已删 — 让位置自己讲故事:鼓棒悬在 ragtime 旁,自然让人想"拿起来贴上") */
+
+  .hint {
+    margin-top: 56px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.34em;
+    color: var(--ink-fade);
+    text-align: center;
+  }
+  .hint .sep { color: rgba(58,52,42,0.18); margin: 0 14px; }
+
+  .design-note {
+    max-width: 720px;
+    margin: 200px auto 0;
+    padding: 32px 40px;
+    border: 1px dashed rgba(58, 52, 42, 0.28);
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 2;
+    letter-spacing: 0.04em;
+  }
+  .design-note b { color: var(--ink); font-weight: 500; }
+
+  /* —— 悬浮层(打开段落 article 时,iframe 覆盖右侧 dj-panel) —— */
+  body.overlay-open .dj-panel { visibility: hidden; }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 0;
+    z-index: 100;
+    background: var(--cream);
+    overflow: hidden;
+    pointer-events: none;
+    transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 1px solid rgba(58, 52, 42, 0.18);
+    box-shadow: -12px 0 36px rgba(0, 0, 0, 0.06);
+  }
+  body.overlay-open .overlay {
+    width: 50vw;
+    pointer-events: auto;
+  }
+  .overlay iframe {
+    position: absolute;
+    top: 0; right: 0;
+    width: 50vw;
+    height: 100%;
+    border: none;
+    background: transparent;
+    display: block;
+  }
+  #overlay-close {
+    position: fixed;
+    top: 28px; right: 28px;
+    z-index: 1001;
+    width: 38px; height: 38px;
+    background: rgba(237, 229, 210, 0.94);
+    color: var(--ink);
+    border: 1px solid rgba(58, 52, 42, 0.28);
+    border-radius: 50%;
+    font-family: var(--font-mono);
+    font-size: 22px;
+    line-height: 32px;
+    text-align: center;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.2s ease, border-color 0.2s ease;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  body.overlay-open #overlay-close {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #overlay-close:hover { transform: scale(1.06); border-color: var(--ink); }
+
+  /* 悬浮打开时把右上 status 让出来给段落 */
+  body.overlay-open .top-right { opacity: 0.4; transition: opacity 0.4s ease; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+<div class="dial-wrap">
+
+<svg id="dial-svg" class="dial" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg"
+     tabindex="0" role="application"
+     aria-label="军鼓鼓面 · Jazz 时间表盘 · 1899-1969">
+
+  <defs>
+    <!-- 张力杆螺丝头:深金属色,上方一道光 -->
+    <linearGradient id="bolt-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#4a4e52"/>
+      <stop offset="40%"  stop-color="#1f2226"/>
+      <stop offset="100%" stop-color="#0a0c10"/>
+    </linearGradient>
+
+    <!-- 鼓棒木杆:沿轴线的光影,模拟圆柱体反光 -->
+    <linearGradient id="stick-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#a8855a"/>
+      <stop offset="45%"  stop-color="#7a5532"/>
+      <stop offset="100%" stop-color="#3a2818"/>
+    </linearGradient>
+
+    <!-- 棒头:深木色球体,从左上向右下渐深 -->
+    <radialGradient id="tip-grad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%"   stop-color="#8a6438"/>
+      <stop offset="60%"  stop-color="#4a3018"/>
+      <stop offset="100%" stop-color="#1f1308"/>
+    </radialGradient>
+
+    <!-- 螺丝钥匙口:中央方形凹槽,自上而下渐深 -->
+    <linearGradient id="socket-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#000000"/>
+      <stop offset="100%" stop-color="#1c1f22"/>
+    </linearGradient>
+
+    <!-- 轮箍内阴影:压窄到仅靠近边的一道暗带(原来 15% 太宽,挤压了内圈) -->
+    <radialGradient id="head-inner-shadow" cx="400" cy="400" r="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="rgba(0,0,0,0)"/>
+      <stop offset="92%"  stop-color="rgba(0,0,0,0)"/>
+      <stop offset="100%" stop-color="rgba(20,15,10,0.35)"/>
+    </radialGradient>
+
+    <!-- 镀铬轮箍渐变:上亮下暗,模拟光从上方打下来的反光 -->
+    <linearGradient id="rim-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#c8ced1"/>
+      <stop offset="35%"  stop-color="#9da3a8"/>
+      <stop offset="65%"  stop-color="#7a8084"/>
+      <stop offset="100%" stop-color="#5a6063"/>
+    </linearGradient>
+
+    <!-- 鼓皮投影:轻得几乎看不见,只锚住鼓在桌面上 -->
+    <filter id="drum-shadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="b"/>
+      <feOffset in="b" dx="0" dy="2.5" result="o"/>
+      <feComponentTransfer in="o" result="f">
+        <feFuncA type="linear" slope="0.10"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="f"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- 涂层颗粒:Remo Coated Ambassador 的磨砂感,但克制到几乎不夸张 -->
+    <filter id="coated-grain" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="2.4" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix"
+        values="0 0 0 0 0.16
+                0 0 0 0 0.14
+                0 0 0 0 0.11
+                0.22 0.22 0.22 0 0" result="grain"/>
+      <feComposite in="grain" in2="SourceGraphic" operator="in"/>
+    </filter>
+
+    <clipPath id="head-clip">
+      <circle cx="400" cy="400" r="180"/>
+    </clipPath>
+  </defs>
+
+  <!-- 鼓皮:白色磨砂涂层 + 极淡阴影 -->
+  <g filter="url(#drum-shadow)">
+    <circle class="disc-base" cx="400" cy="400" r="180"/>
+  </g>
+
+  <!-- 颗粒层:用 filter 注入,clip 到圆内 -->
+  <g clip-path="url(#head-clip)">
+    <rect x="220" y="220" width="360" height="360" filter="url(#coated-grain)" fill="#2b2418"/>
+  </g>
+
+  <!-- 鼓皮内阴影:轮箍突出于鼓皮,鼓皮靠近边的位置被压暗一圈 -->
+  <circle cx="400" cy="400" r="180" fill="url(#head-inner-shadow)"/>
+
+  <!-- 鼓边 —— 金属轮箍 + 内外暗带 + 鼓皮 bearing edge 极淡高光 -->
+  <circle class="rim-hoop"        cx="400" cy="400" r="186"/>
+  <circle class="rim-inner-shade" cx="400" cy="400" r="180.6"/>
+  <circle class="rim-outer-shade" cx="400" cy="400" r="191.4"/>
+  <circle class="bearing-edge"    cx="400" cy="400" r="179.4"/>
+
+  <!-- 轮箍外阴影:轮箍突出于桌面,在桌面上投一圈淡阴影 -->
+  <circle cx="400" cy="400" r="195" fill="none" stroke="rgba(0,0,0,0.16)" stroke-width="3"/>
+  <circle cx="400" cy="400" r="197.5" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="2"/>
+
+  <!-- 牌子:JAZZ 居中 + 年份在右下角 -->
+  <g class="brand">
+    <text class="brand-jazz" x="400" y="318">JAZZ</text>
+    <text class="brand-years" x="488" y="340">1899 — 1969</text>
+  </g>
+
+  <!-- 鼓棒:150px 立体木杆 + 棒头 + 投影。transform 由 JS 设 inline style 控制(便于 CSS transition)。 -->
+  <g id="stick-group">
+    <ellipse class="stick-shadow" cx="665" cy="412" rx="78" ry="3.8"/>
+    <polygon class="stick-shaft" points="744,393 744,407 590,403 590,397"/>
+    <circle class="stick-tip" cx="586" cy="400" r="8"/>
+    <line class="stick-highlight" x1="738" y1="396" x2="594" y2="398.5"/>
+    <rect id="stick-hit" x="585" y="385" width="170" height="30" rx="3" fill="transparent"/>
+  </g>
+
+  <!-- —— 9 个张力杆 + 标签 —— -->
+
+  <!-- 1. 1899 Ragtime · θ=230° -->
+  <a xlink:href="section_02_ragtime_v2.html">
+  <g class="notch-group current" data-event="ragtime">
+    <rect class="rod" x="267.9" y="243.3" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="269.65" y="245.05" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="248.9" y="220" text-anchor="end">1899</text>
+    <text class="label-name" x="230.9" y="248" text-anchor="end">Ragtime</text>
+    <rect class="notch-hit" x="148" y="218" width="150" height="50"/>
+  </g>
+  </a>
+
+  <!-- 2. 1925 新奥尔良 · θ=170° -->
+  <a xlink:href="section_03_new_orleans_v2.html">
+  <g class="notch-group" data-event="new-orleans">
+    <rect class="rod" x="199.5" y="431.3" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="201.25" y="433.05" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="168.5" y="440.9" text-anchor="end">1925</text>
+    <text class="label-name cn" x="150.5" y="468.9" text-anchor="end">新奥尔良</text>
+    <rect class="notch-hit" x="80" y="418" width="140" height="50"/>
+  </g>
+  </a>
+
+  <!-- 3. 1937 Swing · θ=115° -->
+  <a xlink:href="section_04_swing_v2.html">
+  <g class="notch-group" data-event="swing">
+    <rect class="rod" x="311.9" y="577.7" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="313.65" y="579.45" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="272.7" y="613" text-anchor="middle">1937</text>
+    <text class="label-name" x="272.7" y="641" text-anchor="start">Swing</text>
+    <rect class="notch-hit" x="240" y="582" width="130" height="50"/>
+  </g>
+  </a>
+
+  <!-- 4. 1945 Bebop · θ=75° -->
+  <a xlink:href="section_05_bebop_v2.html">
+  <g class="notch-group" data-event="bebop">
+    <rect class="rod" x="448.3" y="589.7" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="450.05" y="591.45" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="488.8" y="627" text-anchor="middle">1945</text>
+    <text class="label-name" x="488.8" y="655" text-anchor="start">Bebop</text>
+    <rect class="notch-hit" x="395" y="595" width="130" height="50"/>
+  </g>
+  </a>
+
+  <!-- 5. 1949—58 Cool / Hard Bop · θ=30° · 合并(原文是一节) -->
+  <a xlink:href="section_06_cool_hardbop_v2.html">
+  <g class="notch-group" data-event="cool">
+    <rect class="rod" x="569.7" y="496.5" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="571.45" y="498.25" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="603.5" y="517.5" text-anchor="start">1949—58</text>
+    <text class="label-name compound" x="621.5" y="545.5" text-anchor="start">Cool / Hard Bop</text>
+    <rect class="notch-hit" x="585" y="500" width="180" height="58"/>
+  </g>
+  </a>
+
+  <!-- 7. 1959 Modal · θ=0° · DEFAULT -->
+  <a xlink:href="section_07_modal_v2.html">
+  <g class="notch-group" data-event="modal">
+    <rect class="rod" x="596.5" y="396.5" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="598.25" y="398.25" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="635" y="400" text-anchor="start">1959</text>
+    <text class="label-name" x="653" y="428" text-anchor="start">Modal</text>
+    <rect class="notch-hit" x="612" y="380" width="220" height="50"/>
+  </g>
+  </a>
+
+  <!-- 8. 1959 Free Jazz · θ=345° -->
+  <a xlink:href="section_08_free_jazz_v2.html">
+  <g class="notch-group" data-event="free">
+    <rect class="rod" x="589.7" y="344.7" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="591.45" y="346.45" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="627" y="339.2" text-anchor="start">1959</text>
+    <text class="label-name" x="645" y="367.2" text-anchor="start">Free Jazz</text>
+    <rect class="notch-hit" x="605" y="325" width="150" height="50"/>
+  </g>
+  </a>
+
+  <!-- 9. 1969 Fusion · θ=310° -->
+  <a xlink:href="section_09_fusion_v2.html">
+  <g class="notch-group" data-event="fusion">
+    <rect class="rod" x="525.1" y="243.3" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="526.85" y="245.05" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="541.4" y="212" text-anchor="start">1969</text>
+    <text class="label-name" x="559.4" y="240" text-anchor="start">Fusion</text>
+    <rect class="notch-hit" x="533" y="218" width="140" height="50"/>
+  </g>
+  </a>
+
+
+</svg>
+
+</div>
+</div>
+
+<!-- —— 中间分隔条:LP 唱片套侧脊 + 内含的唱片(打开时被"抽出来") —— -->
+<div class="dj-strip" aria-hidden="true">
+  <div class="vinyl-peek"></div>
+</div>
+
+<!-- —— 右侧 DJ 面板 —— -->
+<!--
+  音乐嵌入说明:
+  下面每个 .dj-block 里都有 .audio-block,占位是 .audio-todo 虚线框。
+  要换成真实 Spotify 30 秒预览,把 .audio-todo div 整个替换为:
+
+  <iframe class="spotify-embed"
+          style="border-radius:8px"
+          src="https://open.spotify.com/embed/track/[TRACK_ID]?utm_source=generator"
+          width="100%" height="80" frameBorder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"></iframe>
+
+  TRACK_ID 怎么拿:打开 Spotify 网页 → 找到曲目 → 右键 Share → Copy Song Link → URL 里
+  open.spotify.com/track/XXXXXXX 那段 XXXXXXX 就是 TRACK_ID。
+-->
+<aside class="dj-panel" id="dj-panel">
+
+  <div class="dj-block" data-event="modal">
+    <div class="meta">1959 · MODAL · KIND OF BLUE</div>
+    <h3>Kind of Blue</h3>
+    <div class="dj-text">
+      <p>1959 年 8 月 17 日,纽约 Columbia 录音棚。</p>
+      <p>Miles Davis 给六个乐手每人发了一张纸条,上面只写了几个调。"我们就这么吹"——他说。</p>
+      <p>没有彩排,接下来这张专辑,就出自这次集体即兴, <em>Kind of Blue</em>。</p>
+    </div>
+    <div class="audio-block">
+      <div class="audio-label">LISTEN · MILES DAVIS · SO WHAT &nbsp;·&nbsp; 1959</div>
+      <div class="audio-todo">Spotify embed 位 &nbsp;·&nbsp; <em>Kind of Blue</em> · Track 1</div>
+    </div>
+    <a href="section_07_modal_v2.html" class="open-article">读全文</a>
+  </div>
+
+  <div class="dj-block active" data-event="ragtime">
+    <div class="meta">1899 · RAGTIME · MAPLE LEAF RAG</div>
+    <h3>Ragtime</h3>
+    <div class="dj-text">
+      <p>时间往回拨 60 年。</p>
+      <p>1899 年的密苏里。一个 31 岁的混血钢琴手在 Sedalia 这个小镇上,坐到了一台二手钢琴前——左手按欧洲规矩老老实实地走,右手偏要踩在它的拍子之间。</p>
+      <p>两只手在打架。打了三分钟,这首曲子叫 <em>Maple Leaf Rag</em>。</p>
+      <p><strong>它不是爵士。但爵士的爹,是它。</strong></p>
+    </div>
+    <div class="audio-block">
+      <div class="audio-label">LISTEN · SCOTT JOPLIN · MAPLE LEAF RAG &nbsp;·&nbsp; 1899</div>
+      <div class="audio-todo">Spotify embed 位 &nbsp;·&nbsp; 推荐 Joshua Rifkin <em>Piano Rags</em> 1970 录音版</div>
+    </div>
+    <a href="section_02_ragtime_v2.html" class="open-article">读全文</a>
+  </div>
+
+  <div class="dj-block" data-event="new-orleans">
+    <div class="meta">1925 · NEW ORLEANS · LOUIS ARMSTRONG</div>
+    <h3>新奥尔良</h3>
+    <div class="dj-text">
+      <p>现在大家都知道,爵士起源于新奥尔良。但你有没有想过——<strong>凭啥是这地方</strong>?</p>
+      <p>1900 年的新奥尔良,法国人来过、西班牙人来过、美国人买过、加勒比海的人天天来。<strong>四种话同时在街上响</strong>。这地方还独此一家,允许黑人小孩学音乐。</p>
+      <p>这帮人里,有一个 1901 年生的小子,叫 Louis Armstrong。1925 年他进了录音棚,跟乐队说:<strong>"让我一个人吹两分钟,你们等着我。"</strong></p>
+      <p>之后所有爵士独奏的传统,从这两分钟开始数。</p>
+    </div>
+    <div class="audio-block">
+      <div class="audio-label">LISTEN · LOUIS ARMSTRONG · WEST END BLUES &nbsp;·&nbsp; 1928</div>
+      <div class="audio-todo">Spotify embed 位 &nbsp;·&nbsp; <em>Hot Five & Seven Recordings</em></div>
+    </div>
+    <a href="section_03_new_orleans_v2.html" class="open-article">读全文</a>
+  </div>
+
+  <div class="dj-block" data-event="swing">
+    <div class="meta">1937 · SWING · SING SING SING</div>
+    <h3>Swing</h3>
+    <div class="dj-text">
+      <p>美国每个城市的舞厅周末都坐满了人。</p>
+      <p>爵士这时候不再是新奥尔良酒馆里 5 个人的小乐队,它进了纽约、进了芝加哥的大场子,<strong>乐队涨到 15 到 20 个人</strong>,叫 big band。</p>
+      <p>这帮人干了一件事——<strong>他们让音乐学会了走路一脚重一脚轻</strong>。两个音符,本来一样长,前一个拉长、后一个压短,整首歌就开始摆。</p>
+      <p>这件事,他们当时给它起了个名字——<strong>就叫 swing</strong>。</p>
+    </div>
+    <div class="audio-block">
+      <div class="audio-label">LISTEN · BENNY GOODMAN · SING SING SING &nbsp;·&nbsp; 1937</div>
+      <div class="audio-todo">Spotify embed 位 &nbsp;·&nbsp; <em>Carnegie Hall Jazz Concert 1938</em> 版最经典</div>
+    </div>
+    <a href="section_04_swing_v2.html" class="open-article">读全文</a>
+  </div>
+
+  <div class="dj-block" data-event="bebop">
+    <div class="meta">1945 · BEBOP · KO-KO</div>
+    <h3>Bebop</h3>
+    <div class="dj-text">
+      <p>1945 年。纽约 52 街,一家叫 Three Deuces 的小俱乐部。</p>
+      <p>Charlie Parker 上台,没说话,直接吹了第一个音。</p>
+      <p>跳舞的人在地板上停下了。<strong>他们听不懂这是什么</strong>。</p>
+      <p>接下来这首,叫 <em>Ko-Ko</em>。建议你先坐下来。</p>
+    </div>
+    <div class="audio-block">
+      <div class="audio-label">LISTEN · CHARLIE PARKER · KO-KO &nbsp;·&nbsp; 1945</div>
+      <div class="audio-todo">Spotify embed 位 &nbsp;·&nbsp; Savoy 78rpm 原版录音(11/26/1945)</div>
+    </div>
+    <a href="section_05_bebop_v2.html" class="open-article">读全文</a>
+  </div>
+
+  <div class="dj-block" data-event="cool">
+    <div class="meta">1949—1958 · COOL / HARD BOP</div>
+    <h3>Cool · Hard Bop</h3>
+    <div class="dj-text">
+      <p>Bebop 太烈,烈到自己受不了。</p>
+      <p>40 年代末,Miles Davis 把 bebop 关到了室内乐里——<strong>慢下来,柔下来,呼吸感强了</strong>。这就是 cool jazz。</p>
+      <p>但 cool 太冷了。1954 年,Art Blakey 和 Horace Silver 在纽约组了个乐队叫 Jazz Messengers——他们说:<strong>"爵士不能丢掉灵魂。"</strong></p>
+      <p>他们把 bebop 的头脑、cool 的优雅,和 gospel、blues 的初心,聚到了一起。这就是 hard bop。</p>
+    </div>
+    <div class="audio-block">
+      <div class="audio-label">LISTEN · MILES DAVIS · BOPLICITY &nbsp;·&nbsp; 1949 · 冷</div>
+      <div class="audio-todo">Spotify embed 位 &nbsp;·&nbsp; <em>Birth of the Cool</em></div>
+    </div>
+    <div class="audio-block">
+      <div class="audio-label">LISTEN · ART BLAKEY · MOANIN' &nbsp;·&nbsp; 1958 · 热</div>
+      <div class="audio-todo">Spotify embed 位 &nbsp;·&nbsp; <em>Moanin'</em> · Track 1(Bobby Timmons 作曲)</div>
+    </div>
+    <a href="section_06_cool_hardbop_v2.html" class="open-article">读全文</a>
+  </div>
+
+
+  <div class="dj-block" data-event="free">
+    <div class="meta">1959 · FREE JAZZ · SHAPE OF JAZZ TO COME</div>
+    <h3>Free Jazz</h3>
+    <div class="dj-text">
+      <p>接下来这个人,真的把所有规矩都砸了。</p>
+      <p>1959 年 5 月,加州。Ornette Coleman 走进 Atlantic 录音棚,带了三个人——<strong>他自己,吹一把塑料做的萨克斯</strong>。</p>
+      <p>没有钢琴。这帮人录下来的东西,<strong>没有和弦,没有固定的调,没有固定的小节数</strong>。</p>
+      <p>这就是 free jazz。这张唱片的名字很狂——<strong>叫 <em>The Shape of Jazz to Come</em></strong>(《爵士将来的样子》)。</p>
+    </div>
+    <div class="audio-block">
+      <div class="audio-label">LISTEN · ORNETTE COLEMAN · LONELY WOMAN &nbsp;·&nbsp; 1959</div>
+      <div class="audio-todo">Spotify embed 位 &nbsp;·&nbsp; <em>The Shape of Jazz to Come</em> · Track 1</div>
+    </div>
+    <a href="section_08_free_jazz_v2.html" class="open-article">读全文</a>
+  </div>
+
+  <div class="dj-block" data-event="fusion">
+    <div class="meta">1969 · FUSION · BITCHES BREW</div>
+    <h3>Fusion</h3>
+    <div class="dj-text">
+      <p>1969 年 8 月,纽约 Columbia Studio B。Miles Davis 把 12 个乐手叫进棚子——3 个键盘手同时坐着、电吉他、电贝斯、两套鼓、一堆打击乐。他不发完整谱子,只给一个节拍数,几个和弦,一句调性提示。然后录音机开了。3 天,他们就这么吹。</p>
+      <p>这一年 Miles 43 岁。前一年他刚交了 <em>In a Silent Way</em>,前十年他交过 <em>Kind of Blue</em>,他可以靠这些专辑吃一辈子。他没有。</p>
+      <p>因为对他们来说,<strong>继续做已经会的东西,就等于给自己画句号了</strong>。</p>
+    </div>
+    <div class="audio-block">
+      <div class="audio-label">LISTEN · MILES DAVIS · PHARAOH'S DANCE &nbsp;·&nbsp; 1970</div>
+      <div class="audio-todo">Spotify embed 位 &nbsp;·&nbsp; <em>Bitches Brew</em> · Side A(Teo Macero 拼贴版)</div>
+    </div>
+    <a href="section_09_fusion_v2.html" class="open-article">读全文</a>
+  </div>
+
+</aside>
+
+<!-- 悬浮层 -->
+<div class="overlay" id="overlay" aria-hidden="true" role="dialog" aria-label="段落内容">
+  <iframe id="overlay-frame" src="about:blank" title="段落"></iframe>
+</div>
+<button id="overlay-close" aria-label="关闭(Esc)">×</button>
+
+<script>
+(() => {
+  const notches = [
+    { id: 'ragtime',     year: 1899, name: 'RAGTIME',                 theta: 230, href: 'section_02_ragtime_v2.html' },
+    { id: 'new-orleans', year: 1925, name: '新奥尔良',                theta: 170, href: 'section_03_new_orleans_v2.html' },
+    { id: 'swing',       year: 1937, name: 'SWING',                   theta: 115, href: 'section_04_swing_v2.html' },
+    { id: 'bebop',       year: 1945, name: 'BEBOP',                   theta: 75,  href: 'section_05_bebop_v2.html' },
+    { id: 'cool',        year: 1949, name: 'COOL / HARD BOP',         theta: 30,  href: 'section_06_cool_hardbop_v2.html' },
+    { id: 'modal',       year: 1959, name: 'MODAL · KIND OF BLUE',    theta: 0,   href: 'section_07_modal_v2.html' },
+    { id: 'free',        year: 1959, name: 'FREE JAZZ',               theta: 345, href: 'section_08_free_jazz_v2.html' },
+    { id: 'fusion',      year: 1969, name: 'FUSION',                  theta: 310, href: 'section_09_fusion_v2.html' },
+  ];
+
+  const stickG     = document.getElementById('stick-group');
+  const stickHit   = document.getElementById('stick-hit');
+  const svg        = document.getElementById('dial-svg');
+
+  let currentTheta   = 230;          // 当前对应的 notch 角度,0-360,用于 findNearest
+  let currentTransformAngle = 0;     // 真实写到 CSS 的 rotate 值,可以是任意数,用于最短路径旋转
+  let currentNotchId = 'ragtime';
+  let isDragging     = false;
+
+  // —— overlay 打开时锁住鼓盘:点张力杆 / 拖鼓棒 / 键盘箭头都不响应
+  function isLocked() {
+    return document.body.classList.contains('overlay-open');
+  }
+  function isCover() {
+    return document.body.classList.contains('cover');
+  }
+
+  // —— 鼓棒位置:由 CSS transition 处理平滑过渡,JS 只设 inline style.transform
+  // 用 currentTransformAngle 跟踪累积角度,保证旋转走最短路径,不绕大圈
+  function setStickAngle(theta) {
+    currentTheta = theta;
+    const normalized = ((theta % 360) + 360) % 360;
+    const current    = ((currentTransformAngle % 360) + 360) % 360;
+    let d = normalized - current;
+    if (d > 180)  d -= 360;
+    if (d < -180) d += 360;
+    currentTransformAngle += d;
+    stickG.style.transform = `rotate(${currentTransformAngle}deg) translate(0px, 0px)`;
+  }
+  function setStickRest() {
+    // 封面态:鼓棒平放在 ragtime 标签上方,棒尖朝右(rotate 180 让棒尖翻到右边)
+    // CSS 应用顺序:translate 先,rotate 后(transform list 从右到左作用于点)
+    // translate(-164, 220) + rotate(180) 把鼓棒摆到 (220-378, 180) 区域,棒尖在右边 (378)
+    // 拿起鼓棒(点击)→ rotate 从 180 转到 230(只 50° CCW)+ translate 缩到 0
+    // 因为只转 50°,过渡是个温和的"摆"动作,而不是大角度旋转
+    stickG.style.transform = 'rotate(180deg) translate(-164px, 220px)';
+    currentTransformAngle = 180;
+  }
+
+  function setDjBlock(id) {
+    document.querySelectorAll('.dj-block').forEach(b => {
+      b.classList.toggle('active', b.dataset.event === id);
+    });
+  }
+  function setCurrent(id) {
+    currentNotchId = id;
+    document.querySelectorAll('.notch-group').forEach(g => {
+      g.classList.toggle('current', g.dataset.event === id);
+    });
+    setDjBlock(id);
+  }
+  function exitCover() {
+    if (!isCover()) return;
+    document.body.classList.remove('cover');
+    // 移除 cover class 之后,CSS transition 把鼓棒从 rest 位流畅地动到当前角度
+    setStickAngle(currentTheta);
+  }
+  function moveToNotch(n) {
+    setCurrent(n.id);
+    if (isCover()) {
+      currentTheta = n.theta;
+      exitCover();
+    } else {
+      setStickAngle(n.theta);
+    }
+  }
+
+  // —— 初始化:进入封面态
+  document.body.classList.add('cover');
+  setStickRest();
+  setCurrent(currentNotchId);  // ragtime 默认 current(标签高亮 + DJ 面板预选)
+
+  // 悬浮层
+  const overlay      = document.getElementById('overlay');
+  const overlayFrame = document.getElementById('overlay-frame');
+  const overlayClose = document.getElementById('overlay-close');
+  let suppressNextShown = false;
+
+  function openOverlay(href) {
+    if (!href || href === '#') return;
+    suppressNextShown = true;
+    setTimeout(() => { suppressNextShown = false; }, 1500);
+    overlayFrame.src = href;
+    document.body.classList.add('overlay-open');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+  function closeOverlay() {
+    document.body.classList.remove('overlay-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    setTimeout(() => { overlayFrame.src = 'about:blank'; }, 450);
+  }
+  overlayClose.addEventListener('click', closeOverlay);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.body.classList.contains('overlay-open')) closeOverlay();
+  });
+
+  // 接收 iframe 内的消息(段落内邻居点击 / 回到鼓面 / 段落加载完成)
+  window.addEventListener('message', (e) => {
+    if (!e.data || typeof e.data !== 'object') return;
+    if (e.data.type === 'close-overlay') {
+      closeOverlay();
+    } else if (e.data.type === 'section-shown') {
+      if (suppressNextShown) return;
+      const n = notches.find(x => x.id === e.data.sectionId);
+      if (n && n.id !== currentNotchId) {
+        moveToNotch(n);
+      }
+    }
+  });
+  function angDist(a, b) {
+    let d = Math.abs(a - b) % 360;
+    return d > 180 ? 360 - d : d;
+  }
+  function findNearest(theta) {
+    let best = notches[0], bd = 360;
+    for (const n of notches) { const d = angDist(n.theta, theta); if (d < bd) { bd = d; best = n; } }
+    return best;
+  }
+
+  // 点张力杆:鼓棒滑过去 + 切换 DJ 面板,不直接开 overlay
+  document.querySelectorAll('.notch-group').forEach(g => {
+    const data = notches.find(n => n.id === g.dataset.event);
+    if (!data) return;
+    const a = g.closest('a');
+    if (a) a.addEventListener('click', (e) => {
+      // overlay 打开时:总是 preventDefault 避免 SVG 链接跳转,但不切换 notch
+      e.preventDefault();
+      if (isLocked() || isDragging) return;
+      moveToNotch(data);
+    });
+  });
+
+  // 点"读全文"按钮:开 overlay 进入段落页
+  document.querySelectorAll('.open-article').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const href = btn.getAttribute('href');
+      if (href) openOverlay(href);
+    });
+  });
+
+  function angleFromPointer(cx, cy) {
+    const r = svg.getBoundingClientRect();
+    const sx = ((cx - r.left) / r.width)  * 800;
+    const sy = ((cy - r.top)  / r.height) * 800;
+    let t = Math.atan2(sy - 400, sx - 400) * 180 / Math.PI;
+    if (t < 0) t += 360;
+    return t;
+  }
+  stickHit.addEventListener('pointerdown', (e) => {
+    if (isLocked()) return;
+    e.preventDefault();
+
+    // 封面态:点鼓棒就退封面,鼓棒飞到当前 notch(默认 ragtime),不进入 drag
+    if (isCover()) {
+      exitCover();
+      return;
+    }
+
+    isDragging = true;
+    stickHit.setPointerCapture(e.pointerId);
+    document.body.classList.add('is-dragging');
+    svg.focus({ preventScroll: true });
+  });
+  stickHit.addEventListener('pointermove', (e) => {
+    if (!isDragging || isLocked()) return;
+    const t = angleFromPointer(e.clientX, e.clientY);
+    setStickAngle(t);
+  });
+  function endDrag(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    document.body.classList.remove('is-dragging');
+    try { stickHit.releasePointerCapture(e.pointerId); } catch (_) {}
+    const n = findNearest(currentTheta);
+    setCurrent(n.id);
+    setStickAngle(n.theta);  // CSS transition 平滑吸附到最近槽
+  }
+  stickHit.addEventListener('pointerup', endDrag);
+  stickHit.addEventListener('pointercancel', endDrag);
+
+  svg.addEventListener('keydown', (e) => {
+    if (isLocked()) return;
+    const i = notches.findIndex(n => n.id === currentNotchId);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault(); moveToNotch(notches[(i - 1 + notches.length) % notches.length]);
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault(); moveToNotch(notches[(i + 1) % notches.length]);
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      if (isCover()) { exitCover(); return; }
+      const c = notches.find(n => n.id === currentNotchId);
+      if (c && c.href && c.href !== '#') { e.preventDefault(); openOverlay(c.href); }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段 2 · Ragtime · 1899 · v2 文章版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ebe1c4;
+    --paper-deep: #d9cba4;
+    --ink: #2b1f10;
+    --ink-soft: rgba(43, 31, 16, 0.78);
+    --ink-fade: rgba(43, 31, 16, 0.36);
+    --rule: rgba(43, 31, 16, 0.12);
+    --gold: #8a6e3a;
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--paper); }
+  body {
+    background:
+      radial-gradient(ellipse 1200px 700px at 50% 20%, #f0e7ce 0%, var(--paper) 60%, var(--paper-deep) 100%);
+    min-height: 100vh;
+    color: var(--ink);
+    font-family: var(--font-serif);
+    overflow-x: hidden;
+    padding-bottom: 80px;
+  }
+  .top-marker {
+    position: absolute; top: 32px; left: 56px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--ink-fade);
+  }
+  .stage { min-height: 100vh; padding: 76px 48px 60px; position: relative; }
+
+  .where {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px; letter-spacing: 0.42em;
+    color: var(--ink-fade); margin-bottom: 56px;
+  }
+
+  /* —— 视觉本体:两手打架的两栏错位网格 —— */
+  .hands {
+    max-width: 800px; margin: 0 auto 56px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+    position: relative;
+  }
+  .hands::before {
+    content: '左手 · 欧洲规矩';
+    position: absolute; top: -32px; left: 0;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.34em; color: var(--ink-fade);
+  }
+  .hands::after {
+    content: '右手 · 西非偷拍';
+    position: absolute; top: -32px; right: 0;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.34em; color: var(--ink-fade);
+  }
+  .hands .left, .hands .right {
+    font-family: var(--font-serif); font-size: 17px;
+    line-height: 40px; color: var(--ink);
+    padding: 0 8px;
+  }
+  .hands .right {
+    padding-top: 20px;  /* 右手向下偏移半拍,呼应「偷拍」的错位 */
+  }
+  .hands p { margin: 0; }
+  .hands .beat {
+    font-family: var(--font-mono);
+    color: var(--ink-fade);
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    line-height: 24px;
+    margin-top: 8px;
+  }
+  .hands .beat:first-child { margin-top: 0; }
+
+  /* —— 文章主体 —— */
+  .article {
+    max-width: 640px; margin: 0 auto;
+    color: var(--ink); font-size: 17px;
+    line-height: 1.75; letter-spacing: 0.01em;
+  }
+  .article > p { margin-bottom: 1em; }
+  .article em { font-style: italic; }
+  .article strong { font-weight: 500; }
+  .article blockquote {
+    margin: 1.8em 0 0.8em; padding-left: 24px;
+    border-left: 2px solid var(--gold);
+    font-style: italic; font-size: 19px;
+    line-height: 1.6; color: var(--ink);
+  }
+  .article blockquote cite {
+    display: block; margin-top: 8px; font-style: normal;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.3em; color: var(--ink-fade);
+  }
+  .article blockquote cite::before { content: '— '; }
+
+  .back {
+    position: fixed; bottom: 24px; left: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: var(--ink-fade);
+    text-decoration: none;
+  }
+  .back:hover { color: var(--ink); }
+
+  .next {
+    position: fixed; bottom: 24px; right: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: var(--ink-fade);
+    text-decoration: none;
+    text-align: right;
+  }
+  .next:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="top-marker">SECTION 02 · RAGTIME · 1899</div>
+
+<div class="stage">
+
+  <div class="where">SEDALIA &nbsp;&nbsp; MISSOURI</div>
+
+  <div class="hands">
+    <div class="left">
+      <p class="beat">第 1 拍</p>
+      <p>蹦</p>
+      <p class="beat">第 2 拍</p>
+      <p>嚓</p>
+      <p class="beat">第 3 拍</p>
+      <p>蹦</p>
+      <p class="beat">第 4 拍</p>
+      <p>嚓</p>
+    </div>
+    <div class="right">
+      <p class="beat">第 1.5 拍</p>
+      <p>偷拍</p>
+      <p class="beat">第 2.5 拍</p>
+      <p>错开</p>
+      <p class="beat">第 3.5 拍</p>
+      <p>勾住</p>
+      <p class="beat">第 4.5 拍</p>
+      <p>拉扯</p>
+    </div>
+  </div>
+
+  <div class="article">
+    <p>1899 年的密苏里。一个 31 岁的混血钢琴手 <strong>Scott Joplin</strong>,在 Sedalia 这个小镇上,坐到了一台二手钢琴前,写了一首钢琴曲叫 <em>Maple Leaf Rag</em>。</p>
+
+    <p>这首曲子做了一件之前没人做过的事——<strong>用欧洲古典的钢琴谱,写下西非那种重音错位的节奏</strong>。</p>
+
+    <p>具体怎么做的?左手弹欧洲传统的"oom-pah"(蹦-嚓-蹦-嚓)规律重音,右手在这套规律拍上故意把重音错开——右手该落第 1 拍的时候它落第 1.5 拍,该落第 3 拍的时候它落第 2.5 拍。<strong>两只手在打架</strong>。</p>
+
+    <p>听众的耳朵被这个"打架"勾住了——明明左手在很规矩地走,右手却像<em>踩在棉花上</em>。这种音乐的拉扯感,后来是无数美国流行音乐的灵魂。</p>
+
+    <p><em>Maple Leaf Rag</em> 的钢琴谱<strong>销量一百万张</strong>——是 19 世纪末美国钢琴史上的一桩大事。家里有钢琴的中产阶级家庭,全国都在弹这首曲子。</p>
+
+    <p>ragtime 不是爵士。但它<strong>是爵士的爹</strong>——它第一次让欧洲钢琴的语言接受了西非的节奏感。</p>
+
+    <blockquote>
+      这条路一旦打开,再也关不上。
+    </blockquote>
+  </div>
+
+</div>
+
+<a class="back" href="snare_dial_v5.html">← 回到鼓面</a>
+<a class="next" href="section_03_new_orleans_v2.html">下一段 · 1925 · 新奥尔良 →</a>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  const SECTION_ID = 'ragtime';
+  try { window.parent.postMessage({ type: 'section-shown', sectionId: SECTION_ID }, '*'); } catch (e) {}
+  const back = document.querySelector('.back');
+  if (back) back.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'close-overlay' }, '*'); } catch (e2) {}
+  });
+})();
+</script>
+
+</body>
+</html>

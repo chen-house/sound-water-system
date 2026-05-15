@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Jazz Divider Card v6</title>
+<style>
+  body { background: #EFE7D2; margin: 0; padding: 60px 24px 50px; font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif; }
+  .card { width: 280px; margin: 0 auto; }
+
+  .subtags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 22px; }
+  .subtag { display: inline-block; background: transparent; color: #6F5D3F; font-size: 10px; font-weight: 500; letter-spacing: 0.06em; padding: 3px 8px 4px; border: 0.5px solid rgba(111, 93, 63, 0.4); border-radius: 3px; }
+
+  .jazz { font-family: Georgia, "Times New Roman", serif; font-size: 44px; line-height: 1; color: #2C2A24; margin: 0 0 8px; font-weight: 600; letter-spacing: -0.02em; text-align: left; }
+  .tagline-cn { font-family: Georgia, "Songti SC", "STSong", serif; font-size: 15px; line-height: 1.4; color: #2C2A24; margin: 0 0 6px; font-weight: 500; text-align: left; }
+  .tagline-en { font-family: Georgia, serif; font-size: 12px; line-height: 1.4; color: #8A7B5C; margin: 0 0 24px; font-weight: 400; text-align: left; font-style: italic; }
+
+  .divider { height: 0.5px; background: rgba(138, 123, 92, 0.4); margin: 0 0 18px; }
+
+  .meta-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
+  .meta-label { font-size: 9px; color: #8A7B5C; letter-spacing: 0.14em; text-transform: uppercase; }
+  .meta-value { font-size: 11px; color: #2C2A24; font-weight: 500; }
+
+  .intro { font-size: 12px; line-height: 1.7; color: #5A4F38; margin: 0 0 24px; text-align: left; }
+
+  .cov-pair { display: flex; gap: 12px; justify-content: center; }
+  .cov { width: 100px; height: 100px; background: #DCCFB0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #8A7B5C; letter-spacing: 0.05em; }
+  .cov-name { font-size: 9.5px; color: #5A4F38; text-align: center; margin-top: 6px; line-height: 1.45; font-weight: 500; }
+  .cov-year { font-size: 9px; color: #8A7B5C; text-align: center; margin-top: 1px; }
+  .cov-block { width: 100px; }
+</style>
+</head>
+<body>
+  <div class="card">
+
+    <div class="subtags">
+      <span class="subtag">Bebop</span>
+      <span class="subtag">Cool Jazz</span>
+      <span class="subtag">Free Jazz</span>
+      <span class="subtag">Fusion</span>
+      <span class="subtag">Modern</span>
+    </div>
+
+    <h2 class="jazz">JAZZ</h2>
+    <div class="tagline-cn">100 年,每十年砸碎一次重来</div>
+    <div class="tagline-en">a century of restless reinvention</div>
+
+    <div class="divider"></div>
+
+    <div class="meta-row">
+      <span class="meta-label">Era</span>
+      <span class="meta-value">1920s — Now</span>
+    </div>
+
+    <p class="intro">从新奥尔良酒馆到电子合成器,没有一代爵士乐手满足于上一代的答案。</p>
+
+    <div class="cov-pair">
+      <div class="cov-block">
+        <div class="cov">封面占位</div>
+        <div class="cov-name">Kind of Blue</div>
+        <div class="cov-year">Miles Davis, 1959</div>
+      </div>
+      <div class="cov-block">
+        <div class="cov">封面占位</div>
+        <div class="cov-name">Beyond Now</div>
+        <div class="cov-year">Mark Guiliana, 2016</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

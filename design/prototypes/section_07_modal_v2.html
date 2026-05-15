@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段 7 · Modal Jazz · 1959 — 1965 · v2 合并版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0d1419;
+    --night-deep: #060a0e;
+    --air: #e8eef0;
+    --air-soft: rgba(232, 238, 240, 0.78);
+    --air-fade: rgba(232, 238, 240, 0.36);
+    --air-faint: rgba(232, 238, 240, 0.18);
+    --halo: #b3c5d0;
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--night); }
+  body {
+    background:
+      radial-gradient(ellipse 1200px 800px at 50% 30%, #131c22 0%, var(--night) 70%, var(--night-deep) 100%);
+    min-height: 100vh;
+    color: var(--air);
+    font-family: var(--font-serif);
+    overflow-x: hidden;
+    padding-bottom: 80px;
+  }
+  .top-marker {
+    position: absolute; top: 32px; left: 56px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--air-fade);
+  }
+  .stage { min-height: 100vh; padding: 76px 48px 60px; position: relative; }
+
+  .where {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px; letter-spacing: 0.42em;
+    color: var(--air-fade); margin-bottom: 64px;
+  }
+
+  /* —— 开场:六个乐手的纸条 —— */
+  .slips {
+    position: relative;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto 56px;
+    height: 280px;
+  }
+  .slip {
+    position: absolute;
+    width: 144px;
+    padding: 18px 16px;
+    background: linear-gradient(180deg, #e6dec6 0%, #cfc4a4 100%);
+    color: #2a2418;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.5;
+    letter-spacing: 0.06em;
+    box-shadow:
+      0 22px 36px rgba(0, 0, 0, 0.55),
+      0 8px 14px rgba(0,0,0,0.4),
+      0 1px 0 rgba(255,250,235,0.35) inset;
+    transform-origin: center;
+  }
+  .slip .who {
+    font-family: var(--font-serif);
+    font-size: 13px; color: #1a1610;
+    margin-bottom: 10px; letter-spacing: 0.02em;
+  }
+  .slip .mark { color: #6a5b3e; letter-spacing: 0.3em; font-size: 10px; }
+  .slip:nth-child(1) { top: 8px;   left: 2%;   transform: rotate(-5deg); }
+  .slip:nth-child(2) { top: 40px;  left: 22%;  transform: rotate(2.5deg); }
+  .slip:nth-child(3) { top: 4px;   left: 42%;  transform: rotate(-1.5deg); }
+  .slip:nth-child(4) { top: 46px;  left: 62%;  transform: rotate(3.8deg); }
+  .slip:nth-child(5) { top: 150px; left: 12%;  transform: rotate(1.5deg); }
+  .slip:nth-child(6) { top: 162px; left: 50%;  transform: rotate(-3.2deg); }
+
+  .date-stamp {
+    text-align: center;
+    margin: 0 auto 64px;
+    font-family: var(--font-mono);
+    color: var(--air-fade);
+    font-size: 12px;
+    letter-spacing: 0.42em;
+  }
+
+  /* —— 中段:两条调,几个稀疏音点 —— */
+  .modes {
+    max-width: 720px; margin: 56px auto 80px;
+    display: flex; flex-direction: column; gap: 56px;
+  }
+  .mode { position: relative; height: 28px; }
+  .mode-line {
+    position: absolute; left: 0; right: 0; top: 14px;
+    height: 1px; background: var(--air-faint);
+  }
+  .mode-label {
+    position: absolute; left: 0; top: -28px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--air-fade);
+  }
+  .dot {
+    position: absolute; top: 10px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--air); transform: translate(-50%, 0);
+  }
+  .m1 .dot:nth-child(2) { left: 12%; }
+  .m1 .dot:nth-child(3) { left: 24%; opacity: 0.55; }
+  .m1 .dot:nth-child(4) { left: 48%; }
+  .m1 .dot:nth-child(5) { left: 72%; opacity: 0.6; }
+  .m1 .dot:nth-child(6) { left: 88%; }
+  .m2 .dot:nth-child(2) { left: 10%; opacity: 0.6; }
+  .m2 .dot:nth-child(3) { left: 30%; }
+  .m2 .dot:nth-child(4) { left: 56%; opacity: 0.55; }
+  .m2 .dot:nth-child(5) { left: 78%; }
+
+  /* —— 文章主体 —— */
+  .article {
+    max-width: 640px; margin: 0 auto;
+    color: var(--air); font-size: 17px;
+    line-height: 1.75; letter-spacing: 0.01em;
+  }
+  .article > p { margin-bottom: 1em; }
+  .article em { font-style: italic; }
+  .article strong { font-weight: 500; }
+  .article blockquote {
+    margin: 1.8em 0 0.8em; padding-left: 24px;
+    border-left: 2px solid var(--halo);
+    font-style: italic; font-size: 19px;
+    line-height: 1.6; color: var(--air);
+  }
+  .article blockquote cite {
+    display: block; margin-top: 8px; font-style: normal;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.3em; color: var(--air-fade);
+  }
+  .article blockquote cite::before { content: '— '; }
+
+  .back {
+    position: fixed; bottom: 24px; left: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: var(--air-fade);
+    text-decoration: none;
+  }
+  .back:hover { color: var(--air); }
+
+  .next {
+    position: fixed; bottom: 24px; right: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: var(--air-fade);
+    text-decoration: none;
+    text-align: right;
+  }
+  .next:hover { color: var(--air); }
+</style>
+</head>
+<body>
+
+<div class="top-marker">SECTION 07 · MODAL JAZZ · KIND OF BLUE · A LOVE SUPREME</div>
+
+<div class="stage">
+
+  <div class="where">一段不能"对"的音乐</div>
+
+  <div class="slips">
+    <div class="slip"><div class="who">MILES</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">COLTRANE</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">CANNONBALL</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">BILL EVANS</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">PAUL CHAMBERS</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">JIMMY COBB</div><div class="mark">— · — · —</div></div>
+  </div>
+
+  <div class="date-stamp">1959 · 08 · 17 &nbsp;&nbsp;&nbsp; COLUMBIA STUDIO &nbsp;&nbsp;&nbsp; NEW YORK</div>
+
+  <div class="article">
+    <p>1959 年 8 月 17 日,纽约 Columbia 录音棚。Miles Davis 召集了一支六人乐队——John Coltrane、Cannonball Adderley、Bill Evans、Paul Chambers、Jimmy Cobb——录一张专辑叫 <em>Kind of Blue</em>。</p>
+
+    <p>录音前,Miles 没排练,没写完整谱子。他<strong>只发给每个乐手一张纸条</strong>,上面写着几个调和大概的节奏方向。"我们就这么吹。"他说。</p>
+
+    <p>整张专辑 5 首歌,<strong>每一首都是一遍过</strong>。没有彩排,没有第二条录音。Bill Evans 后来回忆:那种感觉就像六个人坐进一间黑屋子,每个人手里有一支蜡烛,一边走一边互相看见对方在哪儿。</p>
+
+    <p><em>Kind of Blue</em> 后来成为<strong>爵士史上销量最高的专辑</strong>——它甚至被全世界很多不听爵士的人买回家放着。</p>
+
+    <p>但你如果问 Miles 为什么要这样录,他不会跟你聊销量、也不会聊艺术理念。他会说一句很简单的话——</p>
+
+    <blockquote>
+      上一代爵士的规矩太紧了。我得松一松。
+      <cite>Miles Davis</cite>
+    </blockquote>
+  </div>
+
+  <div class="modes">
+    <div class="mode m1">
+      <div class="mode-label">D DORIAN</div>
+      <div class="mode-line"></div>
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <div class="mode m2">
+      <div class="mode-label">E♭ DORIAN</div>
+      <div class="mode-line"></div>
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+  </div>
+
+  <div class="article">
+    <p>Miles 这句话不只是修辞——它对应一件具体的事。<strong>Miles 在 <em>Kind of Blue</em> 里做的事,是把 bebop 的最大问题——和弦变化太多、太快——彻底放弃</strong>。</p>
+
+    <p>他说:一首歌不需要 30 个和弦。可能只需要 <strong>2 个调</strong>。</p>
+
+    <p>乐手不再被"现在这个和弦该怎么吹"约束,而是<em>在一个调里自由发挥</em>。这听起来是技术细节,但它的影响极其深远——爵士第一次从"和声驱动"转向<strong>氛围驱动</strong>。乐手不再赶着去解决和声,他们可以停留在一个调上,把一个简单的旋律反复弯曲、拉长、深入。</p>
+
+    <p><em>Kind of Blue</em> 里 Miles 的 <em>So What</em>——开头那个简单的两音动机,整首歌就在两个调之间来回。但每个乐手的独奏都长得<strong>像一段独白</strong>——没有目的地,只是在说话。</p>
+
+    <p>modal jazz 让爵士第一次有了<strong>冥想感</strong>。后来 60 年代的灵性爵士——比如 <strong>John Coltrane</strong> 1964 年录的 <em>A Love Supreme</em>——就是从这里长出来的。Coltrane 原本在 Miles 团里,因为吸毒被开除,回家戒毒时经历了一场他自己说的 <em>spiritual awakening</em>。<em>A Love Supreme</em> 是他这段经历的回应:四个乐章,在 modal 的框架里把爵士推成了一种祷告。</p>
+
+    <blockquote>
+      和弦少了,空气就多了。
+      <cite>Miles Davis · So What</cite>
+    </blockquote>
+  </div>
+
+</div>
+
+<a class="back" href="snare_dial_v5.html">← 回到鼓面</a>
+<a class="next" href="section_08_free_jazz_v2.html">下一段 · 1959 · FREE JAZZ →</a>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  const SECTION_ID = 'modal';
+  try { window.parent.postMessage({ type: 'section-shown', sectionId: SECTION_ID }, '*'); } catch (e) {}
+  const back = document.querySelector('.back');
+  if (back) back.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'close-overlay' }, '*'); } catch (e2) {}
+  });
+})();
+</script>
+
+</body>
+</html>

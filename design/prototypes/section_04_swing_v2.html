@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段 4 · Swing · 1937 · v2 文章版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --warm: #f1dfae;
+    --warm-deep: #d9c081;
+    --ink: #2a1408;
+    --ink-soft: rgba(42, 20, 8, 0.78);
+    --ink-fade: rgba(42, 20, 8, 0.36);
+    --gold: #8a5a1c;
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--warm); }
+  body {
+    background:
+      radial-gradient(ellipse 1200px 700px at 50% 20%, #f6e6b8 0%, var(--warm) 60%, var(--warm-deep) 100%);
+    min-height: 100vh;
+    color: var(--ink);
+    font-family: var(--font-serif);
+    overflow-x: hidden;
+    padding-bottom: 80px;
+  }
+  .top-marker {
+    position: absolute; top: 32px; left: 56px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--ink-fade);
+  }
+  .stage { min-height: 100vh; padding: 76px 48px 60px; position: relative; }
+
+  .where {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px; letter-spacing: 0.42em;
+    color: var(--ink-fade); margin-bottom: 40px;
+  }
+
+  /* —— big band 18 个声部并列 —— */
+  .roster {
+    max-width: 820px; margin: 0 auto 48px;
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.28em; color: var(--ink-fade);
+    text-align: center;
+  }
+  .roster .horn { padding: 8px 4px; border-top: 1px solid rgba(42, 20, 8, 0.18); }
+
+  /* —— swing 节奏:一长一短交替 —— */
+  .pulse-label {
+    text-align: center;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.38em; color: var(--ink-fade);
+    margin-bottom: 18px;
+  }
+  .pulse-wrap {
+    max-width: 820px; margin: 0 auto 56px;
+    display: flex; justify-content: center;
+    align-items: baseline;
+    gap: 12px;
+    color: var(--ink);
+    flex-wrap: wrap;
+  }
+  .beat {
+    display: inline-block;
+    border-bottom: 2px solid var(--ink);
+    padding: 0 4px;
+  }
+  .long  { font-size: 34px; line-height: 1; padding: 0 22px 0 16px; letter-spacing: 0.05em; }
+  .short { font-size: 20px; line-height: 1; padding: 0 8px 0 6px; color: var(--ink-soft); }
+
+  /* —— 文章主体 —— */
+  .article {
+    max-width: 640px; margin: 0 auto;
+    color: var(--ink); font-size: 17px;
+    line-height: 1.75; letter-spacing: 0.01em;
+  }
+  .article > p { margin-bottom: 1em; }
+  .article em { font-style: italic; }
+  .article strong { font-weight: 500; }
+  .article blockquote {
+    margin: 1.8em 0 0.8em; padding-left: 24px;
+    border-left: 2px solid var(--gold);
+    font-style: italic; font-size: 19px;
+    line-height: 1.6; color: var(--ink);
+  }
+  .article blockquote cite {
+    display: block; margin-top: 8px; font-style: normal;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.3em; color: var(--ink-fade);
+  }
+  .article blockquote cite::before { content: '— '; }
+
+  .back {
+    position: fixed; bottom: 24px; left: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: var(--ink-fade);
+    text-decoration: none;
+  }
+  .back:hover { color: var(--ink); }
+
+  .next {
+    position: fixed; bottom: 24px; right: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: var(--ink-fade);
+    text-decoration: none;
+    text-align: right;
+  }
+  .next:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="top-marker">SECTION 04 · SWING · SING SING SING</div>
+
+<div class="stage">
+
+  <div class="where">1935 — 1945 &nbsp;&nbsp; NEW YORK · CHICAGO</div>
+
+  <div class="roster">
+    <div class="horn">TPT 1</div>
+    <div class="horn">TPT 2</div>
+    <div class="horn">TPT 3</div>
+    <div class="horn">TPT 4</div>
+    <div class="horn">TPT 5</div>
+    <div class="horn">TBN 1</div>
+    <div class="horn">TBN 2</div>
+    <div class="horn">TBN 3</div>
+    <div class="horn">TBN 4</div>
+    <div class="horn">ALTO 1</div>
+    <div class="horn">ALTO 2</div>
+    <div class="horn">TENOR 1</div>
+    <div class="horn">TENOR 2</div>
+    <div class="horn">BARI</div>
+    <div class="horn">PIANO</div>
+    <div class="horn">GUITAR</div>
+    <div class="horn">BASS</div>
+    <div class="horn">DRUMS</div>
+    <div class="horn">— SOLO —</div>
+    <div class="horn">— SOLO —</div>
+  </div>
+
+  <div class="pulse-label">一脚重 · 一脚轻</div>
+  <div class="pulse-wrap">
+    <span class="beat long">咚</span>
+    <span class="beat short">咚</span>
+    <span class="beat long">咚</span>
+    <span class="beat short">咚</span>
+    <span class="beat long">咚</span>
+    <span class="beat short">咚</span>
+    <span class="beat long">咚</span>
+    <span class="beat short">咚</span>
+  </div>
+
+  <div class="article">
+    <p>1935 年以后,爵士已经不是新奥尔良酒馆里 5 个人的小乐队了。它进了纽约、进了芝加哥的大场子,乐队涨到 <strong>15 到 20 个人</strong>,叫 big band。每个城市的舞厅周末都坐满了人。</p>
+
+    <p>这帮人为了让一千人的舞厅也能听清楚,把音乐写得整齐了——但他们留了一手:<strong>每首歌的中间都开一两个独奏空位,让乐队里最牛的那个站出来</strong>。</p>
+
+    <p>这一代是爵士的"作曲家"。<em>Duke Ellington、Count Basie、Benny Goodman</em>——他们写出复杂的编曲,让 15 个人的乐队整齐地呼吸。</p>
+
+    <p>但更重要的是他们带来的一种节奏感——叫 <strong>swing</strong>。本来 4/4 拍是均匀的"咚 咚 咚 咚",swing 把它变成"咚——咚 咚——咚"——每个第二、第四拍稍稍往后拖一点。整个音乐就开始摇摆了。</p>
+
+    <p>身体一听到 swing 就想动。从 1935 年到 1945 年,爵士第一次成为<strong>主流流行音乐</strong>——美国变成了一个跳舞的国家。</p>
+
+    <blockquote>
+      但这件事到 1945 年,戛然而止。
+    </blockquote>
+  </div>
+
+</div>
+
+<a class="back" href="snare_dial_v5.html">← 回到鼓面</a>
+<a class="next" href="section_05_bebop_v2.html">下一段 · 1945 · BEBOP →</a>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  const SECTION_ID = 'swing';
+  try { window.parent.postMessage({ type: 'section-shown', sectionId: SECTION_ID }, '*'); } catch (e) {}
+  const back = document.querySelector('.back');
+  if (back) back.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'close-overlay' }, '*'); } catch (e2) {}
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段 8 · Free Jazz · 1959 — 1965 · v2 文章版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0a0c;
+    --bg-deep: #060305;
+    --white: #f0eae0;
+    --white-soft: rgba(240, 234, 224, 0.78);
+    --white-fade: rgba(240, 234, 224, 0.36);
+    --rebel: #c2433a;
+    --plastic: #d9b260;
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-sans: 'Noto Sans SC', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); }
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: var(--font-serif);
+    overflow-x: hidden;
+    padding-bottom: 80px;
+  }
+  .top-marker {
+    position: absolute; top: 32px; left: 56px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--white-fade);
+  }
+  .stage { min-height: 100vh; padding: 76px 48px 60px; position: relative; }
+
+  .where {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px; letter-spacing: 0.42em;
+    color: var(--white-fade); margin-bottom: 48px;
+  }
+
+  /* —— 没钢琴的四件套 —— */
+  .lineup {
+    max-width: 720px; margin: 0 auto 56px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
+    text-align: center;
+  }
+  .lineup .player {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.3em; color: var(--white-soft);
+    padding: 16px 4px; border-top: 1px solid var(--white-fade);
+  }
+  .lineup .player b { display: block; color: var(--white); font-weight: 400; letter-spacing: 0.04em; font-family: var(--font-serif); font-size: 13px; margin-top: 6px; }
+  .lineup .player.plastic b { color: var(--plastic); }
+  .lineup .absent-row {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.3em; color: var(--white-fade);
+    padding-top: 18px;
+  }
+  .lineup .absent-row b { text-decoration: line-through; color: var(--white-fade); font-weight: 400; }
+
+  /* —— 两个平行宇宙的视觉小片段 —— */
+  .universes {
+    max-width: 760px; margin: 0 auto 64px;
+    position: relative;
+  }
+  .universe {
+    font-family: var(--font-sans);
+    font-size: 13px; line-height: 1.6;
+    letter-spacing: 0.02em;
+    padding: 16px 20px;
+    max-width: 320px;
+    color: var(--white-soft);
+  }
+  .universe em { font-style: italic; color: var(--rebel); }
+  .universe-a { transform: rotate(-1.2deg); }
+  .universe-b { transform: rotate(1.6deg); margin-left: auto; margin-top: -20px; text-align: right; }
+
+  /* —— 文章主体 —— */
+  .article {
+    max-width: 640px; margin: 0 auto;
+    color: var(--white); font-size: 17px;
+    line-height: 1.75; letter-spacing: 0.01em;
+  }
+  .article > p { margin-bottom: 1em; }
+  .article em { font-style: italic; }
+  .article strong { font-weight: 500; }
+  .article blockquote {
+    margin: 1.8em 0 0.8em; padding-left: 24px;
+    border-left: 2px solid var(--rebel);
+    font-style: italic; font-size: 19px;
+    line-height: 1.6; color: var(--white);
+  }
+  .article blockquote cite {
+    display: block; margin-top: 8px; font-style: normal;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.3em; color: var(--white-fade);
+  }
+  .article blockquote cite::before { content: '— '; }
+
+  .back {
+    position: fixed; bottom: 24px; left: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: var(--white-fade);
+    text-decoration: none;
+  }
+  .back:hover { color: var(--white); }
+
+  .next {
+    position: fixed; bottom: 24px; right: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: var(--white-fade);
+    text-decoration: none;
+    text-align: right;
+  }
+  .next:hover { color: var(--rebel); }
+</style>
+</head>
+<body>
+
+<div class="top-marker">SECTION 08 · FREE JAZZ · SHAPE OF JAZZ TO COME</div>
+
+<div class="stage">
+
+  <div class="where">1959 · MAY &nbsp;&nbsp; LOS ANGELES · ATLANTIC STUDIO</div>
+
+  <div class="lineup">
+    <div class="player">POCKET TPT<b>Don Cherry</b></div>
+    <div class="player">BASS<b>Charlie Haden</b></div>
+    <div class="player">DRUMS<b>Billy Higgins</b></div>
+    <div class="player plastic">PLASTIC ALTO<b>Ornette Coleman</b></div>
+    <div class="absent-row">NO PIANO &nbsp;&nbsp;&nbsp; <b>没钢琴</b></div>
+  </div>
+
+  <div class="universes">
+    <div class="universe universe-a">
+      主旋律似乎在一个调里——<em>D 小调</em>,听起来熟悉。<br>
+      萨克斯吹出第一句,你的耳朵会跟上去。
+    </div>
+    <div class="universe universe-b">
+      但伴奏的贝斯和鼓<em>完全不在那个调里</em>。<br>
+      它们各干各的,没有人在等谁。
+    </div>
+  </div>
+
+  <div class="article">
+    <p>1959 年 5 月。一个叫 <strong>Ornette Coleman</strong> 的萨克斯手,从洛杉矶到了纽约——手里握着一把<em>白色塑料中音萨克斯</em>(他穷,买不起金属的)。他录了一张专辑,叫 <em>The Shape of Jazz to Come</em>——光看名字就是宣言。</p>
+
+    <p>这张专辑做了一件之前的爵士都没做过的事——<strong>没有和弦,没有固定的调,没有固定的小节数</strong>。乐手不被任何东西约束,谁想往哪儿走就往哪儿走。</p>
+
+    <p>Ornette 给这种做法起了个名字,叫 <strong>harmolodic</strong>——意思是<em>和声、旋律、节奏地位平等,谁也不当老大</em>。</p>
+
+    <p>听 <em>Shape of Jazz to Come</em> 的开篇曲 <em>Lonely Woman</em>——整首歌听起来像是<strong>两个平行宇宙的乐手意外开了同一场演出</strong>。这就是 free jazz。它把爵士推到了<em>自由的极限</em>——再往前一步就不是音乐了。</p>
+
+    <p>很多老一代爵士手听了 Ornette 之后<strong>愤怒</strong>。但年轻一代爵士手——尤其是 <strong>John Coltrane</strong>——全部受到震动。Coltrane 1965 年的 <em>Ascension</em> 直接走进了 free jazz。</p>
+
+    <blockquote>
+      爵士走了 60 年,绕了一大圈,又回到了集体即兴。
+    </blockquote>
+  </div>
+
+</div>
+
+<a class="back" href="snare_dial_v5.html">← 回到鼓面</a>
+<a class="next" href="section_09_fusion_v2.html">下一段 · 1969 · FUSION →</a>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  const SECTION_ID = 'free';
+  try { window.parent.postMessage({ type: 'section-shown', sectionId: SECTION_ID }, '*'); } catch (e) {}
+  const back = document.querySelector('.back');
+  if (back) back.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'close-overlay' }, '*'); } catch (e2) {}
+  });
+})();
+</script>
+
+</body>
+</html>

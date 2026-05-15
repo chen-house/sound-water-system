@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段 2 · Ragtime · 1899 · 两只手在打架</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ebe1c4;
+    --paper-deep: #d9cba4;
+    --ink: #2b1f10;
+    --ink-soft: rgba(43, 31, 16, 0.66);
+    --ink-fade: rgba(43, 31, 16, 0.36);
+    --rule: rgba(43, 31, 16, 0.12);
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--paper); }
+  body {
+    background:
+      radial-gradient(ellipse 1200px 700px at 50% 20%, #f0e7ce 0%, var(--paper) 60%, var(--paper-deep) 100%);
+    min-height: 100vh;
+    color: var(--ink);
+    font-family: var(--font-serif);
+    overflow-x: hidden;
+    padding-bottom: 80px;
+    position: relative;
+  }
+  .top-marker {
+    position: absolute; top: 40px; left: 56px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--ink-fade);
+  }
+  .stage {
+    min-height: 100vh;
+    position: relative;
+    padding: 110px 56px 60px;
+  }
+  .where {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px; letter-spacing: 0.42em;
+    color: var(--ink-fade);
+    margin-bottom: 48px;
+  }
+  /* Layer A · DJ 串场 */
+  .dj-intro {
+    max-width: 580px; margin: 0 auto 72px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 19px; line-height: 1.65;
+    letter-spacing: 0.02em;
+  }
+  .dj-intro p { margin-bottom: 1.2em; }
+  .dj-intro em { font-style: italic; color: var(--ink); }
+  .dj-intro strong { font-weight: 500; color: var(--ink); }
+
+  /* —— 两只手在打架:左右两栏,baseline 永远不对齐 —— */
+  .hands {
+    max-width: 800px; margin: 0 auto 80px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+    position: relative;
+  }
+  .hands::before {
+    content: '左手 · 欧洲规矩';
+    position: absolute; top: -32px; left: 0;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.34em; color: var(--ink-fade);
+  }
+  .hands::after {
+    content: '右手 · 西非偷拍';
+    position: absolute; top: -32px; right: 0;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.34em; color: var(--ink-fade);
+  }
+  .hands .left, .hands .right {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    line-height: 36px;
+    color: var(--ink);
+  }
+  .hands .left {
+    background:
+      repeating-linear-gradient(0deg, transparent 0, transparent 35px, var(--rule) 35px, var(--rule) 36px);
+    padding: 0 8px;
+  }
+  .hands .right {
+    background:
+      repeating-linear-gradient(0deg, transparent 0, transparent 35px, var(--rule) 35px, var(--rule) 36px);
+    padding: 18px 8px 0;
+  }
+  .hands p { margin: 0; }
+  .hands .beat { font-family: var(--font-mono); color: var(--ink-fade); font-size: 13px; letter-spacing: 0.2em; }
+
+  /* Layer C · 正文 + Layer B 段尾重锤 */
+  .article {
+    max-width: 540px; margin: 0 auto;
+    color: var(--ink-soft);
+    font-size: 17px; line-height: 1.55;
+    letter-spacing: 0.02em;
+  }
+  .article p { margin-bottom: 0.8em; }
+  .article em { font-style: italic; color: var(--ink); }
+  .article strong { font-weight: 500; color: var(--ink); }
+  .article .pull {
+    margin-top: 2.5em; text-align: center;
+    font-size: 24px; line-height: 1.4;
+    color: var(--ink); letter-spacing: 0.04em;
+    text-wrap: balance;
+  }
+
+  /* —— 邻居 —— */
+  .converse {
+    max-width: 920px; margin: 100px auto 0;
+    border-top: 1px solid rgba(43, 31, 16, 0.18);
+    padding-top: 44px;
+  }
+  .converse-label {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.38em; color: var(--ink-fade);
+    text-align: center; margin-bottom: 36px;
+  }
+  .converse-row { display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; }
+  .neighbor {
+    display: block; text-align: center; text-decoration: none;
+    color: var(--ink-soft); padding: 22px 28px;
+    border: 1px solid rgba(43, 31, 16, 0.22);
+    min-width: 200px;
+    transition: border-color 0.4s, color 0.4s;
+  }
+  .neighbor:hover { color: var(--ink); border-color: var(--ink); }
+  .neighbor .rel {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.3em; color: var(--ink-fade); margin-bottom: 10px;
+  }
+  .neighbor .name { font-family: var(--font-serif); font-size: 15px; letter-spacing: 0.04em; }
+
+  .back {
+    position: fixed; bottom: 24px; left: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: var(--ink-fade);
+    text-decoration: none;
+  }
+  .back:hover { color: var(--ink); }
+
+</style>
+</head>
+<body>
+
+<div class="top-marker">SECTION 02 · RAGTIME · MAPLE LEAF RAG</div>
+
+<div class="stage">
+
+  <div class="where">1899 &nbsp;&nbsp; SEDALIA · MISSOURI</div>
+
+  <div class="dj-intro">
+    <p>时间往回拨 60 年。</p>
+    <p>1899 年的密苏里。一个 31 岁的混血钢琴手在 Sedalia 这个小镇上,坐到了一台二手钢琴前——左手按欧洲规矩老老实实地走,右手偏要踩在它的拍子之间。</p>
+    <p>两只手在打架。打了三分钟,这首曲子叫 <em>Maple Leaf Rag</em>。</p>
+    <p><strong>它不是爵士。但爵士的爹,是它。</strong></p>
+  </div>
+
+  <div class="hands">
+    <div class="left">
+      <p class="beat">第 1 拍</p>
+      <p>蹦</p>
+      <p class="beat">第 2 拍</p>
+      <p>嚓</p>
+      <p class="beat">第 3 拍</p>
+      <p>蹦</p>
+      <p class="beat">第 4 拍</p>
+      <p>嚓</p>
+    </div>
+    <div class="right">
+      <p class="beat">第 1.5 拍</p>
+      <p>偷拍</p>
+      <p class="beat">第 2.5 拍</p>
+      <p>错开</p>
+      <p class="beat">第 3.5 拍</p>
+      <p>勾住</p>
+      <p class="beat">第 4.5 拍</p>
+      <p>拉扯</p>
+    </div>
+  </div>
+
+  <div class="article">
+    <p>左手弹欧洲传统的"oom-pah"——规律的重音。右手在这套规律拍上<strong>故意把重音错开</strong>——右手该落第 1 拍的时候它落第 1.5 拍,该落第 3 拍的时候它落第 2.5 拍。</p>
+    <p>听众的耳朵被这个"打架"勾住了——明明左手在很规矩地走,右手却像<em>踩在棉花上</em>。这种音乐的拉扯感,后来是无数美国流行音乐的灵魂。</p>
+    <p><em>Maple Leaf Rag</em> 的钢琴谱<strong>销量一百万张</strong>——是 19 世纪末美国钢琴史上的一桩大事。家里有钢琴的中产阶级家庭,全国都在弹这首曲子。</p>
+    <p class="pull">这条路一旦打开,再也关不上。</p>
+  </div>
+
+</div>
+
+<a class="back" href="snare_dial_v4.html">← 回到鼓面</a>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  const SECTION_ID = 'ragtime';
+  try { window.parent.postMessage({ type: 'section-shown', sectionId: SECTION_ID }, '*'); } catch (e) {}
+  const back = document.querySelector('.back');
+  if (back) back.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'close-overlay' }, '*'); } catch (e2) {}
+  });
+})();
+</script>
+
+</body>
+</html>

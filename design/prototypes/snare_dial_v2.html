@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鼓面 · Jazz 1899-1969 · v2 互动</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #ede5d2;
+    --cream-deep: #e3d9bf;
+    --disc: #16110a;
+    --ink: #3a342a;
+    --ink-soft: rgba(58, 52, 42, 0.66);
+    --ink-fade: rgba(58, 52, 42, 0.38);
+    --leader: rgba(58, 52, 42, 0.18);
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--cream); min-height: 100vh; }
+  body {
+    color: var(--ink);
+    font-family: var(--font-serif);
+    overflow-x: hidden;
+    padding-bottom: 200px;
+    position: relative;
+  }
+
+  /* —— 顶端两行小字 —— */
+  .top-left {
+    position: absolute; top: 40px; left: 56px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--ink-fade);
+  }
+  .top-right {
+    position: absolute; top: 40px; right: 56px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--ink-soft);
+    text-align: right;
+    transition: opacity 0.3s;
+  }
+  .top-right .label {
+    color: var(--ink-fade); margin-right: 8px;
+  }
+  .top-right.dragging { opacity: 1; }
+
+  /* —— 主舞台 —— */
+  .stage {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 140px 24px 60px;
+  }
+  .dial-wrap { width: 100%; max-width: 820px; margin: 0 auto; }
+  .dial { display: block; width: 100%; height: auto; outline: none; }
+  .dial:focus-visible {
+    outline: 1px dashed var(--ink-fade);
+    outline-offset: 6px;
+    border-radius: 8px;
+  }
+
+  /* —— SVG 内样式 —— */
+  .disc { fill: var(--disc); }
+  .tick { stroke: var(--ink); stroke-width: 1; transition: stroke-width 0.25s, stroke 0.25s; }
+  .needle { stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
+  .needle-tip { fill: var(--ink); }
+  .leader { stroke: var(--leader); stroke-width: 0.6; }
+  .label {
+    fill: var(--ink);
+    font-family: var(--font-serif);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    transition: fill 0.25s;
+  }
+  .label .year {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    fill: var(--ink-soft);
+  }
+  .notch-hit { fill: transparent; cursor: pointer; }
+  .notch-group:hover .tick { stroke: #16110a; stroke-width: 2; }
+  .notch-group:hover .label { fill: #16110a; }
+  .notch-group.current .tick { stroke-width: 2.4; }
+  .notch-group.current .label .year { fill: var(--ink); }
+
+  /* —— 鼓棒可拖 —— */
+  #stick-hit { cursor: grab; }
+  body.is-dragging,
+  body.is-dragging #stick-hit { cursor: grabbing; }
+  body.is-dragging .notch-group { cursor: default; }
+
+  /* —— 提示行 —— */
+  .hint {
+    margin-top: 56px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.34em;
+    color: var(--ink-fade);
+    text-align: center;
+  }
+  .hint .sep { color: rgba(58,52,42,0.18); margin: 0 14px; }
+
+  /* —— 设计注 —— */
+  .design-note {
+    max-width: 720px;
+    margin: 200px auto 0;
+    padding: 32px 40px;
+    border: 1px dashed rgba(58, 52, 42, 0.28);
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 2;
+    letter-spacing: 0.04em;
+  }
+  .design-note b { color: var(--ink); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="top-left">JAZZ · 1899—1969</div>
+<div class="top-right" id="status-panel">
+  <span class="label">NOW HERE</span><span id="status-value">1959 · MODAL · KIND OF BLUE</span>
+</div>
+
+<div class="stage">
+<div class="dial-wrap">
+
+<svg id="dial-svg" class="dial" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg"
+     tabindex="0" role="application"
+     aria-label="军鼓鼓面 · Jazz 时间表盘 · 1899-1969">
+
+  <!-- 鼓皮 -->
+  <circle class="disc" cx="400" cy="400" r="180"/>
+
+  <!-- 1. 1899 Ragtime -->
+  <a xlink:href="#">
+  <g class="notch-group" data-event="ragtime">
+    <line class="tick" x1="272.7" y1="272.7" x2="263.5" y2="263.5"/>
+    <text class="label" x="247" y="244" text-anchor="end">
+      <tspan class="year">1899</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Ragtime</tspan>
+    </text>
+    <rect class="notch-hit" x="160" y="220" width="120" height="50"/>
+  </g>
+  </a>
+
+  <!-- 2. 1925 新奥尔良 -->
+  <a xlink:href="#">
+  <g class="notch-group" data-event="new-orleans">
+    <line class="tick" x1="297.4" y1="547.9" x2="289.9" y2="558.5"/>
+    <text class="label" x="277" y="595" text-anchor="end">
+      <tspan class="year">1925</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">新奥尔良</tspan>
+    </text>
+    <rect class="notch-hit" x="190" y="572" width="100" height="32"/>
+  </g>
+  </a>
+
+  <!-- 3. 1937 Swing -->
+  <a xlink:href="#">
+  <g class="notch-group" data-event="swing">
+    <line class="tick" x1="436.0" y1="576.3" x2="438.6" y2="589.1"/>
+    <text class="label" x="443" y="628" text-anchor="middle">
+      <tspan class="year">1937</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Swing</tspan>
+    </text>
+    <rect class="notch-hit" x="395" y="608" width="100" height="32"/>
+  </g>
+  </a>
+
+  <!-- 4. 1945 Bebop -->
+  <a xlink:href="section_05_bebop_v1.html">
+  <g class="notch-group" data-event="bebop">
+    <line class="tick" x1="521.4" y1="532.9" x2="530.2" y2="542.5"/>
+    <text class="label" x="546" y="578" text-anchor="start">
+      <tspan class="year">1945</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Bebop</tspan>
+    </text>
+    <rect class="notch-hit" x="540" y="558" width="100" height="32"/>
+  </g>
+  </a>
+
+  <!-- 5. 1949 Cool -->
+  <a xlink:href="#">
+  <g class="notch-group" data-event="cool">
+    <line class="tick" x1="552.4" y1="495.8" x2="563.4" y2="502.7"/>
+    <text class="label" x="585" y="528" text-anchor="start">
+      <tspan class="year">1949</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Cool</tspan>
+    </text>
+    <rect class="notch-hit" x="578" y="508" width="100" height="32"/>
+  </g>
+  </a>
+
+  <!-- — 1959 cluster — -->
+  <!-- 6. 1958 Hard Bop -->
+  <a xlink:href="#">
+  <g class="notch-group" data-event="hard-bop">
+    <line class="tick" x1="579.8" y1="391.9" x2="592.8" y2="391.3"/>
+    <line class="leader" x1="593" y1="391.5" x2="612" y2="404"/>
+    <text class="label" x="616" y="408" text-anchor="start">
+      <tspan class="year">1958</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Hard Bop</tspan>
+    </text>
+    <rect class="notch-hit" x="586" y="386" width="120" height="32"/>
+  </g>
+  </a>
+
+  <!-- 7. 1959 Modal — DEFAULT current -->
+  <a xlink:href="section_01_kind_of_blue_v1.html">
+  <g class="notch-group current" data-event="modal">
+    <line class="tick" x1="578.9" y1="379.9" x2="591.8" y2="378.5"/>
+    <line class="leader" x1="592" y1="378.7" x2="612" y2="386"/>
+    <text class="label" x="616" y="390" text-anchor="start">
+      <tspan class="year">1959</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Modal</tspan>
+      <tspan dx="6" fill="#3a342a" opacity="0.6">· Kind of Blue</tspan>
+    </text>
+    <rect class="notch-hit" x="586" y="370" width="200" height="28"/>
+  </g>
+  </a>
+
+  <!-- 8. 1959 Free Jazz -->
+  <a xlink:href="#">
+  <g class="notch-group" data-event="free">
+    <line class="tick" x1="577.6" y1="370.6" x2="590.4" y2="368.4"/>
+    <line class="leader" x1="591" y1="368.6" x2="612" y2="365"/>
+    <text class="label" x="616" y="369" text-anchor="start">
+      <tspan class="year">1959</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Free Jazz</tspan>
+    </text>
+    <rect class="notch-hit" x="586" y="354" width="120" height="28"/>
+  </g>
+  </a>
+
+  <!-- 9. 1969 Fusion -->
+  <a xlink:href="#">
+  <g class="notch-group" data-event="fusion">
+    <line class="tick" x1="527.3" y1="272.7" x2="536.5" y2="263.5"/>
+    <text class="label" x="553" y="240" text-anchor="start">
+      <tspan class="year">1969</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Fusion</tspan>
+    </text>
+    <rect class="notch-hit" x="540" y="220" width="120" height="40"/>
+  </g>
+  </a>
+
+  <!-- —— 鼓棒:用 transform 旋转,定义在 θ=0(rightward) —— -->
+  <g id="stick-group" transform="rotate(353.571 400 400)">
+    <rect id="stick-hit" x="575" y="389" width="70" height="22" rx="2" fill="transparent"/>
+    <line class="needle" x1="640" y1="400" x2="580" y2="400"/>
+    <circle class="needle-tip" cx="580" cy="400" r="2.6"/>
+  </g>
+
+</svg>
+
+<div class="hint">
+  点张力杆 · 进入那一段<span class="sep">/</span>拖动鼓棒 · 自由游走<span class="sep">/</span>← → 逐段
+</div>
+
+</div>
+</div>
+
+<div class="design-note">
+  <b>v2 加了什么:</b><br>
+  · <b>点任意张力杆</b> → 鼓棒 380ms 缓动到位 → 120ms 后跳入那一段(只对已连段 1 / 段 5 生效)<br>
+  · <b>拖动鼓棒</b> → 自由游走,松手吸附到最近的张力杆。拖动期间右上角"NOW HERE"实时更新到最近候选 → 不跳页(拖 = 探索,不是确认)<br>
+  · <b>键盘</b> ← / → 逐段移动(按时间序),Enter 进入。先点一下盘面或 Tab 聚焦 SVG<br>
+  · <b>1959 三连击</b> 用更宽的 hit-rect 容纳点击,无需精准对准刻痕<br>
+  <br>
+  <b>克制原则未破:</b><br>
+  · 没有添加任何视觉装饰、没有动画特效(只有鼓棒位移的缓动)<br>
+  · 没有"落针音效"、没有 ripple、没有发光<br>
+  · current 张力杆只比其它稍粗一档(stroke-width 2.4 vs 1)<br>
+  · 拖动期间 cursor 从 grab → grabbing,这是唯一一处微反馈<br>
+  <br>
+  <b>v3 可加(看是否需要):</b><br>
+  · 移动端的触控比例适配(目前 pointer event 已通,但布局未做断点)<br>
+  · 第一次进站的"鼓棒可拖"提示(目前靠 cursor: grab 暗示)<br>
+  · 进入段落后从段落返回时,鼓棒位置记忆(目前每次刷新都回到 modal)
+</div>
+
+<script>
+(() => {
+  const notches = [
+    { id: 'ragtime',     year: 1899, name: 'RAGTIME',           theta: 225,     href: '#' },
+    { id: 'new-orleans', year: 1925, name: '新奥尔良',          theta: 124.714, href: '#' },
+    { id: 'swing',       year: 1937, name: 'SWING',             theta: 78.429,  href: '#' },
+    { id: 'bebop',       year: 1945, name: 'BEBOP',             theta: 47.571,  href: 'section_05_bebop_v1.html' },
+    { id: 'cool',        year: 1949, name: 'COOL',              theta: 32.143,  href: '#' },
+    { id: 'hard-bop',    year: 1958, name: 'HARD BOP',          theta: 357.429, href: '#' },
+    { id: 'modal',       year: 1959, name: 'MODAL · KIND OF BLUE', theta: 353.571, href: 'section_01_kind_of_blue_v1.html' },
+    { id: 'free',        year: 1959, name: 'FREE JAZZ',         theta: 350.571, href: '#' },
+    { id: 'fusion',      year: 1969, name: 'FUSION',            theta: 315,     href: '#' },
+  ];
+
+  const stickG     = document.getElementById('stick-group');
+  const stickHit   = document.getElementById('stick-hit');
+  const svg        = document.getElementById('dial-svg');
+  const statusVal  = document.getElementById('status-value');
+  const statusPnl  = document.getElementById('status-panel');
+
+  let currentTheta   = 353.571;
+  let currentNotchId = 'modal';
+  let isDragging     = false;
+  let isAnimating    = false;
+
+  function setStickAngle(theta) {
+    currentTheta = theta;
+    stickG.setAttribute('transform', `rotate(${theta} 400 400)`);
+  }
+
+  function updateStatus(notch) {
+    statusVal.textContent = `${notch.year} · ${notch.name}`;
+  }
+
+  function setCurrent(notchId) {
+    currentNotchId = notchId;
+    document.querySelectorAll('.notch-group').forEach(g => {
+      g.classList.toggle('current', g.dataset.event === notchId);
+    });
+  }
+
+  function animate(fromTheta, toTheta, duration, onComplete) {
+    isAnimating = true;
+    let delta = toTheta - fromTheta;
+    if (delta > 180)  delta -= 360;
+    if (delta < -180) delta += 360;
+    const start = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setStickAngle(fromTheta + delta * eased);
+      if (t < 1) requestAnimationFrame(step);
+      else { isAnimating = false; if (onComplete) onComplete(); }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function moveToNotch(notch, navigate) {
+    setCurrent(notch.id);
+    updateStatus(notch);
+    animate(currentTheta, notch.theta, 380, () => {
+      if (navigate && notch.href && notch.href !== '#') {
+        setTimeout(() => { window.location.href = notch.href; }, 120);
+      }
+    });
+  }
+
+  function angDist(a, b) {
+    let d = Math.abs(a - b) % 360;
+    return d > 180 ? 360 - d : d;
+  }
+
+  function findNearestNotch(theta) {
+    let best = notches[0], bestDist = 360;
+    for (const n of notches) {
+      const d = angDist(n.theta, theta);
+      if (d < bestDist) { bestDist = d; best = n; }
+    }
+    return best;
+  }
+
+  // 点 notch → 动画 → 跳页
+  document.querySelectorAll('.notch-group').forEach(g => {
+    const data = notches.find(n => n.id === g.dataset.event);
+    if (!data) return;
+    const a = g.closest('a');
+    if (a) {
+      a.addEventListener('click', (e) => {
+        if (isDragging || isAnimating) return;
+        e.preventDefault();
+        moveToNotch(data, true);
+      });
+    }
+  });
+
+  // 拖鼓棒
+  function angleFromPointer(clientX, clientY) {
+    const rect = svg.getBoundingClientRect();
+    const sx = ((clientX - rect.left) / rect.width)  * 800;
+    const sy = ((clientY - rect.top)  / rect.height) * 800;
+    const dx = sx - 400, dy = sy - 400;
+    let theta = Math.atan2(dy, dx) * 180 / Math.PI;
+    if (theta < 0) theta += 360;
+    return theta;
+  }
+
+  stickHit.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    isDragging = true;
+    stickHit.setPointerCapture(e.pointerId);
+    document.body.classList.add('is-dragging');
+    statusPnl.classList.add('dragging');
+    svg.focus({ preventScroll: true });
+  });
+
+  stickHit.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+    const theta = angleFromPointer(e.clientX, e.clientY);
+    setStickAngle(theta);
+    const nearest = findNearestNotch(theta);
+    updateStatus(nearest);
+  });
+
+  function endDrag(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    document.body.classList.remove('is-dragging');
+    statusPnl.classList.remove('dragging');
+    try { stickHit.releasePointerCapture(e.pointerId); } catch (_) {}
+    const nearest = findNearestNotch(currentTheta);
+    setCurrent(nearest.id);
+    animate(currentTheta, nearest.theta, 220);
+  }
+  stickHit.addEventListener('pointerup', endDrag);
+  stickHit.addEventListener('pointercancel', endDrag);
+
+  // 键盘
+  svg.addEventListener('keydown', (e) => {
+    if (isAnimating) return;
+    const idx = notches.findIndex(n => n.id === currentNotchId);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const target = notches[(idx - 1 + notches.length) % notches.length];
+      moveToNotch(target, false);
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const target = notches[(idx + 1) % notches.length];
+      moveToNotch(target, false);
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      const curr = notches.find(n => n.id === currentNotchId);
+      if (curr && curr.href && curr.href !== '#') {
+        e.preventDefault();
+        moveToNotch(curr, true);
+      }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

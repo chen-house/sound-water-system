@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段 3 · 新奥尔良 · 1925 · v2 文章版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #e8dec0;
+    --paper-deep: #d3c498;
+    --ink: #2a1c0e;
+    --ink-soft: rgba(42, 28, 14, 0.78);
+    --ink-fade: rgba(42, 28, 14, 0.36);
+    --rule: rgba(42, 28, 14, 0.12);
+    --gold: #8a6e3a;
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--paper); }
+  body {
+    background:
+      radial-gradient(ellipse 1200px 700px at 50% 20%, #ede4c8 0%, var(--paper) 60%, var(--paper-deep) 100%);
+    min-height: 100vh;
+    color: var(--ink);
+    font-family: var(--font-serif);
+    overflow-x: hidden;
+    padding-bottom: 80px;
+  }
+  .top-marker {
+    position: absolute; top: 32px; left: 56px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--ink-fade);
+  }
+  .stage { min-height: 100vh; padding: 76px 48px 60px; position: relative; }
+
+  .where {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px; letter-spacing: 0.42em;
+    color: var(--ink-fade); margin-bottom: 40px;
+  }
+
+  /* —— 四种语言同时在街上响 —— */
+  .babel {
+    max-width: 760px; margin: 0 auto 48px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    text-align: center;
+  }
+  .babel .tongue {
+    font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 0.28em;
+    color: var(--ink-fade);
+    padding: 12px 0 6px;
+    border-top: 1px solid var(--ink-fade);
+  }
+  .babel .tongue b { display: block; color: var(--ink-soft); font-weight: 500; letter-spacing: 0.04em; font-family: var(--font-serif); font-size: 14px; margin-top: 4px; }
+
+  /* —— 五个声部同时演奏:水平条纹 —— */
+  .voices {
+    max-width: 720px; margin: 0 auto 56px;
+    position: relative;
+  }
+  .voice {
+    display: grid; grid-template-columns: 92px 1fr;
+    gap: 24px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(42, 28, 14, 0.10);
+  }
+  .voice .instr {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: var(--ink-fade);
+    text-align: right;
+  }
+  .voice .line {
+    height: 18px; background: transparent; position: relative;
+  }
+  .v1 .line { clip-path: polygon(0% 50%, 8% 0%, 18% 100%, 32% 30%, 48% 80%, 62% 10%, 78% 70%, 92% 20%, 100% 50%); background: var(--ink); }
+  .v2 .line { clip-path: polygon(0% 30%, 12% 90%, 28% 10%, 42% 60%, 58% 20%, 72% 80%, 88% 30%, 100% 70%); background: var(--ink); }
+  .v3 .line { clip-path: polygon(0% 70%, 10% 20%, 24% 80%, 38% 40%, 54% 90%, 68% 30%, 82% 60%, 100% 40%); background: var(--ink); }
+  .v4 .line { clip-path: polygon(0% 40%, 14% 70%, 30% 20%, 46% 80%, 62% 40%, 76% 90%, 90% 10%, 100% 60%); background: var(--ink); }
+  .v5 .line { clip-path: polygon(0% 50%, 6% 50%, 6% 20%, 18% 20%, 18% 80%, 30% 80%, 30% 30%, 44% 30%, 44% 70%, 58% 70%, 58% 40%, 72% 40%, 72% 60%, 86% 60%, 86% 50%, 100% 50%); background: var(--ink); }
+
+  /* —— 文章主体 —— */
+  .article {
+    max-width: 640px; margin: 0 auto;
+    color: var(--ink); font-size: 17px;
+    line-height: 1.75; letter-spacing: 0.01em;
+  }
+  .article > p { margin-bottom: 1em; }
+  .article em { font-style: italic; }
+  .article strong { font-weight: 500; }
+  .article blockquote {
+    margin: 1.8em 0 0.8em; padding-left: 24px;
+    border-left: 2px solid var(--gold);
+    font-style: italic; font-size: 19px;
+    line-height: 1.6; color: var(--ink);
+  }
+  .article blockquote cite {
+    display: block; margin-top: 8px; font-style: normal;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.3em; color: var(--ink-fade);
+  }
+  .article blockquote cite::before { content: '— '; }
+
+  .back {
+    position: fixed; bottom: 24px; left: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: var(--ink-fade);
+    text-decoration: none;
+  }
+  .back:hover { color: var(--ink); }
+
+  .next {
+    position: fixed; bottom: 24px; right: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: var(--ink-fade);
+    text-decoration: none;
+    text-align: right;
+  }
+  .next:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="top-marker">SECTION 03 · 新奥尔良 · HOT FIVE &amp; SEVEN</div>
+
+<div class="stage">
+
+  <div class="where">1900s — 1928 &nbsp;&nbsp; NEW ORLEANS · LOUISIANA</div>
+
+  <div class="babel">
+    <div class="tongue">FRANÇAIS<b>法语</b></div>
+    <div class="tongue">ESPAÑOL<b>西语</b></div>
+    <div class="tongue">ENGLISH<b>英语</b></div>
+    <div class="tongue">KREYÒL<b>克里奥尔语</b></div>
+  </div>
+
+  <div class="voices">
+    <div class="voice v1"><div class="instr">CORNET</div><div class="line"></div></div>
+    <div class="voice v2"><div class="instr">TROMBONE</div><div class="line"></div></div>
+    <div class="voice v3"><div class="instr">CLARINET</div><div class="line"></div></div>
+    <div class="voice v4"><div class="instr">PIANO</div><div class="line"></div></div>
+    <div class="voice v5"><div class="instr">DRUMS</div><div class="line"></div></div>
+  </div>
+
+  <div class="article">
+    <p>1900 年的新奥尔良。法国人来过、西班牙人来过、美国人买过、加勒比海的人天天来。<strong>四种话在街上同时响</strong>。</p>
+
+    <p>这地方还有一个特别的事——<strong>全美国独此一家,允许黑人小孩学音乐</strong>。一群叫 Creole 的混血音乐家既会读欧洲乐谱,又听着 ragtime 长大,街上每天还能听到加勒比海移民带来的非洲鼓声。</p>
+
+    <p>他们端着小号、长号、单簧管、钢琴、鼓,跑到酒馆里,<em>没有谱、没有指挥、几个人一起吹</em>——一首歌想到哪儿吹到哪儿。这叫<strong>集体即兴</strong>。</p>
+
+    <p>这就是早期爵士的诞生。它没有具体哪一年、也没有具体哪一个人——它是<em>一座城市的街头风气慢慢凝固出来的</em>。</p>
+
+    <p>1925 到 1928 年间,1901 年生在新奥尔良的 <strong>Louis Armstrong</strong> 录了一系列叫 <em>Hot Five</em> 和 <em>Hot Seven</em> 的唱片。在一段集体即兴里,他做了一件以前没人做过的事——他把伴奏停下,让自己一个人吹两分钟。从那两分钟开始,爵士里多了一个新角色:<strong>独奏者</strong>。</p>
+
+    <blockquote>
+      让我一个人吹两分钟,你们等着我。
+      <cite>Louis Armstrong</cite>
+    </blockquote>
+  </div>
+
+</div>
+
+<a class="back" href="snare_dial_v5.html">← 回到鼓面</a>
+<a class="next" href="section_04_swing_v2.html">下一段 · 1937 · SWING →</a>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  const SECTION_ID = 'new-orleans';
+  try { window.parent.postMessage({ type: 'section-shown', sectionId: SECTION_ID }, '*'); } catch (e) {}
+  const back = document.querySelector('.back');
+  if (back) back.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'close-overlay' }, '*'); } catch (e2) {}
+  });
+})();
+</script>
+
+</body>
+</html>

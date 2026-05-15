@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>时间表盘 · Jazz 1899-1969 · v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #ede5d2;
+    --cream-deep: #e3d9bf;
+    --disc: #16110a;
+    --ink: #3a342a;
+    --ink-soft: rgba(58, 52, 42, 0.66);
+    --ink-fade: rgba(58, 52, 42, 0.38);
+    --leader: rgba(58, 52, 42, 0.18);
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--cream);
+    min-height: 100vh;
+  }
+  body {
+    color: var(--ink);
+    font-family: var(--font-serif);
+    overflow-x: hidden;
+    padding-bottom: 200px;
+    position: relative;
+  }
+
+  /* —— 顶端两行小字 —— */
+  .top-left {
+    position: absolute;
+    top: 40px;
+    left: 56px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--ink-fade);
+  }
+  .top-right {
+    position: absolute;
+    top: 40px;
+    right: 56px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--ink-soft);
+    text-align: right;
+  }
+  .top-right .label {
+    color: var(--ink-fade);
+    margin-right: 8px;
+  }
+
+  /* —— 主舞台 —— */
+  .stage {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 140px 24px 60px;
+  }
+
+  .dial-wrap {
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+  .dial { display: block; width: 100%; height: auto; }
+
+  /* —— SVG 内样式 —— */
+  .disc { fill: var(--disc); }
+  .tick { stroke: var(--ink); stroke-width: 1; }
+  .needle { stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
+  .needle-tip { fill: var(--ink); }
+  .leader { stroke: var(--leader); stroke-width: 0.6; }
+  .label {
+    fill: var(--ink);
+    font-family: var(--font-serif);
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+  .label .year {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    fill: var(--ink-soft);
+  }
+  .notch-hit { fill: transparent; cursor: pointer; }
+  .notch-group .tick,
+  .notch-group .label { transition: stroke 0.3s, fill 0.3s; }
+  .notch-group:hover .tick { stroke: #16110a; stroke-width: 2; }
+  .notch-group:hover .label { fill: #16110a; }
+  .notch-group.current .tick { stroke-width: 2; }
+
+  /* —— 提示行 —— */
+  .hint {
+    margin-top: 56px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.34em;
+    color: var(--ink-fade);
+    text-align: center;
+  }
+
+  /* —— 设计注 —— */
+  .design-note {
+    max-width: 720px;
+    margin: 200px auto 0;
+    padding: 32px 40px;
+    border: 1px dashed rgba(58, 52, 42, 0.28);
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 2;
+    letter-spacing: 0.04em;
+  }
+  .design-note b { color: var(--ink); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="top-left">TIME DIAL · JAZZ · 1899—1969</div>
+<div class="top-right">
+  <span class="label">NOW HERE</span>1959 · MODAL · KIND OF BLUE
+</div>
+
+<div class="stage">
+<div class="dial-wrap">
+
+<svg class="dial" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" aria-label="Jazz time dial 1899-1969">
+
+  <!-- 主盘:纯填充黑色圆 -->
+  <circle class="disc" cx="400" cy="400" r="180"/>
+
+  <!-- 9 个刻痕 + 标签,按真实年份角度散布 -->
+  <!-- 公式: theta = 225° − (year−1899)/70 × 270°,从左下经底到右上 -->
+
+  <!-- 1. 1899 Ragtime  (theta=225°,top-left) -->
+  <a xlink:href="#">
+  <g class="notch-group" data-event="ragtime">
+    <line class="tick" x1="272.7" y1="272.7" x2="263.5" y2="263.5"/>
+    <text class="label" x="247" y="244" text-anchor="end">
+      <tspan class="year">1899</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Ragtime</tspan>
+    </text>
+    <rect class="notch-hit" x="160" y="220" width="120" height="50"/>
+  </g>
+  </a>
+
+  <!-- 2. 1925 新奥尔良  (theta=124.7°,bottom-left) -->
+  <a xlink:href="#">
+  <g class="notch-group" data-event="new-orleans">
+    <line class="tick" x1="297.4" y1="547.9" x2="289.9" y2="558.5"/>
+    <text class="label" x="277" y="595" text-anchor="end">
+      <tspan class="year">1925</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">新奥尔良</tspan>
+    </text>
+    <rect class="notch-hit" x="190" y="572" width="100" height="32"/>
+  </g>
+  </a>
+
+  <!-- 3. 1937 Swing  (theta=78.4°,bottom-center) -->
+  <a xlink:href="#">
+  <g class="notch-group" data-event="swing">
+    <line class="tick" x1="436.0" y1="576.3" x2="438.6" y2="589.1"/>
+    <text class="label" x="443" y="628" text-anchor="middle">
+      <tspan class="year">1937</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Swing</tspan>
+    </text>
+    <rect class="notch-hit" x="395" y="608" width="100" height="32"/>
+  </g>
+  </a>
+
+  <!-- 4. 1945 Bebop  (theta=47.6°,bottom-right) -->
+  <a xlink:href="section_05_bebop_v1.html">
+  <g class="notch-group" data-event="bebop">
+    <line class="tick" x1="521.4" y1="532.9" x2="530.2" y2="542.5"/>
+    <text class="label" x="546" y="578" text-anchor="start">
+      <tspan class="year">1945</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Bebop</tspan>
+    </text>
+    <rect class="notch-hit" x="540" y="558" width="100" height="32"/>
+  </g>
+  </a>
+
+  <!-- 5. 1949 Cool  (theta=32.1°,right-bottom) -->
+  <a xlink:href="#">
+  <g class="notch-group" data-event="cool">
+    <line class="tick" x1="552.4" y1="495.8" x2="563.4" y2="502.7"/>
+    <text class="label" x="585" y="528" text-anchor="start">
+      <tspan class="year">1949</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Cool</tspan>
+    </text>
+    <rect class="notch-hit" x="578" y="508" width="100" height="32"/>
+  </g>
+  </a>
+
+  <!-- — 1959 cluster:三个事件几乎贴在一起,标签用极细引线展开 — -->
+
+  <!-- 6. 1958 Hard Bop  (theta=357.4°) -->
+  <a xlink:href="#">
+  <g class="notch-group" data-event="hard-bop">
+    <line class="tick" x1="579.8" y1="391.9" x2="592.8" y2="391.3"/>
+    <line class="leader" x1="593" y1="391.5" x2="612" y2="404"/>
+    <text class="label" x="616" y="408" text-anchor="start">
+      <tspan class="year">1958</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Hard Bop</tspan>
+    </text>
+    <rect class="notch-hit" x="586" y="386" width="120" height="32"/>
+  </g>
+  </a>
+
+  <!-- 7. 1959 Modal  (theta=353.6°) — DEFAULT current -->
+  <a xlink:href="section_01_kind_of_blue_v1.html">
+  <g class="notch-group current" data-event="modal">
+    <line class="tick" x1="578.9" y1="379.9" x2="591.8" y2="378.5"/>
+    <line class="leader" x1="592" y1="378.7" x2="612" y2="386"/>
+    <text class="label" x="616" y="390" text-anchor="start">
+      <tspan class="year">1959</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Modal</tspan>
+      <tspan dx="6" fill="#3a342a" opacity="0.6">· Kind of Blue</tspan>
+    </text>
+    <rect class="notch-hit" x="586" y="370" width="200" height="28"/>
+  </g>
+  </a>
+
+  <!-- 8. 1959 Free Jazz  (theta=350.6°,提早 3°避开 modal) -->
+  <a xlink:href="#">
+  <g class="notch-group" data-event="free">
+    <line class="tick" x1="577.6" y1="370.6" x2="590.4" y2="368.4"/>
+    <line class="leader" x1="591" y1="368.6" x2="612" y2="365"/>
+    <text class="label" x="616" y="369" text-anchor="start">
+      <tspan class="year">1959</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Free Jazz</tspan>
+    </text>
+    <rect class="notch-hit" x="586" y="354" width="120" height="28"/>
+  </g>
+  </a>
+
+  <!-- 9. 1969 Fusion  (theta=315°,top-right) -->
+  <a xlink:href="#">
+  <g class="notch-group" data-event="fusion">
+    <line class="tick" x1="527.3" y1="272.7" x2="536.5" y2="263.5"/>
+    <text class="label" x="553" y="240" text-anchor="start">
+      <tspan class="year">1969</tspan>
+      <tspan dx="6">·</tspan>
+      <tspan dx="6">Fusion</tspan>
+    </text>
+    <rect class="notch-hit" x="540" y="220" width="120" height="40"/>
+  </g>
+  </a>
+
+  <!-- —— 针:默认指向 1959 Modal (theta=353.571°) —— -->
+  <!-- 外端 r=240,内端 r=180 -->
+  <line class="needle" x1="638.5" y1="373.2" x2="578.9" y2="379.9"/>
+  <circle class="needle-tip" cx="578.9" cy="379.9" r="2.6"/>
+
+</svg>
+
+<div class="hint">点任意刻痕,进入那一段</div>
+
+</div>
+</div>
+
+<div class="design-note">
+  <b>设计注 —— 这一稿如何回应你的两个要求:</b><br>
+  <br>
+  <b>"看着像但实际不是":</b><br>
+  · 剪影 = 一个黑圆盘 + 一根从外向内的线 → 0.5 秒内被读成"黑胶"<br>
+  · 走近看 → 没有沟纹 / 没有标签 / 没有轴孔 / 没有旋转 → 不是黑胶<br>
+  · 9 个刻痕<b>间距不均</b>:1899→1925 隔 26 年很宽,1958/1959/1959 三个事件挤在一起 → 不是 33 转等速 → 是时间表盘<br>
+  <br>
+  <b>"极简,烂大街的特征全剥掉":</b><br>
+  · 没有 highlight / 没有 reflection / 没有 noise texture<br>
+  · 中心绝对的空(无 spindle hole)<br>
+  · 没有写"33 ⅓ RPM"或任何 vinyl-ish 字样<br>
+  · 标签只是年份 + 段名,字号 12px,字距 0.04em<br>
+  <br>
+  <b>三个 1959:</b> 1959 Modal / 1959 Free Jazz 用很细的引线把标签拉开 0.5°——视觉上"贴在一起"这件事被保留,可读性被救回<br>
+  <br>
+  <b>默认状态:</b> 针停在 1959 Modal,正文从这里开门见山,但读者可点任意刻痕跳入(已连段 5 Bebop / 段 1 Kind of Blue,其它 7 段未做)<br>
+  <br>
+  <b>未做:</b> 拖动针的交互、悬停时的微动画、键盘可访问性、移动端的圆盘比例适配——v2 再加
+</div>
+
+</body>
+</html>

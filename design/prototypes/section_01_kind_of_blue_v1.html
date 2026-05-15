@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段 1 · Kind of Blue · 1959 · 形式呼应内容 v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0b1018;
+    --night-deep: #060a12;
+    --ivory: #ede5d2;
+    --ivory-soft: rgba(237, 229, 210, 0.62);
+    --ivory-fade: rgba(237, 229, 210, 0.34);
+    --paper: #e6dec6;
+    --paper-edge: #cfc4a4;
+    --paper-shadow: rgba(0, 0, 0, 0.55);
+    --gold: #b29659;
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--night); }
+
+  body {
+    background:
+      radial-gradient(ellipse 1100px 700px at 50% 26%, #131a23 0%, var(--night) 65%, var(--night-deep) 100%);
+    min-height: 100vh;
+    color: var(--ivory);
+    font-family: var(--font-serif);
+    overflow-x: hidden;
+    padding-bottom: 80px;
+    position: relative;
+  }
+
+  .top-marker {
+    position: absolute;
+    top: 40px;
+    left: 56px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    color: var(--ivory-fade);
+  }
+
+  .stage {
+    min-height: 100vh;
+    position: relative;
+    padding: 76px 48px 60px;
+  }
+
+  /* —— 6 张纸条:不规则散落,克制空白 —— */
+  .slips {
+    position: relative;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    height: 280px;
+  }
+
+  .slip {
+    position: absolute;
+    width: 144px;
+    padding: 18px 16px 18px;
+    background: linear-gradient(180deg, var(--paper) 0%, var(--paper-edge) 100%);
+    color: #2a2418;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.5;
+    letter-spacing: 0.06em;
+    box-shadow:
+      0 22px 36px var(--paper-shadow),
+      0 8px 14px rgba(0,0,0,0.4),
+      0 1px 0 rgba(255,250,235,0.35) inset;
+    transform-origin: center;
+  }
+
+  .slip .who {
+    font-family: var(--font-serif);
+    font-size: 13px;
+    color: #1a1610;
+    margin-bottom: 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .slip .mark {
+    color: #6a5b3e;
+    letter-spacing: 0.3em;
+    font-size: 10px;
+  }
+
+  /* 6 张分别错落,模拟"撒在桌上",纵向收紧 */
+  .slip:nth-child(1) { top: 8px;   left: 2%;   transform: rotate(-5deg); }
+  .slip:nth-child(2) { top: 40px;  left: 22%;  transform: rotate(2.5deg); }
+  .slip:nth-child(3) { top: 4px;   left: 42%;  transform: rotate(-1.5deg); }
+  .slip:nth-child(4) { top: 46px;  left: 62%;  transform: rotate(3.8deg); }
+  .slip:nth-child(5) { top: 150px; left: 12%;  transform: rotate(1.5deg); }
+  .slip:nth-child(6) { top: 162px; left: 50%;  transform: rotate(-3.2deg); }
+
+  /* —— 日期 —— */
+  .date-stamp {
+    text-align: center;
+    margin: 48px auto 40px;
+    font-family: var(--font-mono);
+    color: var(--ivory-fade);
+    font-size: 12px;
+    letter-spacing: 0.42em;
+  }
+
+  /* —— Layer A · DJ 串场:主持人开口,略松但要读 —— */
+  .dj-intro {
+    max-width: 580px;
+    margin: 0 auto 64px;
+    text-align: center;
+    color: var(--ivory-soft);
+    font-size: 19px;
+    line-height: 1.65;
+    letter-spacing: 0.02em;
+  }
+  .dj-intro p { margin-bottom: 1.2em; }
+  .dj-intro em { font-style: italic; color: var(--ivory); }
+
+  /* —— Layer B · 重锤金句:报刊大标题密度 —— */
+  .quote {
+    text-align: center;
+    margin: 0 auto;
+    max-width: 720px;
+    font-family: var(--font-serif);
+    font-weight: 300;
+    font-size: 30px;
+    line-height: 1.4;
+    letter-spacing: 0.04em;
+    color: var(--ivory);
+    text-wrap: balance;
+  }
+  .quote::before, .quote::after {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--gold);
+    margin: 24px auto;
+    opacity: 0.7;
+  }
+  .aside {
+    text-align: center;
+    color: var(--ivory-soft);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    margin-top: -8px;
+    margin-bottom: 48px;
+  }
+
+  /* —— Layer C · 正文:杂志内文密度,紧凑可读 —— */
+  .article {
+    max-width: 540px;
+    margin: 0 auto;
+    color: var(--ivory-soft);
+    font-size: 17px;
+    line-height: 1.55;
+    letter-spacing: 0.02em;
+  }
+  .article p { margin-bottom: 0.8em; }
+  .article em { font-style: italic; color: var(--ivory); }
+  .article strong { font-weight: 500; color: var(--ivory); }
+  .article .pull {
+    margin-top: 2.5em;
+    text-align: center;
+    font-size: 24px;
+    line-height: 1.4;
+    color: var(--ivory);
+    letter-spacing: 0.04em;
+    text-wrap: balance;
+  }
+
+  /* —— 和我说话的人(非线性入口) —— */
+  .converse {
+    max-width: 920px;
+    margin: 100px auto 0;
+    border-top: 1px solid rgba(178, 150, 89, 0.18);
+    padding-top: 48px;
+  }
+  .converse-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.38em;
+    color: var(--ivory-fade);
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .converse-row {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    flex-wrap: wrap;
+  }
+  .neighbor {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    color: var(--ivory-soft);
+    padding: 22px 28px;
+    border: 1px solid rgba(178, 150, 89, 0.22);
+    min-width: 200px;
+    transition: border-color 0.4s, color 0.4s;
+  }
+  .neighbor:hover { color: var(--ivory); border-color: var(--gold); }
+  .neighbor .rel {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--ivory-fade);
+    margin-bottom: 10px;
+  }
+  .neighbor .name { font-family: var(--font-serif); font-size: 15px; letter-spacing: 0.04em; }
+
+  /* —— 回到九影 —— */
+  .back {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    color: var(--ivory-fade);
+    text-decoration: none;
+  }
+  .back:hover { color: var(--ivory); }
+
+</style>
+</head>
+<body>
+
+<div class="top-marker">SECTION 01 · ANCHOR · KIND OF BLUE</div>
+
+<div class="stage">
+
+  <div class="slips">
+    <div class="slip"><div class="who">MILES</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">COLTRANE</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">CANNONBALL</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">BILL EVANS</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">PAUL CHAMBERS</div><div class="mark">— · — · —</div></div>
+    <div class="slip"><div class="who">JIMMY COBB</div><div class="mark">— · — · —</div></div>
+  </div>
+
+  <div class="date-stamp">1959 · 08 · 17 &nbsp;&nbsp;&nbsp; COLUMBIA STUDIO &nbsp;&nbsp;&nbsp; NEW YORK</div>
+
+  <div class="dj-intro">
+    <p>1959 年 8 月 17 日,纽约 Columbia 录音棚。</p>
+    <p>Miles Davis 给六个乐手每人发了一张纸条,上面只写了几个调。</p>
+    <p>没有彩排,接下来这张专辑,就出自这次集体即兴, <em>Kind of Blue</em>。</p>
+  </div>
+
+  <div class="quote">我们就这么吹。</div>
+  <div class="aside">—— MILES DAVIS</div>
+
+  <div class="article">
+    <p>录音前,Miles 没排练,没写完整谱子。整张专辑 5 首歌,每一首都是<strong>一遍过</strong>。没有彩排,没有第二条录音。</p>
+    <p>Bill Evans 后来回忆:那种感觉就像六个人坐进一间黑屋子,每个人手里有一支蜡烛,一边走一边互相看见对方在哪儿。</p>
+    <p><em>Kind of Blue</em> 后来成为<strong>爵士史上销量最高的专辑</strong>——它甚至被全世界很多不听爵士的人买回家放着。</p>
+    <p>但你如果问 Miles 为什么要这样录,他不会跟你聊销量,也不会聊艺术理念。他会说一句很简单的话——</p>
+    <p class="pull"><strong>"上一代爵士的规矩太紧了。我得松一松。"</strong></p>
+  </div>
+
+</div>
+
+<a class="back" href="snare_dial_v4.html">← 回到鼓面</a>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  const SECTION_ID = 'modal';
+  try { window.parent.postMessage({ type: 'section-shown', sectionId: SECTION_ID }, '*'); } catch (e) {}
+  const back = document.querySelector('.back');
+  if (back) back.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'close-overlay' }, '*'); } catch (e2) {}
+  });
+})();
+</script>
+
+</body>
+</html>

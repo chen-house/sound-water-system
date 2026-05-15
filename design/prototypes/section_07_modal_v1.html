@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段 7 · Modal · 1959/1965 · 和弦少了,空气就多了</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0d1419;
+    --night-deep: #060a0e;
+    --air: #e8eef0;
+    --air-soft: rgba(232, 238, 240, 0.62);
+    --air-fade: rgba(232, 238, 240, 0.34);
+    --air-faint: rgba(232, 238, 240, 0.18);
+    --halo: #8aa9b8;
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--night); }
+  body {
+    background:
+      radial-gradient(ellipse 1200px 800px at 50% 30%, #131c22 0%, var(--night) 70%, var(--night-deep) 100%);
+    min-height: 100vh;
+    color: var(--air);
+    font-family: var(--font-serif);
+    overflow-x: hidden;
+    padding-bottom: 80px;
+    position: relative;
+  }
+  .top-marker {
+    position: absolute; top: 40px; left: 56px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--air-fade);
+  }
+  .stage { min-height: 100vh; position: relative; padding: 120px 56px 60px; }
+
+  .where {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px; letter-spacing: 0.42em;
+    color: var(--air-fade); margin-bottom: 120px;
+  }
+
+  /* —— 两个调:两根长长的横线 + 几个稀疏的音点 —— */
+  .modes {
+    max-width: 880px; margin: 0 auto 140px;
+    display: flex; flex-direction: column; gap: 72px;
+  }
+  .mode {
+    position: relative;
+    height: 28px;
+  }
+  .mode-line {
+    position: absolute; left: 0; right: 0; top: 14px;
+    height: 1px; background: var(--air-faint);
+  }
+  .mode-label {
+    position: absolute; left: 0; top: -28px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--air-fade);
+  }
+  .dot {
+    position: absolute; top: 10px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--air); transform: translate(-50%, 0);
+  }
+  /* 散点位置(随意,但稀疏) */
+  .m1 .dot:nth-child(2) { left: 12%; }
+  .m1 .dot:nth-child(3) { left: 24%; opacity: 0.55; }
+  .m1 .dot:nth-child(4) { left: 48%; }
+  .m1 .dot:nth-child(5) { left: 72%; opacity: 0.6; }
+  .m1 .dot:nth-child(6) { left: 88%; }
+  .m2 .dot:nth-child(2) { left: 10%; opacity: 0.6; }
+  .m2 .dot:nth-child(3) { left: 30%; }
+  .m2 .dot:nth-child(4) { left: 56%; opacity: 0.55; }
+  .m2 .dot:nth-child(5) { left: 78%; }
+
+  /* Layer B · 一句话(重锤) */
+  .one-line {
+    text-align: center; max-width: 720px; margin: 0 auto 32px;
+    font-size: 30px; line-height: 1.4; letter-spacing: 0.04em;
+    color: var(--air); font-weight: 300;
+    text-wrap: balance;
+  }
+  .one-line strong { font-weight: 500; }
+  .one-line-attr {
+    text-align: center;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.3em; color: var(--air-soft);
+    margin-bottom: 100px;
+  }
+
+  /* Layer A · Coltrane 串场 */
+  .coltrane-frame {
+    max-width: 580px; margin: 0 auto 32px;
+    text-align: center;
+    color: var(--air-soft);
+    font-size: 19px; line-height: 1.65;
+    letter-spacing: 0.02em;
+  }
+  .coltrane-frame p { margin-bottom: 1.2em; }
+  .coltrane-frame em { font-style: italic; color: var(--air); }
+  .coltrane-frame strong { font-weight: 500; color: var(--air); }
+
+  .a-love-supreme {
+    text-align: center;
+    font-size: 28px; letter-spacing: 0.1em;
+    color: var(--air); font-weight: 400;
+    margin: 48px auto 20px;
+    text-wrap: balance;
+  }
+  .als-attr {
+    text-align: center;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.3em; color: var(--air-soft);
+    margin-bottom: 72px;
+  }
+
+  /* Layer C · 正文 + Layer B 段尾重锤 */
+  .article {
+    max-width: 540px; margin: 0 auto;
+    color: var(--air-soft);
+    font-size: 17px; line-height: 1.55;
+    letter-spacing: 0.02em;
+  }
+  .article p { margin-bottom: 0.8em; }
+  .article em { font-style: italic; color: var(--air); }
+  .article strong { font-weight: 500; color: var(--air); }
+  .article .pull {
+    margin-top: 2.5em; text-align: center;
+    font-size: 24px; line-height: 1.4;
+    color: var(--air); letter-spacing: 0.04em;
+    text-wrap: balance;
+  }
+
+  .converse { max-width: 920px; margin: 100px auto 0; border-top: 1px solid rgba(138, 169, 184, 0.18); padding-top: 44px; }
+  .converse-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.38em; color: var(--air-fade); text-align: center; margin-bottom: 36px; }
+  .converse-row { display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; }
+  .neighbor { display: block; text-align: center; text-decoration: none; color: var(--air-soft); padding: 22px 28px; border: 1px solid rgba(232, 238, 240, 0.18); min-width: 200px; transition: border-color 0.4s, color 0.4s; }
+  .neighbor:hover { color: var(--air); border-color: var(--halo); }
+  .neighbor .rel { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.3em; color: var(--air-fade); margin-bottom: 10px; }
+  .neighbor .name { font-family: var(--font-serif); font-size: 15px; letter-spacing: 0.04em; }
+
+  .back { position: fixed; bottom: 24px; left: 24px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.32em; color: var(--air-fade); text-decoration: none; }
+  .back:hover { color: var(--air); }
+
+</style>
+</head>
+<body>
+
+<div class="top-marker">SECTION 07 · MODAL · SO WHAT · A LOVE SUPREME</div>
+
+<div class="stage">
+
+  <div class="where">1959 — 1965 &nbsp;&nbsp; TWO CHORDS · TWO MEN</div>
+
+  <div class="modes">
+    <div class="mode m1">
+      <div class="mode-label">D DORIAN</div>
+      <div class="mode-line"></div>
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <div class="mode m2">
+      <div class="mode-label">E♭ DORIAN</div>
+      <div class="mode-line"></div>
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+  </div>
+
+  <div class="one-line"><strong>和弦少了,空气就多了。</strong></div>
+  <div class="one-line-attr">—— MILES DAVIS · SO WHAT · 1959</div>
+
+  <div class="coltrane-frame">
+    <p>Coltrane 本在 Miles 团里,但因为吸毒被开除了。</p>
+    <p><strong>多亏这一炒</strong>——他回家戒毒,经历了一场他自己说的 "spiritual awakening"。</p>
+  </div>
+
+  <div class="a-love-supreme">A LOVE SUPREME</div>
+  <div class="als-attr">JOHN COLTRANE · 1964</div>
+
+  <div class="article">
+    <p>1959 年。Miles Davis 在 <em>Kind of Blue</em> 里做的事,是把 bebop 的最大问题——和弦变化太多、太快——<strong>彻底放弃</strong>。</p>
+    <p>他说:一首歌不需要 30 个和弦。可能只需要 <strong>2 个调</strong>。</p>
+    <p>乐手不再被"现在这个和弦该怎么吹"约束,而是<em>在一个调里自由发挥</em>。</p>
+    <p>这听起来是技术细节,但它的影响极其深远——爵士第一次从"和声驱动"转向"<strong>氛围驱动</strong>"。乐手不再赶着去解决和声,他们可以停留在一个调上,把一个简单的旋律反复弯曲、拉长、深入。</p>
+    <p><em>Kind of Blue</em> 里 Miles 的 <em>So What</em>——开头那个简单的两音动机,整首歌就在两个调之间来回。但每个乐手的独奏都长得<strong>像一段独白</strong>——没有目的地,只是在说话。</p>
+    <p class="pull">modal jazz 让爵士第一次有了 <strong>冥想感</strong>。</p>
+  </div>
+
+</div>
+
+<a class="back" href="snare_dial_v4.html">← 回到鼓面</a>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  const SECTION_ID = 'modal';
+  try { window.parent.postMessage({ type: 'section-shown', sectionId: SECTION_ID }, '*'); } catch (e) {}
+  const back = document.querySelector('.back');
+  if (back) back.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'close-overlay' }, '*'); } catch (e2) {}
+  });
+})();
+</script>
+
+</body>
+</html>

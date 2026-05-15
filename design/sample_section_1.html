@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>声音水系 · Jazz 篇 · 段 1 样张</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&family=Caveat:wght@400;600&family=Noto+Serif+SC:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f1ebde;
+    --paper-deep: #e9e1d0;
+    --ink: #1a1814;
+    --ink-soft: #4a443a;
+    --ink-light: #8b8170;
+    --accent: #8b2f2f;
+    --rule: #c8bea8;
+    
+    --font-display: 'Cormorant Garamond', 'Noto Serif SC', serif;
+    --font-body: 'Noto Serif SC', 'Cormorant Garamond', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-hand: 'Caveat', cursive;
+  }
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  html { scroll-behavior: smooth; }
+  
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+    /* 纸张纹理(通过细微渐变模拟) */
+    background-image: 
+      radial-gradient(ellipse at top, rgba(180,160,120,0.08), transparent 60%),
+      radial-gradient(ellipse at bottom right, rgba(139,47,47,0.03), transparent 50%);
+    background-attachment: fixed;
+  }
+  
+  /* === 顶部 station bar === */
+  .station-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(241, 235, 222, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule);
+    padding: 12px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  
+  .station-bar .left { display: flex; gap: 24px; align-items: center; }
+  .station-bar .indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  
+  /* === 主容器 === */
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 120px 32px 80px;
+  }
+  
+  /* === 章节大标题区 === */
+  .chapter-mark {
+    margin-bottom: 96px;
+  }
+  
+  .chapter-mark .series {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 16px;
+  }
+  
+  .chapter-mark .title-cn {
+    font-family: var(--font-display);
+    font-size: 56px;
+    line-height: 1.1;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+  }
+  
+  .chapter-mark .title-en {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ink-soft);
+    margin-bottom: 32px;
+  }
+  
+  .chapter-mark .deck {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    max-width: 480px;
+    border-top: 1px solid var(--rule);
+    padding-top: 24px;
+  }
+  
+  /* === 段落:DJ 节目槽 === */
+  .track {
+    margin-bottom: 96px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.9s ease-out 0.2s forwards;
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .track-header {
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 20px;
+    align-items: baseline;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  
+  .track-num {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+  }
+  
+  .track-title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  
+  .track-title .sub {
+    display: block;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    font-weight: 400;
+  }
+  
+  .track-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-light);
+    letter-spacing: 0.08em;
+    text-align: right;
+    white-space: nowrap;
+  }
+  
+  /* === DJ 串场词 === */
+  .dj-intro {
+    position: relative;
+    padding: 8px 0 8px 32px;
+    border-left: 2px solid var(--accent);
+    margin: 32px 0 48px;
+  }
+  
+  .dj-intro .label {
+    position: absolute;
+    top: -8px;
+    left: 32px;
+    background: var(--paper);
+    padding: 0 12px 0 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+  }
+  
+  .dj-intro p {
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.85;
+    color: var(--ink);
+    margin-top: 16px;
+  }
+  
+  .dj-intro p + p { margin-top: 14px; }
+  
+  .dj-quote {
+    font-family: var(--font-hand);
+    font-size: 26px;
+    color: var(--accent);
+    font-weight: 600;
+    display: inline-block;
+    transform: rotate(-1.5deg);
+    margin: 0 4px;
+  }
+  
+  .dj-intro em {
+    font-style: italic;
+    color: var(--ink);
+  }
+  
+  /* === 听一耳朵按钮 === */
+  .listen-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: transparent;
+    border: 1px solid var(--ink);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .listen-cta:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  
+  .listen-cta .icon {
+    width: 8px;
+    height: 8px;
+    border-style: solid;
+    border-width: 5px 0 5px 8px;
+    border-color: transparent transparent transparent currentColor;
+  }
+  
+  /* === 辅助信息条:像唱片内页的小字 === */
+  .liner-notes {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px dashed var(--rule);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 32px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+  }
+  
+  .liner-notes .item .key {
+    color: var(--ink-light);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 4px;
+    font-size: 10px;
+  }
+  
+  .liner-notes .item .val {
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 13px;
+  }
+  
+  /* === 滚动提示 === */
+  .scroll-hint {
+    text-align: center;
+    margin-top: 80px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-light);
+    text-transform: uppercase;
+  }
+  
+  .scroll-hint::before,
+  .scroll-hint::after {
+    content: '';
+    display: inline-block;
+    width: 40px;
+    height: 1px;
+    background: var(--rule);
+    vertical-align: middle;
+    margin: 0 16px;
+  }
+  
+  /* === 页脚 placeholder === */
+  .placeholder-next {
+    margin-top: 48px;
+    padding: 48px 0;
+    text-align: center;
+    color: var(--ink-light);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  
+  .placeholder-next .arrow {
+    display: block;
+    font-size: 24px;
+    color: var(--accent);
+    margin-bottom: 12px;
+    font-family: var(--font-display);
+  }
+  
+  /* === 响应式 === */
+  @media (max-width: 640px) {
+    .container { padding: 100px 24px 60px; }
+    .chapter-mark .title-cn { font-size: 38px; }
+    .chapter-mark .title-en { font-size: 18px; }
+    .track-header { grid-template-columns: 1fr; gap: 8px; }
+    .track-meta { text-align: left; }
+    .track-title { font-size: 22px; }
+    .dj-quote { font-size: 22px; }
+    .liner-notes { grid-template-columns: 1fr; }
+    .station-bar { padding: 10px 20px; font-size: 10px; }
+    .station-bar .left { gap: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="station-bar">
+  <div class="left">
+    <span class="indicator"></span>
+    <span>声音水系 · 深夜电台</span>
+  </div>
+  <div class="right">JAZZ · 1899 – 1969</div>
+</div>
+
+<div class="container">
+
+  <!-- 章节大标题 -->
+  <div class="chapter-mark">
+    <div class="series">Chapter II / 声音水系</div>
+    <h1 class="title-cn">Jazz 的 100 年</h1>
+    <div class="title-en">these people just won't repeat themselves</div>
+    <div class="deck">
+      九首曲子,从 1899 到 1969,一支流派一直在反前一支。<br>
+      今天的 DJ 是声音水系,节目从一张纸条开始。
+    </div>
+  </div>
+
+  <!-- 段 1 -->
+  <article class="track">
+    <header class="track-header">
+      <div class="track-num">01 / 09</div>
+      <div class="track-title">
+        Kind of Blue
+        <span class="sub">Miles Davis · 1959</span>
+      </div>
+      <div class="track-meta">开篇 · OPENING</div>
+    </header>
+
+    <div class="dj-intro">
+      <span class="label">DJ 串场</span>
+      <p>1959 年 8 月 17 日,纽约 Columbia 录音棚。</p>
+      <p>Miles Davis 给六个乐手每人发了一张纸条,上面只写了几个调。<span class="dj-quote">"我们就这么吹"</span>——他说。</p>
+      <p>没有彩排,接下来这张专辑,就出自这次集体即兴, <em>Kind of Blue</em>。</p>
+    </div>
+
+    <a href="#" class="listen-cta">
+      <span class="icon"></span>
+      <span>听一耳朵 · So What</span>
+    </a>
+
+    <div class="liner-notes">
+      <div class="item">
+        <div class="key">Recorded</div>
+        <div class="val">1959.03.02 / 04.22</div>
+      </div>
+      <div class="item">
+        <div class="key">Studio</div>
+        <div class="val">Columbia 30th Street</div>
+      </div>
+      <div class="item">
+        <div class="key">Sextet</div>
+        <div class="val">Miles · Coltrane · Adderley · Evans · Chambers · Cobb</div>
+      </div>
+      <div class="item">
+        <div class="key">Takes</div>
+        <div class="val">大部分,第一遍即过</div>
+      </div>
+    </div>
+  </article>
+
+  <div class="placeholder-next">
+    <span class="arrow">↓</span>
+    Track 02 / 09 · ragtime · Scott Joplin · 1899<br>
+    <span style="opacity:0.6">(后续段落留位)</span>
+  </div>
+
+  <div class="scroll-hint">END OF SAMPLE</div>
+
+</div>
+
+</body>
+</html>

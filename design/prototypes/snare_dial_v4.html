@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鼓面 · Jazz 1899-1969 · v4 螺丝外移 + 轮箍高度感</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #ede5d2;
+    --cream-deep: #e3d9bf;
+    --head: #f7f2e3;
+    --head-edge: #d0c4a4;
+    --rim: #9da3a8;
+    --rim-bright: #c8ced1;
+    --rim-shadow: #2a2d30;
+    --rim-deep: #5a6063;
+    --ink: #3a342a;
+    --ink-soft: rgba(58, 52, 42, 0.66);
+    --ink-fade: rgba(58, 52, 42, 0.38);
+    --ink-faint: rgba(58, 52, 42, 0.30);
+    --leader: rgba(58, 52, 42, 0.18);
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--cream); min-height: 100vh; }
+  body {
+    color: var(--ink);
+    font-family: var(--font-serif);
+    overflow-x: hidden;
+    padding-bottom: 200px;
+    position: relative;
+  }
+
+  .top-right {
+    position: absolute; top: 40px; right: 56px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--ink-soft);
+    text-align: right;
+    transition: opacity 0.3s;
+  }
+  .top-right .label { color: var(--ink-fade); margin-right: 8px; }
+
+  .stage {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 140px 24px 60px;
+  }
+  .dial-wrap { width: 100%; max-width: 820px; margin: 0 auto; }
+  .dial { display: block; width: 100%; height: auto; outline: none; }
+  .dial:focus-visible {
+    outline: 1px dashed var(--ink-fade);
+    outline-offset: 6px;
+    border-radius: 8px;
+  }
+
+  /* —— SVG 内样式 —— */
+  .disc-base { fill: var(--head); }
+  .disc-grain { fill: #2b2418; }   /* 仅作为 filter 输入参照,实际由 turbulence 注入 */
+  .rim-hoop { fill: none; stroke: url(#rim-grad); stroke-width: 12; }
+  .rim-inner-shade { fill: none; stroke: var(--rim-deep); stroke-width: 1.2; opacity: 0.55; }
+  .rim-outer-shade { fill: none; stroke: var(--rim-deep); stroke-width: 1.2; opacity: 0.5; }
+  .bearing-edge { fill: none; stroke: var(--head-edge); stroke-width: 0.6; opacity: 0.7; }
+  /* —— 张力杆螺丝(方形铆头 + 金属反光,代替之前的小圆点)—— */
+  .rod {
+    fill: url(#bolt-grad);
+    stroke: rgba(0, 0, 0, 0.45);
+    stroke-width: 0.4;
+    transition: filter 0.25s;
+  }
+  .rod-socket {
+    fill: url(#socket-grad);
+    stroke: rgba(0, 0, 0, 0.7);
+    stroke-width: 0.3;
+    pointer-events: none;
+  }
+
+  /* —— 鼓棒:立体木杆 + 棒头 + 投影,常驻可见 —— */
+  .stick-shadow {
+    fill: rgba(0, 0, 0, 0.18);
+  }
+  .stick-shaft {
+    fill: url(#stick-grad);
+    stroke: rgba(0, 0, 0, 0.3);
+    stroke-width: 0.4;
+  }
+  .stick-tip {
+    fill: url(#tip-grad);
+    stroke: rgba(0, 0, 0, 0.4);
+    stroke-width: 0.4;
+  }
+  .stick-highlight {
+    stroke: rgba(250, 225, 185, 0.5);
+    stroke-width: 1;
+    stroke-linecap: round;
+    pointer-events: none;
+  }
+  .needle { stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
+  .needle-tip { fill: var(--ink); }
+  .leader { stroke: var(--leader); stroke-width: 0.6; }
+  /* —— 标签:海报式两行排,年份在上(小,细),流派名在下(大,正) —— */
+  .label {
+    font-family: var(--font-serif);
+    fill: var(--ink);
+    transition: fill 0.25s;
+  }
+  .label-year {
+    font-family: var(--font-serif);
+    font-size: 14px;
+    font-weight: 300;
+    font-feature-settings: "lnum";
+    letter-spacing: 0.32em;
+    fill: var(--ink-soft);
+    transition: fill 0.25s;
+  }
+  .label-name {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    fill: var(--ink);
+    transition: fill 0.25s;
+  }
+  .label-name.cn {
+    letter-spacing: 0.06em;
+    font-size: 28px;
+    font-weight: 500;
+  }
+  .notch-hit { fill: transparent; cursor: pointer; }
+  .notch-group:hover .rod { filter: brightness(1.5); }
+  .notch-group:hover .label-year { fill: #000; }
+  .notch-group:hover .label-name { fill: #000; }
+  .notch-group.current .rod { filter: brightness(1.3); }
+  .notch-group.current .label-year { fill: #000; font-weight: 600; }
+  .notch-group.current .label-name { fill: #000; }
+
+  /* —— 鼓皮牌子(在 2 点钟方向,仿真军鼓 Remo logo 位置) —— */
+  .brand-name {
+    font-family: var(--font-serif);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.20em;
+    fill: var(--ink-faint);
+    text-anchor: middle;
+  }
+  .brand-model {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    letter-spacing: 0.30em;
+    fill: var(--ink-faint);
+    text-anchor: middle;
+  }
+  .brand-rule { stroke: var(--ink-faint); stroke-width: 0.5; }
+
+  /* —— 鼓棒可拖 —— */
+  #stick-hit { cursor: grab; }
+  body.is-dragging,
+  body.is-dragging #stick-hit { cursor: grabbing; }
+  body.is-dragging .notch-group { cursor: default; }
+
+  .hint {
+    margin-top: 56px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.34em;
+    color: var(--ink-fade);
+    text-align: center;
+  }
+  .hint .sep { color: rgba(58,52,42,0.18); margin: 0 14px; }
+
+  .design-note {
+    max-width: 720px;
+    margin: 200px auto 0;
+    padding: 32px 40px;
+    border: 1px dashed rgba(58, 52, 42, 0.28);
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 2;
+    letter-spacing: 0.04em;
+  }
+  .design-note b { color: var(--ink); font-weight: 500; }
+
+  /* —— 左右分屏悬浮层 —— */
+  .stage {
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  body.overlay-open {
+    overflow: hidden;
+    height: 100vh;
+  }
+  body.overlay-open .stage {
+    transform: translateX(-22vw);
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 0;
+    z-index: 100;
+    background: var(--cream);
+    overflow: hidden;
+    pointer-events: none;
+    transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 1px solid rgba(58, 52, 42, 0.18);
+    box-shadow: -12px 0 36px rgba(0, 0, 0, 0.06);
+  }
+  body.overlay-open .overlay {
+    width: 50vw;
+    pointer-events: auto;
+  }
+  .overlay iframe {
+    position: absolute;
+    top: 0; right: 0;
+    width: 50vw;
+    height: 100%;
+    border: none;
+    background: transparent;
+    display: block;
+  }
+  #overlay-close {
+    position: fixed;
+    top: 28px; right: 28px;
+    z-index: 1001;
+    width: 38px; height: 38px;
+    background: rgba(237, 229, 210, 0.94);
+    color: var(--ink);
+    border: 1px solid rgba(58, 52, 42, 0.28);
+    border-radius: 50%;
+    font-family: var(--font-mono);
+    font-size: 22px;
+    line-height: 32px;
+    text-align: center;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.2s ease, border-color 0.2s ease;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  body.overlay-open #overlay-close {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #overlay-close:hover { transform: scale(1.06); border-color: var(--ink); }
+
+  /* 悬浮打开时把右上 status 让出来给段落 */
+  body.overlay-open .top-right { opacity: 0.4; transition: opacity 0.4s ease; }
+</style>
+</head>
+<body>
+
+<div class="top-right" id="status-panel">
+  <span class="label">NOW HERE</span><span id="status-value">1959 · MODAL · KIND OF BLUE</span>
+</div>
+
+<div class="stage">
+<div class="dial-wrap">
+
+<svg id="dial-svg" class="dial" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg"
+     tabindex="0" role="application"
+     aria-label="军鼓鼓面 · Jazz 时间表盘 · 1899-1969">
+
+  <defs>
+    <!-- 张力杆螺丝头:深金属色,上方一道光 -->
+    <linearGradient id="bolt-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#4a4e52"/>
+      <stop offset="40%"  stop-color="#1f2226"/>
+      <stop offset="100%" stop-color="#0a0c10"/>
+    </linearGradient>
+
+    <!-- 鼓棒木杆:沿轴线的光影,模拟圆柱体反光 -->
+    <linearGradient id="stick-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#a8855a"/>
+      <stop offset="45%"  stop-color="#7a5532"/>
+      <stop offset="100%" stop-color="#3a2818"/>
+    </linearGradient>
+
+    <!-- 棒头:深木色球体,从左上向右下渐深 -->
+    <radialGradient id="tip-grad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%"   stop-color="#8a6438"/>
+      <stop offset="60%"  stop-color="#4a3018"/>
+      <stop offset="100%" stop-color="#1f1308"/>
+    </radialGradient>
+
+    <!-- 螺丝钥匙口:中央方形凹槽,自上而下渐深 -->
+    <linearGradient id="socket-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#000000"/>
+      <stop offset="100%" stop-color="#1c1f22"/>
+    </linearGradient>
+
+    <!-- 轮箍内阴影:压窄到仅靠近边的一道暗带(原来 15% 太宽,挤压了内圈) -->
+    <radialGradient id="head-inner-shadow" cx="400" cy="400" r="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="rgba(0,0,0,0)"/>
+      <stop offset="92%"  stop-color="rgba(0,0,0,0)"/>
+      <stop offset="100%" stop-color="rgba(20,15,10,0.35)"/>
+    </radialGradient>
+
+    <!-- 镀铬轮箍渐变:上亮下暗,模拟光从上方打下来的反光 -->
+    <linearGradient id="rim-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#c8ced1"/>
+      <stop offset="35%"  stop-color="#9da3a8"/>
+      <stop offset="65%"  stop-color="#7a8084"/>
+      <stop offset="100%" stop-color="#5a6063"/>
+    </linearGradient>
+
+    <!-- 鼓皮投影:轻得几乎看不见,只锚住鼓在桌面上 -->
+    <filter id="drum-shadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="b"/>
+      <feOffset in="b" dx="0" dy="2.5" result="o"/>
+      <feComponentTransfer in="o" result="f">
+        <feFuncA type="linear" slope="0.10"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode in="f"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- 涂层颗粒:Remo Coated Ambassador 的磨砂感,但克制到几乎不夸张 -->
+    <filter id="coated-grain" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="2.4" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix"
+        values="0 0 0 0 0.16
+                0 0 0 0 0.14
+                0 0 0 0 0.11
+                0.22 0.22 0.22 0 0" result="grain"/>
+      <feComposite in="grain" in2="SourceGraphic" operator="in"/>
+    </filter>
+
+    <clipPath id="head-clip">
+      <circle cx="400" cy="400" r="180"/>
+    </clipPath>
+  </defs>
+
+  <!-- 鼓皮:白色磨砂涂层 + 极淡阴影 -->
+  <g filter="url(#drum-shadow)">
+    <circle class="disc-base" cx="400" cy="400" r="180"/>
+  </g>
+
+  <!-- 颗粒层:用 filter 注入,clip 到圆内 -->
+  <g clip-path="url(#head-clip)">
+    <rect x="220" y="220" width="360" height="360" filter="url(#coated-grain)" fill="#2b2418"/>
+  </g>
+
+  <!-- 鼓皮内阴影:轮箍突出于鼓皮,鼓皮靠近边的位置被压暗一圈 -->
+  <circle cx="400" cy="400" r="180" fill="url(#head-inner-shadow)"/>
+
+  <!-- 鼓边 —— 金属轮箍 + 内外暗带 + 鼓皮 bearing edge 极淡高光 -->
+  <circle class="rim-hoop"        cx="400" cy="400" r="186"/>
+  <circle class="rim-inner-shade" cx="400" cy="400" r="180.6"/>
+  <circle class="rim-outer-shade" cx="400" cy="400" r="191.4"/>
+  <circle class="bearing-edge"    cx="400" cy="400" r="179.4"/>
+
+  <!-- 轮箍外阴影:轮箍突出于桌面,在桌面上投一圈淡阴影 -->
+  <circle cx="400" cy="400" r="195" fill="none" stroke="rgba(0,0,0,0.16)" stroke-width="3"/>
+  <circle cx="400" cy="400" r="197.5" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="2"/>
+
+  <!-- 牌子放在 12 点钟方向(新角度下空出来了的位置) -->
+  <g class="brand">
+    <text class="brand-name" x="400" y="294">声音水系</text>
+    <line class="brand-rule" x1="378" y1="306" x2="422" y2="306"/>
+    <text class="brand-model" x="400" y="322">JAZZ · 1899—1969</text>
+  </g>
+
+  <!-- 鼓棒:150px 立体木杆 + 棒头 + 投影,放在 notch 之前,这样标签永远盖在它之上 -->
+  <g id="stick-group" transform="rotate(0 400 400)">
+    <ellipse class="stick-shadow" cx="665" cy="412" rx="78" ry="3.8"/>
+    <polygon class="stick-shaft" points="744,393 744,407 590,403 590,397"/>
+    <circle class="stick-tip" cx="586" cy="400" r="8"/>
+    <line class="stick-highlight" x1="738" y1="396" x2="594" y2="398.5"/>
+    <rect id="stick-hit" x="585" y="385" width="170" height="30" rx="3" fill="transparent"/>
+  </g>
+
+  <!-- —— 9 个张力杆 + 标签 —— -->
+
+  <!-- 1. 1899 Ragtime · θ=230° -->
+  <a xlink:href="section_02_ragtime_v1.html">
+  <g class="notch-group" data-event="ragtime">
+    <rect class="rod" x="267.9" y="243.3" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="269.65" y="245.05" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="248.9" y="220" text-anchor="end">1899</text>
+    <text class="label-name" x="230.9" y="248" text-anchor="end">Ragtime</text>
+    <rect class="notch-hit" x="148" y="218" width="150" height="50"/>
+  </g>
+  </a>
+
+  <!-- 2. 1925 新奥尔良 · θ=170° -->
+  <a xlink:href="section_03_new_orleans_v1.html">
+  <g class="notch-group" data-event="new-orleans">
+    <rect class="rod" x="199.5" y="431.3" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="201.25" y="433.05" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="168.5" y="440.9" text-anchor="end">1925</text>
+    <text class="label-name cn" x="150.5" y="468.9" text-anchor="end">新奥尔良</text>
+    <rect class="notch-hit" x="80" y="418" width="140" height="50"/>
+  </g>
+  </a>
+
+  <!-- 3. 1937 Swing · θ=115° -->
+  <a xlink:href="section_04_swing_v1.html">
+  <g class="notch-group" data-event="swing">
+    <rect class="rod" x="311.9" y="577.7" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="313.65" y="579.45" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="272.7" y="613" text-anchor="middle">1937</text>
+    <text class="label-name" x="272.7" y="641" text-anchor="start">Swing</text>
+    <rect class="notch-hit" x="240" y="582" width="130" height="50"/>
+  </g>
+  </a>
+
+  <!-- 4. 1945 Bebop · θ=75° -->
+  <a xlink:href="section_05_bebop_v1.html">
+  <g class="notch-group" data-event="bebop">
+    <rect class="rod" x="448.3" y="589.7" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="450.05" y="591.45" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="488.8" y="627" text-anchor="middle">1945</text>
+    <text class="label-name" x="488.8" y="655" text-anchor="start">Bebop</text>
+    <rect class="notch-hit" x="395" y="595" width="130" height="50"/>
+  </g>
+  </a>
+
+  <!-- 5. 1949 Cool · θ=45° -->
+  <a xlink:href="section_06_cool_hardbop_v1.html">
+  <g class="notch-group" data-event="cool">
+    <rect class="rod" x="537.9" y="537.9" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="539.65" y="539.65" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="566.2" y="566.2" text-anchor="start">1949</text>
+    <text class="label-name" x="584.2" y="594.2" text-anchor="start">Cool</text>
+    <rect class="notch-hit" x="550" y="540" width="130" height="50"/>
+  </g>
+  </a>
+
+  <!-- 6. 1958 Hard Bop · θ=15° -->
+  <a xlink:href="section_06_cool_hardbop_v1.html">
+  <g class="notch-group" data-event="hard-bop">
+    <rect class="rod" x="589.7" y="448.3" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="591.45" y="450.05" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="627" y="460.8" text-anchor="start">1958</text>
+    <text class="label-name" x="645" y="488.8" text-anchor="start">Hard Bop</text>
+    <rect class="notch-hit" x="605" y="440" width="160" height="50"/>
+  </g>
+  </a>
+
+  <!-- 7. 1959 Modal · θ=0° · DEFAULT -->
+  <a xlink:href="section_01_kind_of_blue_v1.html">
+  <g class="notch-group current" data-event="modal">
+    <rect class="rod" x="596.5" y="396.5" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="598.25" y="398.25" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="635" y="400" text-anchor="start">1959</text>
+    <text class="label-name" x="653" y="428" text-anchor="start">Modal</text>
+    <rect class="notch-hit" x="612" y="380" width="220" height="50"/>
+  </g>
+  </a>
+
+  <!-- 8. 1959 Free Jazz · θ=345° -->
+  <a xlink:href="section_08_free_jazz_v1.html">
+  <g class="notch-group" data-event="free">
+    <rect class="rod" x="589.7" y="344.7" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="591.45" y="346.45" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="627" y="339.2" text-anchor="start">1959</text>
+    <text class="label-name" x="645" y="367.2" text-anchor="start">Free Jazz</text>
+    <rect class="notch-hit" x="605" y="325" width="150" height="50"/>
+  </g>
+  </a>
+
+  <!-- 9. 1969 Fusion · θ=310° -->
+  <a xlink:href="section_09_fusion_v1.html">
+  <g class="notch-group" data-event="fusion">
+    <rect class="rod" x="525.1" y="243.3" width="7" height="7" rx="1"/>
+    <rect class="rod-socket" x="526.85" y="245.05" width="3.5" height="3.5" rx="0.3"/>
+    <text class="label-year" x="541.4" y="212" text-anchor="start">1969</text>
+    <text class="label-name" x="559.4" y="240" text-anchor="start">Fusion</text>
+    <rect class="notch-hit" x="533" y="218" width="140" height="50"/>
+  </g>
+  </a>
+
+</svg>
+
+<div class="hint">
+  点张力杆 · 进入那一段<span class="sep">/</span>拖动鼓棒 · 自由游走<span class="sep">/</span>← → 逐段
+</div>
+
+</div>
+</div>
+
+<div class="design-note">
+  <b>v3 定稿:</b><br>
+  · <b>9 根张力杆 = 方形螺丝头 + 中央方形钥匙口</b>(仿你实拍真鼓)<br>
+  · <b>鼓棒 150px 立体木杆 + 木球棒头</b>,常驻可见,默认指向 1959 Modal<br>
+  · 9 根张力杆铺 280° 弧,1958/1959 cluster 15° 间距<br>
+  · <b>标签 · 单行字体杂交(编辑设计感)</b>:年份用 18px 衬线 medium(粗) + 中点分隔(14px 浅) + 流派名 15px <b>italic 衬线</b>;中文段(新奥尔良)用 normal 衬线加宽字距 0.10em<br>
+  · 牌子在 12 点钟方向<br>
+  <br>
+  <b>9 段全部接通:</b><br>
+  · 段 1 KoB · 段 2 Ragtime · 段 3 NOLA · 段 4 Swing · 段 5 Bebop · 段 6 Cool/HardBop · 段 7 Modal · 段 8 Free Jazz · 段 9 Fusion<br>
+  · Cool(1949)和 Hard Bop(1958)两个张力杆都连段 6——文章里它们是合并一节,但鼓面保留两个历史时间点<br>
+  · Modal(1959)张力杆连段 1 Kind of Blue 那张录音棚现场;深入 Modal 风格的段 7 在段 1 的邻居卡里(我本人长成的样子)<br>
+  <br>
+  <b>没动:</b><br>
+  · 9 个张力杆位置(年份-角度公式)<br>
+  · 鼓棒位置和默认指向(1959 Modal)<br>
+  · 三种交互(点 / 拖 / 键盘)和动画时长<br>
+  · 1959 cluster 的引线和 hit-rect<br>
+  <br>
+  <b>左右分屏:</b><br>
+  · 点张力杆 → 鼓棒动完 → 段落从右侧滑入,占 50vw,鼓面左移 22vw(9 根张力杆都露在视野里)<br>
+  · <b>主页滚动锁定</b>:悬浮打开时,翻段落只翻 iframe 内部 —— 鼓面钉在原位不动<br>
+  · 关闭:右上角 × / 键盘 Esc / 段内的"回到鼓面"<br>
+  · 关闭后鼓棒位置停在最后访问的张力杆 —— 浏览路径被记录在鼓面上<br>
+  · 不再有段内"邻居卡",要换段直接点鼓面上的另一根张力杆<br>
+  · 拖鼓棒不开悬浮(拖 = 探索,松手才落位)
+</div>
+
+<!-- 悬浮层 + 关闭按钮 -->
+<div class="overlay" id="overlay" aria-hidden="true" role="dialog" aria-label="段落内容">
+  <iframe id="overlay-frame" src="about:blank" title="段落"></iframe>
+</div>
+<button id="overlay-close" aria-label="关闭(Esc)">×</button>
+
+<script>
+(() => {
+  const notches = [
+    { id: 'ragtime',     year: 1899, name: 'RAGTIME',                 theta: 230, href: 'section_02_ragtime_v1.html' },
+    { id: 'new-orleans', year: 1925, name: '新奥尔良',                theta: 170, href: 'section_03_new_orleans_v1.html' },
+    { id: 'swing',       year: 1937, name: 'SWING',                   theta: 115, href: 'section_04_swing_v1.html' },
+    { id: 'bebop',       year: 1945, name: 'BEBOP',                   theta: 75,  href: 'section_05_bebop_v1.html' },
+    { id: 'cool',        year: 1949, name: 'COOL',                    theta: 45,  href: 'section_06_cool_hardbop_v1.html' },
+    { id: 'hard-bop',    year: 1958, name: 'HARD BOP',                theta: 15,  href: 'section_06_cool_hardbop_v1.html' },
+    { id: 'modal',       year: 1959, name: 'MODAL · KIND OF BLUE',    theta: 0,   href: 'section_01_kind_of_blue_v1.html' },
+    { id: 'free',        year: 1959, name: 'FREE JAZZ',               theta: 345, href: 'section_08_free_jazz_v1.html' },
+    { id: 'fusion',      year: 1969, name: 'FUSION',                  theta: 310, href: 'section_09_fusion_v1.html' },
+  ];
+
+  const stickG     = document.getElementById('stick-group');
+  const stickHit   = document.getElementById('stick-hit');
+  const svg        = document.getElementById('dial-svg');
+  const statusVal  = document.getElementById('status-value');
+  const statusPnl  = document.getElementById('status-panel');
+
+  let currentTheta   = 0;
+  let currentNotchId = 'modal';
+  let isDragging     = false;
+  let isAnimating    = false;
+
+  function setStickAngle(theta) {
+    currentTheta = theta;
+    stickG.setAttribute('transform', `rotate(${theta} 400 400)`);
+  }
+  function updateStatus(notch) { statusVal.textContent = `${notch.year} · ${notch.name}`; }
+  function setCurrent(id) {
+    currentNotchId = id;
+    document.querySelectorAll('.notch-group').forEach(g => {
+      g.classList.toggle('current', g.dataset.event === id);
+    });
+  }
+  function animate(from, to, dur, done) {
+    isAnimating = true;
+    let d = to - from;
+    if (d > 180)  d -= 360;
+    if (d < -180) d += 360;
+    const t0 = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - t0) / dur);
+      const e = 1 - Math.pow(1 - t, 3);
+      setStickAngle(from + d * e);
+      if (t < 1) requestAnimationFrame(step);
+      else { isAnimating = false; if (done) done(); }
+    }
+    requestAnimationFrame(step);
+  }
+  function moveToNotch(n, nav) {
+    setCurrent(n.id);
+    updateStatus(n);
+    animate(currentTheta, n.theta, 380, () => {
+      if (nav && n.href && n.href !== '#') setTimeout(() => openOverlay(n.href), 120);
+    });
+  }
+
+  // 悬浮层
+  const overlay      = document.getElementById('overlay');
+  const overlayFrame = document.getElementById('overlay-frame');
+  const overlayClose = document.getElementById('overlay-close');
+  let suppressNextShown = false;
+
+  function openOverlay(href) {
+    if (!href || href === '#') return;
+    suppressNextShown = true;
+    setTimeout(() => { suppressNextShown = false; }, 1500);
+    overlayFrame.src = href;
+    document.body.classList.add('overlay-open');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+  function closeOverlay() {
+    document.body.classList.remove('overlay-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    setTimeout(() => { overlayFrame.src = 'about:blank'; }, 450);
+  }
+  overlayClose.addEventListener('click', closeOverlay);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.body.classList.contains('overlay-open')) closeOverlay();
+  });
+
+  // 接收 iframe 内的消息(段落内邻居点击 / 回到鼓面 / 段落加载完成)
+  window.addEventListener('message', (e) => {
+    if (!e.data || typeof e.data !== 'object') return;
+    if (e.data.type === 'close-overlay') {
+      closeOverlay();
+    } else if (e.data.type === 'section-shown') {
+      if (suppressNextShown) return;
+      const n = notches.find(x => x.id === e.data.sectionId);
+      if (n && n.id !== currentNotchId) {
+        setCurrent(n.id);
+        updateStatus(n);
+        animate(currentTheta, n.theta, 380);
+      }
+    }
+  });
+  function angDist(a, b) {
+    let d = Math.abs(a - b) % 360;
+    return d > 180 ? 360 - d : d;
+  }
+  function findNearest(theta) {
+    let best = notches[0], bd = 360;
+    for (const n of notches) { const d = angDist(n.theta, theta); if (d < bd) { bd = d; best = n; } }
+    return best;
+  }
+
+  document.querySelectorAll('.notch-group').forEach(g => {
+    const data = notches.find(n => n.id === g.dataset.event);
+    if (!data) return;
+    const a = g.closest('a');
+    if (a) a.addEventListener('click', (e) => {
+      if (isDragging || isAnimating) return;
+      e.preventDefault();
+      moveToNotch(data, true);
+    });
+  });
+
+  function angleFromPointer(cx, cy) {
+    const r = svg.getBoundingClientRect();
+    const sx = ((cx - r.left) / r.width)  * 800;
+    const sy = ((cy - r.top)  / r.height) * 800;
+    let t = Math.atan2(sy - 400, sx - 400) * 180 / Math.PI;
+    if (t < 0) t += 360;
+    return t;
+  }
+  stickHit.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    isDragging = true;
+    stickHit.setPointerCapture(e.pointerId);
+    document.body.classList.add('is-dragging');
+    svg.focus({ preventScroll: true });
+  });
+  stickHit.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+    const t = angleFromPointer(e.clientX, e.clientY);
+    setStickAngle(t);
+    updateStatus(findNearest(t));
+  });
+  function endDrag(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    document.body.classList.remove('is-dragging');
+    try { stickHit.releasePointerCapture(e.pointerId); } catch (_) {}
+    const n = findNearest(currentTheta);
+    setCurrent(n.id);
+    animate(currentTheta, n.theta, 220);
+  }
+  stickHit.addEventListener('pointerup', endDrag);
+  stickHit.addEventListener('pointercancel', endDrag);
+
+  svg.addEventListener('keydown', (e) => {
+    if (isAnimating) return;
+    const i = notches.findIndex(n => n.id === currentNotchId);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault(); moveToNotch(notches[(i - 1 + notches.length) % notches.length], false);
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault(); moveToNotch(notches[(i + 1) % notches.length], false);
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      const c = notches.find(n => n.id === currentNotchId);
+      if (c && c.href && c.href !== '#') { e.preventDefault(); moveToNotch(c, true); }
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

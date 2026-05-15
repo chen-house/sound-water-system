@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Divider Card 翻页节奏 v1 — Bebop → Cool/Hard Bop</title>
+<style>
+  body {
+    background: #EFE7D2;
+    margin: 0;
+    padding: 60px 0 80px;
+    font-family: -apple-system, "PingFang SC", "Helvetica Neue", "Segoe UI", sans-serif;
+    color: #2C2A24;
+  }
+  .page { max-width: 580px; margin: 0 auto; padding: 0 32px; }
+
+  /* ————————— DIVIDER CARD ————————— */
+  .divider-card {
+    margin: 48px auto 32px;
+    width: 100%;
+    position: relative;
+  }
+
+  /* tab 是真的凸起耳朵，和卡体连成一体 */
+  .card-tab {
+    display: inline-block;
+    background: #F5EFDC;
+    padding: 10px 22px 10px;
+    font-family: "Helvetica Neue", "Arial", sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: #6F5D3F;
+    border-radius: 6px 6px 0 0;
+    border-bottom: none;
+    position: relative;
+    margin-left: 24px;
+    z-index: 2;
+  }
+
+  .card-body {
+    background: #F5EFDC;
+    padding: 28px 32px 30px;
+    border-radius: 0 6px 6px 6px;
+    position: relative;
+    margin-top: -1px;
+  }
+
+  .card-title-cn {
+    font-family: "Songti SC", "STSong", "SimSun", Georgia, serif;
+    font-size: 24px;
+    line-height: 1.3;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: #2C2A24;
+  }
+  .card-title-en {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 13px;
+    color: #8A7B5C;
+    font-style: italic;
+    margin: 0 0 22px;
+  }
+
+  .card-meta {
+    display: flex;
+    gap: 24px;
+    font-family: "Helvetica Neue", sans-serif;
+    font-size: 10px;
+    color: #8A7B5C;
+    letter-spacing: 0.12em;
+    margin-bottom: 22px;
+  }
+  .card-meta span b {
+    font-weight: 600;
+    color: #2C2A24;
+    margin-left: 8px;
+    letter-spacing: 0.04em;
+    font-size: 11px;
+  }
+
+  .card-covers {
+    display: flex;
+    gap: 14px;
+    justify-content: flex-start;
+  }
+  .cov-block { width: 92px; }
+  .cov {
+    width: 92px; height: 92px;
+    background: #DCCFB0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #8A7B5C;
+    letter-spacing: 0.05em;
+  }
+  .cov-name {
+    font-family: "Helvetica Neue", sans-serif;
+    font-size: 10px;
+    color: #2C2A24;
+    margin-top: 6px;
+    line-height: 1.4;
+    font-weight: 500;
+  }
+  .cov-meta {
+    font-family: "Helvetica Neue", sans-serif;
+    font-size: 9px;
+    color: #8A7B5C;
+    margin-top: 1px;
+    line-height: 1.4;
+  }
+
+  /* ————————— 正文 ————————— */
+  .body-text {
+    font-family: "Songti SC", "STSong", Georgia, serif;
+    font-size: 16.5px;
+    line-height: 1.85;
+    color: #2C2A24;
+    margin: 0 0 1.4em;
+  }
+  .body-text.placeholder {
+    color: #8A7B5C;
+    font-style: italic;
+  }
+
+  /* ————————— 段落引子（卡正下方第一段，可选样式） ————————— */
+  .intro-para {
+    font-family: "Songti SC", "STSong", Georgia, serif;
+    font-size: 17.5px;
+    line-height: 1.85;
+    color: #2C2A24;
+    margin: 32px 0 1.4em;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- 上一段正文末尾（让你看到"翻到下一张卡"前的视觉收束） -->
+  <p class="body-text placeholder">
+    [上一段正文末尾占位] ……到了 1944 年前后,这种节奏不再被允许活在大乐队的框架里。它要单飞,要更快、更复杂、更不可舞。
+  </p>
+
+  <!-- 第一张 divider card：BEBOP -->
+  <div class="divider-card">
+    <span class="card-tab">BEBOP</span>
+    <div class="card-body">
+      <h2 class="card-title-cn">第一次反叛</h2>
+      <div class="card-title-en">when jazz stopped being dance music</div>
+
+      <div class="card-meta">
+        <span>ERA <b>1940s</b></span>
+        <span>KEY FIGURES <b>Charlie Parker · Dizzy Gillespie</b></span>
+      </div>
+
+      <div class="card-covers">
+        <div class="cov-block">
+          <div class="cov">封面占位</div>
+          <div class="cov-name">Ko-Ko</div>
+          <div class="cov-meta">Charlie Parker · 1945</div>
+        </div>
+        <div class="cov-block">
+          <div class="cov">封面占位</div>
+          <div class="cov-name">Salt Peanuts</div>
+          <div class="cov-meta">Dizzy Gillespie · 1945</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BEBOP 段正文 -->
+  <p class="intro-para placeholder">
+    [本段引子占位] Bebop 不是为跳舞写的——它是写给那些坐下来、闭上眼、准备听一群乐手互相挑战的人。
+  </p>
+
+  <p class="body-text placeholder">
+    [正文占位 1] 在纽约 52 街的小俱乐部里,Charlie Parker 用一支中音萨克斯,把摇摆乐的根基拆掉重装。和弦走得更快了,旋律线被切得更碎了,solo 的时长被拉长到一个 chorus 都装不下。听众里有人听得出来这是新东西,有人觉得这只是在故意让人听不懂。
+  </p>
+
+  <p class="body-text placeholder">
+    [正文占位 2] Dizzy Gillespie 在另一边做着同样的事——只是他用小号,而且更爱笑。他和 Parker 在录音室碰头,把彼此的语言对接起来,做成了几张后来被称为"现代爵士起点"的小唱片。Salt Peanuts 是其中之一。
+  </p>
+
+  <p class="body-text placeholder">
+    [正文占位 3] ……(这一段后面还有 600-800 字,讲 Bebop 的演奏特点、为什么舞厅里没人能跟上、一代乐手怎么把它带去欧洲。这里先省略。)
+  </p>
+
+  <p class="body-text placeholder">
+    [本段结尾] 但 Bebop 的速度和复杂,也有一个反作用——总有一拨人会觉得"够了,我想坐下来"。这就是接下来几年发生的事。
+  </p>
+
+  <!-- 第二张 divider card：COOL / HARD BOP -->
+  <div class="divider-card">
+    <span class="card-tab">COOL / HARD BOP</span>
+    <div class="card-body">
+      <h2 class="card-title-cn">从冷到热再回来</h2>
+      <div class="card-title-en">cooling down, then turning the heat back up</div>
+
+      <div class="card-meta">
+        <span>ERA <b>1949 — 1960s</b></span>
+        <span>KEY FIGURES <b>Miles Davis · Art Blakey</b></span>
+      </div>
+
+      <div class="card-covers">
+        <div class="cov-block">
+          <div class="cov">封面占位</div>
+          <div class="cov-name">Birth of the Cool</div>
+          <div class="cov-meta">Miles Davis · 1957</div>
+        </div>
+        <div class="cov-block">
+          <div class="cov">封面占位</div>
+          <div class="cov-name">Moanin'</div>
+          <div class="cov-meta">Art Blakey · 1959</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COOL/HARD BOP 段正文开头 -->
+  <p class="intro-para placeholder">
+    [本段引子占位] Miles Davis 关掉了灯,放慢了速度,让每个音符之间都有空气可以呼吸。
+  </p>
+
+  <p class="body-text placeholder">
+    [正文占位] 1949 年,Miles Davis 带了九个人进录音室,做了一件听起来和 Bebop 完全相反的事——慢、轻、留白、像在抽烟。这些录音后来汇成《Birth of the Cool》。Cool Jazz 由此开始。……(后续略)
+  </p>
+
+</div>
+</body>
+</html>

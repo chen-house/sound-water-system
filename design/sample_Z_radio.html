@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>方向 Z · 深夜电台节目表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0e14;
+    --bg-soft: #14161e;
+    --bg-glow: #1c1f2c;
+    --ink: #e8e2d0;
+    --ink-soft: #a8a395;
+    --ink-faded: #6b6757;
+    --amber: #ff9b3d;
+    --amber-soft: #c47a2a;
+    --amber-deep: #6e3f10;
+    --signal: #ffd17a;
+    --line: #2a2d3a;
+    --line-bright: #3d4254;
+    
+    --font-mono: 'DM Mono', monospace;
+    --font-serif: 'Fraunces', 'Noto Serif SC', serif;
+    --font-cn: 'Noto Serif SC', serif;
+  }
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  html { scroll-behavior: smooth; }
+  
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+    /* 深夜电波的微光氛围 */
+    background-image: 
+      radial-gradient(ellipse 800px 400px at 80% 10%, rgba(255,155,61,0.05), transparent 60%),
+      radial-gradient(ellipse 600px 300px at 20% 80%, rgba(100,80,200,0.04), transparent 70%);
+    background-attachment: fixed;
+  }
+  
+  /* 扫描线效果 */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 2px,
+      rgba(255,255,255,0.012) 2px,
+      rgba(255,255,255,0.012) 3px
+    );
+  }
+  
+  /* === 顶部调频指示器 === */
+  .tuner {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: linear-gradient(180deg, var(--bg) 0%, rgba(13,14,20,0.92) 100%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    padding: 18px 32px 12px;
+  }
+  
+  .tuner-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  
+  .tuner-row .left { display: flex; gap: 20px; align-items: center; }
+  .tuner-row .station-name { color: var(--amber); }
+  .tuner-row .signal-dots { display: inline-flex; gap: 3px; margin-left: 8px; }
+  .tuner-row .signal-dots span {
+    width: 3px; height: 8px; background: var(--amber); border-radius: 1px;
+    animation: bars 1.4s ease-in-out infinite;
+  }
+  .tuner-row .signal-dots span:nth-child(2) { height: 12px; animation-delay: 0.15s; }
+  .tuner-row .signal-dots span:nth-child(3) { height: 6px; animation-delay: 0.3s; }
+  .tuner-row .signal-dots span:nth-child(4) { height: 10px; animation-delay: 0.45s; }
+  @keyframes bars {
+    0%,100% { transform: scaleY(0.7); opacity: 0.7; }
+    50% { transform: scaleY(1); opacity: 1; }
+  }
+  
+  /* 调频刻度尺 */
+  .freq-scale {
+    position: relative;
+    height: 28px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+  }
+  
+  .freq-scale .ticks {
+    display: flex;
+    height: 100%;
+    align-items: flex-end;
+    padding-bottom: 6px;
+  }
+  
+  .freq-scale .tick {
+    flex: 1;
+    height: 8px;
+    border-left: 1px solid var(--line-bright);
+    position: relative;
+  }
+  
+  .freq-scale .tick:nth-child(5n) { height: 14px; }
+  .freq-scale .tick:nth-child(5n)::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: 16px;
+    left: -8px;
+    font-size: 9px;
+    color: var(--ink-faded);
+    letter-spacing: 0.05em;
+  }
+  
+  /* 指针(显示当前频道) */
+  .freq-needle {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: var(--amber);
+    box-shadow: 0 0 8px var(--amber), 0 0 16px rgba(255,155,61,0.3);
+    transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+  }
+  
+  .freq-needle::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -4px;
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid var(--amber);
+  }
+  
+  /* === 主内容容器 === */
+  .container {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 60px 32px 80px;
+    position: relative;
+    z-index: 2;
+  }
+  
+  /* === 节目大标题区 === */
+  .program-head {
+    border-left: 2px solid var(--amber);
+    padding-left: 28px;
+    margin-bottom: 72px;
+  }
+  
+  .program-head .episode {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  
+  .program-head .title {
+    font-family: var(--font-serif);
+    font-size: 52px;
+    line-height: 1.05;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+  }
+  
+  .program-head .title em {
+    font-style: italic;
+    color: var(--amber);
+  }
+  
+  .program-head .deck {
+    font-family: var(--font-cn);
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.85;
+    max-width: 540px;
+    font-weight: 300;
+  }
+  
+  .program-head .tonight {
+    margin-top: 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    padding: 6px 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faded);
+    text-transform: uppercase;
+  }
+  
+  .program-head .tonight .blink {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--amber);
+    animation: blink 1.6s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%,100% { opacity: 1; box-shadow: 0 0 6px var(--amber); }
+    50% { opacity: 0.3; box-shadow: 0 0 2px var(--amber); }
+  }
+  
+  /* === slot:一段节目时段 === */
+  .slot {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 32px;
+    padding: 36px 0;
+    border-top: 1px solid var(--line);
+    position: relative;
+  }
+  
+  .slot.active {
+    /* 当前播放段的微光 */
+  }
+  
+  .slot.active::before {
+    content: '';
+    position: absolute;
+    left: -32px; top: 0; bottom: 0;
+    width: 2px;
+    background: var(--amber);
+    box-shadow: 0 0 12px var(--amber);
+  }
+  
+  /* 左栏:时段 + 编号 */
+  .slot-time {
+    font-family: var(--font-mono);
+    color: var(--ink-soft);
+  }
+  
+  .slot-time .now {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--amber);
+    margin-bottom: 8px;
+    padding: 2px 6px;
+    border: 1px solid var(--amber);
+    text-transform: uppercase;
+  }
+  
+  .slot-time .clock {
+    font-size: 26px;
+    color: var(--ink);
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    font-weight: 400;
+  }
+  
+  .slot-time .clock .dim { color: var(--ink-faded); }
+  
+  .slot-time .duration {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--ink-faded);
+    margin-bottom: 16px;
+  }
+  
+  .slot-time .track-no {
+    font-family: var(--font-serif);
+    font-size: 36px;
+    color: var(--amber);
+    font-style: italic;
+    line-height: 1;
+    margin-top: 12px;
+  }
+  
+  /* 右栏:内容 */
+  .slot-body { padding-top: 4px; }
+  
+  .slot-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-faded);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  
+  .slot-title {
+    font-family: var(--font-serif);
+    font-size: 30px;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 6px;
+    font-weight: 400;
+  }
+  
+  .slot-title .artist {
+    display: block;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    font-weight: 300;
+  }
+  
+  .slot-year {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--amber);
+    margin-bottom: 28px;
+    margin-top: 4px;
+  }
+  
+  /* DJ 串场词 = 像 LCD 屏上滚出的字 */
+  .slot-intro {
+    font-family: var(--font-cn);
+    font-size: 16px;
+    line-height: 1.85;
+    color: var(--ink);
+    font-weight: 300;
+    margin-bottom: 24px;
+    padding: 20px 0;
+    border-top: 1px dashed var(--line-bright);
+    border-bottom: 1px dashed var(--line-bright);
+  }
+  
+  .slot-intro p + p { margin-top: 12px; }
+  
+  .slot-intro em {
+    font-style: italic;
+    color: var(--amber);
+  }
+  
+  .slot-intro .quote {
+    color: var(--signal);
+    font-weight: 400;
+  }
+  
+  /* listen 按钮:像收音机按键 */
+  .listen {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 10px 18px;
+    background: transparent;
+    border: 1px solid var(--amber-soft);
+    color: var(--amber);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+  
+  .listen:hover {
+    background: var(--amber);
+    color: var(--bg);
+    box-shadow: 0 0 16px rgba(255,155,61,0.4);
+  }
+  
+  .listen .play-tri {
+    width: 0; height: 0;
+    border-left: 6px solid currentColor;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+  }
+  
+  /* 段尾的设备信息 */
+  .slot-meta {
+    margin-top: 24px;
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ink-faded);
+  }
+  
+  .slot-meta .m { display: flex; flex-direction: column; gap: 2px; }
+  .slot-meta .m .v { color: var(--ink-soft); font-size: 12px; letter-spacing: 0.05em; }
+  
+  /* 下一段提示 */
+  .upcoming {
+    padding: 36px 0 0;
+    border-top: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 32px;
+    opacity: 0.45;
+  }
+  
+  .upcoming .slot-time .clock { color: var(--ink-faded); }
+  .upcoming .slot-title { color: var(--ink-soft); font-size: 22px; }
+  .upcoming .nextlabel {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    color: var(--amber-soft);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  
+  /* 底部"END OF SAMPLE" */
+  .end {
+    text-align: center;
+    margin-top: 80px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--ink-faded);
+    text-transform: uppercase;
+  }
+  
+  .end::before,
+  .end::after {
+    content: '';
+    display: inline-block;
+    width: 60px; height: 1px;
+    background: var(--line-bright);
+    vertical-align: middle;
+    margin: 0 16px;
+  }
+  
+  @media (max-width: 720px) {
+    .tuner { padding: 14px 20px 10px; }
+    .tuner-row { font-size: 9px; gap: 10px; }
+    .container { padding: 36px 20px 60px; }
+    .program-head { padding-left: 18px; margin-bottom: 48px; }
+    .program-head .title { font-size: 34px; }
+    .program-head .deck { font-size: 13px; }
+    .slot { grid-template-columns: 1fr; gap: 16px; padding: 28px 0; }
+    .slot.active::before { left: -20px; }
+    .slot-time { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+    .slot-time .clock { font-size: 20px; margin-bottom: 0; }
+    .slot-time .duration { margin-bottom: 0; }
+    .slot-time .track-no { display: none; }
+    .slot-title { font-size: 24px; }
+    .upcoming { grid-template-columns: 1fr; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="tuner">
+  <div class="tuner-row">
+    <div class="left">
+      <span class="station-name">声音水系 · 88.7 FM</span>
+      <span class="signal-dots"><span></span><span></span><span></span><span></span></span>
+    </div>
+    <div class="right">EP.02 · JAZZ · 22:00 – 04:00</div>
+  </div>
+  <div class="freq-scale">
+    <div class="ticks">
+      <div class="tick" data-label="22"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick" data-label="23"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick" data-label="00"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick" data-label="01"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick" data-label="02"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick" data-label="03"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick"></div>
+      <div class="tick" data-label="04"></div>
+    </div>
+    <div class="freq-needle" style="left: 5%;"></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="program-head">
+    <div class="episode">Episode 02 / 声音水系</div>
+    <h1 class="title">Jazz 的 100 年:<br><em>这帮人就是不肯重复自己</em></h1>
+    <p class="deck">
+      九个时段,从 1899 滚到 1969。<br>
+      一支流派一直在反前一支,我们今晚一段一段播。
+    </p>
+    <div class="tonight">
+      <span class="blink"></span>
+      <span>TONIGHT · 22:00 – 04:00</span>
+    </div>
+  </div>
+
+  <article class="slot active">
+    <div class="slot-time">
+      <div class="now">NOW PLAYING</div>
+      <div class="clock">22:00<span class="dim"> – 22:30</span></div>
+      <div class="duration">30 MIN · OPENING</div>
+      <div class="track-no">01</div>
+    </div>
+    
+    <div class="slot-body">
+      <div class="slot-tag">— Opening Set —</div>
+      <h2 class="slot-title">
+        Kind of Blue
+        <span class="artist">Miles Davis</span>
+      </h2>
+      <div class="slot-year">1959 · COLUMBIA RECORDS</div>
+      
+      <div class="slot-intro">
+        <p>1959 年 8 月 17 日,纽约 Columbia 录音棚。</p>
+        <p>Miles Davis 给六个乐手每人发了一张纸条,上面只写了几个调。<span class="quote">"我们就这么吹"</span>——他说。</p>
+        <p>没有彩排,接下来这张专辑,就出自这次集体即兴, <em>Kind of Blue</em>。</p>
+      </div>
+      
+      <button class="listen">
+        <span class="play-tri"></span>
+        <span>cue · So What</span>
+      </button>
+      
+      <div class="slot-meta">
+        <div class="m"><span>RECORDED</span><span class="v">1959.03.02 + 04.22</span></div>
+        <div class="m"><span>STUDIO</span><span class="v">Columbia 30th St</span></div>
+        <div class="m"><span>SEXTET</span><span class="v">Miles · Coltrane · Adderley · Evans · Chambers · Cobb</span></div>
+        <div class="m"><span>TAKES</span><span class="v">多数 first take 即过</span></div>
+      </div>
+    </div>
+  </article>
+
+  <div class="upcoming">
+    <div class="slot-time">
+      <div class="nextlabel">UP NEXT</div>
+      <div class="clock">22:30<span class="dim"> – 23:00</span></div>
+      <div class="duration">30 MIN</div>
+    </div>
+    <div class="slot-body">
+      <div class="slot-tag">— Pre-Jazz —</div>
+      <h2 class="slot-title">
+        Maple Leaf Rag
+        <span class="artist">Scott Joplin · ragtime</span>
+      </h2>
+      <div class="slot-year">1899</div>
+    </div>
+  </div>
+
+  <div class="end">END OF SAMPLE</div>
+
+</div>
+
+<script>
+  // 滚动时调频指针跟着段落移动
+  const needle = document.querySelector('.freq-needle');
+  const slots = document.querySelectorAll('.slot, .upcoming');
+  
+  function updateNeedle() {
+    const scrollY = window.scrollY;
+    const winH = window.innerHeight;
+    const docH = document.body.scrollHeight - winH;
+    const progress = Math.min(Math.max(scrollY / docH, 0), 1);
+    needle.style.left = (5 + progress * 90) + '%';
+  }
+  
+  window.addEventListener('scroll', updateNeedle, { passive: true });
+  updateNeedle();
+</script>
+
+</body>
+</html>

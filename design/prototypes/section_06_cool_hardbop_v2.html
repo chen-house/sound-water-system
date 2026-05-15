@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>段 6 · Cool / Hard Bop · 1949–1958 · v2 文章版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cool: #d0d5d4;
+    --cool-deep: #b6bdbb;
+    --cool-ink: #1b2528;
+    --cool-soft: rgba(27, 37, 40, 0.78);
+    --cool-fade: rgba(27, 37, 40, 0.36);
+    --cool-rule: rgba(27, 37, 40, 0.16);
+
+    --warm: #e8d7b6;
+    --warm-deep: #cdb98e;
+    --warm-ink: #2e1908;
+    --warm-soft: rgba(46, 25, 8, 0.78);
+    --warm-fade: rgba(46, 25, 8, 0.36);
+    --ember: #b04018;
+
+    --font-serif: 'Noto Serif SC', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--cool); min-height: 100vh; }
+  body { overflow-x: hidden; padding-bottom: 80px; font-family: var(--font-serif); }
+
+  /* —— 上半:COOL —— */
+  .half-cool {
+    background: linear-gradient(180deg, #e0e3e1 0%, var(--cool) 70%, var(--cool-deep) 100%);
+    color: var(--cool-ink);
+    padding: 76px 48px 80px;
+    position: relative;
+  }
+  .top-marker {
+    position: absolute; top: 32px; left: 56px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.32em; color: var(--cool-fade);
+  }
+  .where-cool {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px; letter-spacing: 0.42em;
+    color: var(--cool-fade); margin-bottom: 48px;
+  }
+
+  /* —— Cool 的视觉:几把"室内乐器"轻轻列着,留白多 —— */
+  .cool-instr {
+    max-width: 640px; margin: 0 auto 48px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
+    text-align: center;
+  }
+  .cool-instr .it {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.3em; color: var(--cool-fade);
+    padding: 12px 0; border-top: 1px solid var(--cool-rule);
+  }
+  .cool-instr .it b {
+    display: block; font-family: var(--font-serif);
+    font-weight: 400; color: var(--cool-soft);
+    font-size: 13px; letter-spacing: 0.04em; margin-top: 4px;
+  }
+
+  /* —— Cool 文章 —— */
+  .article-cool {
+    max-width: 640px; margin: 0 auto;
+    color: var(--cool-ink); font-size: 17px;
+    line-height: 1.75; letter-spacing: 0.01em;
+  }
+  .article-cool > p { margin-bottom: 1em; }
+  .article-cool em { font-style: italic; }
+  .article-cool strong { font-weight: 500; }
+
+  /* —— 中间过渡 —— */
+  .transition {
+    background: linear-gradient(180deg, var(--cool-deep) 0%, var(--warm) 100%);
+    padding: 56px 24px;
+    text-align: center;
+  }
+  .transition .turn {
+    font-family: var(--font-serif);
+    font-size: 20px; letter-spacing: 0.04em;
+    color: #4a3530; font-style: italic;
+  }
+  .transition .turn strong { color: var(--ember); font-weight: 500; font-style: normal; }
+
+  /* —— 下半:HARD BOP —— */
+  .half-hard {
+    background: linear-gradient(180deg, var(--warm) 0%, var(--warm-deep) 100%);
+    color: var(--warm-ink);
+    padding: 72px 48px 80px;
+    position: relative;
+  }
+  .where-hard {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 12px; letter-spacing: 0.42em;
+    color: var(--warm-fade); margin-bottom: 32px;
+  }
+  .hard-name {
+    text-align: center;
+    font-family: var(--font-serif);
+    font-size: 28px; letter-spacing: 0.12em;
+    color: var(--warm-ink); font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .hard-sub {
+    text-align: center;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.38em; color: var(--warm-soft);
+    margin-bottom: 56px;
+  }
+
+  /* —— Hard 文章 —— */
+  .article-hard {
+    max-width: 640px; margin: 0 auto;
+    color: var(--warm-ink); font-size: 17px;
+    line-height: 1.75; letter-spacing: 0.01em;
+  }
+  .article-hard > p { margin-bottom: 1em; }
+  .article-hard em { font-style: italic; }
+  .article-hard strong { font-weight: 500; }
+  .article-hard blockquote {
+    margin: 1.8em 0 0.8em; padding-left: 24px;
+    border-left: 2px solid var(--ember);
+    font-style: italic; font-size: 19px;
+    line-height: 1.6; color: var(--warm-ink);
+  }
+  .article-hard blockquote cite {
+    display: block; margin-top: 8px; font-style: normal;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.3em; color: var(--warm-fade);
+  }
+  .article-hard blockquote cite::before { content: '— '; }
+
+  .back {
+    position: fixed; bottom: 24px; left: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: rgba(255,255,255,0.55);
+    text-decoration: none; mix-blend-mode: difference;
+  }
+  .back:hover { color: white; }
+
+  .next {
+    position: fixed; bottom: 24px; right: 24px;
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.32em; color: rgba(255,255,255,0.55);
+    text-decoration: none; mix-blend-mode: difference;
+    text-align: right;
+  }
+  .next:hover { color: white; }
+</style>
+</head>
+<body>
+
+<div class="top-marker">SECTION 06 · COOL / HARD BOP</div>
+
+<!-- ===== 上半:COOL ===== -->
+<div class="half-cool">
+
+  <div class="where-cool">1949 &nbsp;&nbsp; LOS ANGELES · BIRTH OF THE COOL</div>
+
+  <div class="cool-instr">
+    <div class="it">TRUMPET<b>Miles Davis</b></div>
+    <div class="it">FRENCH HORN<b>Junior Collins</b></div>
+    <div class="it">TUBA<b>Bill Barber</b></div>
+    <div class="it">BARI SAX<b>Gerry Mulligan</b></div>
+  </div>
+
+  <div class="article-cool">
+    <p>Bebop 太烈,烈到自己都受不了。1949 年,<strong>Miles Davis</strong> 召集一群乐手,在纽约录了一张专辑——叫 <em>Birth of the Cool</em>。名字就是态度。</p>
+
+    <p>编制里多了 French horn 和 tuba,听起来<strong>像欧洲室内乐</strong>。bebop 的节奏慢下来了,棱角磨圆了,呼吸感强了。</p>
+
+    <p>之后 Miles Davis、Gerry Mulligan、Chet Baker 这一代往加州走,把音乐推到内敛、克制、冷静的方向。这就是 cool jazz——bebop 的<em>降温版</em>。</p>
+  </div>
+
+</div>
+
+<!-- ===== 过渡 ===== -->
+<div class="transition">
+  <div class="turn">但 cool 太冷了。<strong>有人不耐烦。</strong></div>
+</div>
+
+<!-- ===== 下半:HARD BOP ===== -->
+<div class="half-hard">
+
+  <div class="where-hard">1954 — 1958 &nbsp;&nbsp; NEW YORK · JAZZ MESSENGERS</div>
+
+  <div class="hard-name">HARD BOP</div>
+  <div class="hard-sub">把火接回来</div>
+
+  <div class="article-hard">
+    <p>鼓手 <strong>Art Blakey</strong> 和钢琴手 <strong>Horace Silver</strong> 在纽约组了一个乐队,叫 <em>Jazz Messengers</em>。他们把 bebop 的头脑、cool 的优雅,和 <strong>gospel、blues 的初心</strong>——黑人教堂、南方乡村那种最朴素的情感——重新接到了一起。</p>
+
+    <p>这就是 hard bop。</p>
+
+    <p>听 hard bop 的代表作 <em>Moanin'</em>(Bobby Timmons 1958 年作曲,Jazz Messengers 录制)——前奏的钢琴 lick 直接是 <strong>gospel 的味道</strong>,但和声是 bebop 的复杂度,节奏是 swing 的摇摆。爵士第一次<em>重新拥抱自己的非洲那一面</em>。</p>
+
+    <blockquote>
+      爵士不能丢掉灵魂。
+      <cite>Art Blakey &amp; Horace Silver</cite>
+    </blockquote>
+  </div>
+
+</div>
+
+<a class="back" href="snare_dial_v5.html">← 回到鼓面</a>
+<a class="next" href="section_07_modal_v2.html">下一段 · 1959 · MODAL →</a>
+
+<script>
+(function () {
+  if (window.self === window.top) return;
+  const SECTION_ID = 'cool';
+  try { window.parent.postMessage({ type: 'section-shown', sectionId: SECTION_ID }, '*'); } catch (e) {}
+  const back = document.querySelector('.back');
+  if (back) back.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { window.parent.postMessage({ type: 'close-overlay' }, '*'); } catch (e2) {}
+  });
+})();
+</script>
+
+</body>
+</html>
