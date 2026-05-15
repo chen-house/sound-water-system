@@ -1,5 +1,53 @@
 # CHANGELOG
 
+## v0.7.2 · 2026-05-15 · 封面态 + LP 唱片侧脊分隔 + 9 真 Spotify 嵌入 + 部署 GitHub Pages
+
+### 这一轮发生了什么
+
+把作品从"原型"推到"线上能玩"的状态。封面态(cover state)、鼓棒磁头落槽、LP 唱片侧脊分隔、9 段真音频全部到位。仓库部署到 `chen-house/sound-water-system`,线上 https://chen-house.github.io/sound-water-system/
+
+### 关键决策
+
+1. **封面态(cover)**:落地不再直接展开 DJ 面板,鼓棒平放在 ragtime 旁,选段才展开右面。Body grid `1fr 20px 1fr` ↔ `1fr 20px 0fr`。
+2. **鼓棒磁头感**:点鼓棒 → 用 CSS transition `transform 0.55s cubic-bezier(0.2, 0.85, 0.25, 1)` 流畅滑到 ragtime,过渡前快后慢有"被磁力拉过去"的物理感。JS 加 `currentTransformAngle` 跟踪累积角度,后续 notch 切换都走最短路径。
+3. **LP 唱片侧脊分隔**:取代之前 84px 宽 channel strip(被批"假按钮 = 大忌")。20px 宽卡纸色侧脊 + 52px 唱片本体(封面态藏在套内,打开态浮出 30px),纯静态,不撒谎。唱片对齐右面 h3 标题作为开篇标记。
+4. **Logo 改**:`JAZZ` 大写居中 + `1899-1969` 小字在右下角(锚点 anchor=end),去掉了"音乐水系" + 下划线 rule。
+5. **Overlay 锁鼓盘**:overlay 打开 → 鼓棒 / 张力杆 / 键盘箭头三种交互全封,JS + CSS 双层防御。
+6. **9 段真 Spotify 嵌入**:用 WebSearch 找到 9 个曲目的真实 track ID,全部换成 30 秒预览 iframe。
+7. **部署 GitHub Pages**:仓库初始化 + push,根目录 `index.html` 自动跳到主页,Pages 启用 main / root。
+
+### 这一轮做对的几件事
+
+- "假按钮 = 大忌"的设计原则被守住——退回 LP 唱片这种纯静态物体作为分隔
+- 封面 + 选段展开的两段式让"打开"有仪式感
+- 磁头感落槽用 CSS transition + 累积角度跟踪,既流畅又不绕大圈
+- WebSearch 找 Spotify track ID 比手填省时,9 个一次性搞定
+
+### 这一轮踩的坑
+
+- **84px channel strip 走偏**——视觉权重过大 + 假按钮违反 affordance 原则,被 cc 一眼看出。回滚后改 LP 唱片侧脊。
+- **鼓棒方向反了 + 挡 Bebop 标签**——第一版鼓棒摆在鼓正下方居中,看着像放大镜把手 + 压在 Bebop 字面上。修到 ragtime 旁边 + 棒尖朝右才对。
+- **第一版磁头感太突然**——"贴在 ragtime 30px 外 + translate 缩到 0"实际像"瞬间跳",改成"平放 + 50° 旋转 + 长 translate"才有过渡感。
+- **沙箱 virtiofs 不支持 unlink**——git 没法清临时锁文件,push 只能在 cc 的 Mac 终端做。
+
+### 文件产物
+
+- `design/prototypes/snare_dial_v5.html` — 主页定稿(本窗口),封面态 + 真 Spotify
+- `index.html`(根目录,新)— GH Pages 入口
+- `.gitignore`(新)— 忽略 .DS_Store / .obsidian
+- `README.md` — 更新到 v0.7.2,含 GH Pages 地址
+- `STATUS_2026-05-15.md` — 本次盘点
+- `CHANGELOG.md` — 加 v0.7.2 条目(本条)
+
+### 待决(下一窗口处理)
+
+- **下一步:小红书卡片 vs 短视频**(等 cc 拍板)
+- 移动端断点
+- 其它 3 章串场词(Blues→Hip-hop / Electronic / 鼓手视角)
+- 9 张海报封面方向
+
+---
+
 ## v0.7.1 · 2026-05-14 · 9 段 v2 文章版 + 结构性修正(忠于原文)+ 鼓盘起手 1899
 
 ### 这一轮发生了什么
