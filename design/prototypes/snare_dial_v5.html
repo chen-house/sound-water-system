@@ -792,6 +792,9 @@
 </div>
 <button id="overlay-close" aria-label="关闭(Esc)">×</button>
 
+<!-- Spotify iframe API,用来在切槽时自动播放/暂停 30s 预览 -->
+<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+
 <script>
 (() => {
   const notches = [
@@ -820,6 +823,52 @@
   }
   function isCover() {
     return document.body.classList.contains('cover');
+  }
+
+  // —— Spotify 自动切换播放
+  // 每个 dj-block(对应一个 notch event id)关联一个 Spotify controller
+  // 切换 notch 时:暂停所有其它的,播放当前的
+  // Cool/Hard Bop 块有两个 embed,只保留第一个(Boplicity)做自动播放
+  const spotifyControllers = {};
+  let pendingPlayId = null;
+
+  window.onSpotifyIframeApiReady = (IFrameAPI) => {
+    document.querySelectorAll('.spotify-embed').forEach(iframe => {
+      const djBlock = iframe.closest('.dj-block');
+      if (!djBlock) return;
+      const eventId = djBlock.dataset.event;
+      // 同一 dj-block 多个 embed 时,只接管第一个
+      if (eventId in spotifyControllers) return;
+      const m = (iframe.src || '').match(/embed\/track\/([a-zA-Z0-9]+)/);
+      if (!m) return;
+      spotifyControllers[eventId] = null;   // 占位
+      try {
+        IFrameAPI.createController(iframe, { uri: `spotify:track:${m[1]}` }, (controller) => {
+          spotifyControllers[eventId] = controller;
+          // 如果 API 就绪前用户已经选了段,现在补播
+          if (pendingPlayId === eventId) {
+            playForEvent(pendingPlayId);
+            pendingPlayId = null;
+          }
+        });
+      } catch (e) { /* ignore */ }
+    });
+  };
+
+  function playForEvent(id) {
+    if (isCover()) return;   // 封面态不播
+    const target = spotifyControllers[id];
+    if (!target) {
+      // controller 还没就绪,记下来等会儿补播
+      pendingPlayId = id;
+      return;
+    }
+    // 暂停其它所有
+    Object.entries(spotifyControllers).forEach(([k, c]) => {
+      if (c && k !== id) { try { c.pause(); } catch(e) {} }
+    });
+    // 播放目标
+    try { target.play(); } catch (e) {}
   }
 
   // —— 鼓棒位置:由 CSS transition 处理平滑过渡,JS 只设 inline style.transform
@@ -870,6 +919,7 @@
     } else {
       setStickAngle(n.theta);
     }
+    playForEvent(n.id);
   }
 
   // —— 初始化:进入封面态
@@ -961,6 +1011,7 @@
     // 封面态:点鼓棒就退封面,鼓棒飞到当前 notch(默认 ragtime),不进入 drag
     if (isCover()) {
       exitCover();
+      playForEvent(currentNotchId);
       return;
     }
 
@@ -982,6 +1033,7 @@
     const n = findNearest(currentTheta);
     setCurrent(n.id);
     setStickAngle(n.theta);  // CSS transition 平滑吸附到最近槽
+    playForEvent(n.id);
   }
   stickHit.addEventListener('pointerup', endDrag);
   stickHit.addEventListener('pointercancel', endDrag);
@@ -994,7 +1046,7 @@
     } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
       e.preventDefault(); moveToNotch(notches[(i + 1) % notches.length]);
     } else if (e.key === 'Enter' || e.key === ' ') {
-      if (isCover()) { exitCover(); return; }
+      if (isCover()) { exitCover(); playForEvent(currentNotchId); return; }
       const c = notches.find(n => n.id === currentNotchId);
       if (c && c.href && c.href !== '#') { e.preventDefault(); openOverlay(c.href); }
     }
