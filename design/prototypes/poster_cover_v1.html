@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>声音水系 · Cover Poster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ebe1c4;
+    --paper-deep: #d9cba4;
+    --ink: #2b1f10;
+    --ink-soft: rgba(43, 31, 16, 0.78);
+    --ink-fade: rgba(43, 31, 16, 0.42);
+    --gold: #8a6e3a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #444; min-height: 100vh; }
+  body {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    padding: 40px;
+    font-family: 'Noto Serif SC', serif;
+  }
+  /* 截图说明 */
+  .hint {
+    position: fixed; top: 16px; left: 16px;
+    color: rgba(255,255,255,0.6);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    z-index: 99;
+  }
+
+  /* —— 海报基础(用 viewport 单位让它在多个尺寸下都能用) —— */
+  .poster {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 30%, #f0e7ce 0%, var(--paper) 60%, var(--paper-deep) 100%);
+    color: var(--ink);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    border-radius: 4px;
+  }
+
+  /* 尺寸 1:Xiaohongshu 推荐 3:4 竖图 */
+  .p-34 { width: 540px; height: 720px; }
+  /* 尺寸 2:1:1 方图 */
+  .p-11 { width: 600px; height: 600px; }
+  /* 尺寸 3:视频起手 16:9 */
+  .p-169 { width: 720px; height: 405px; }
+  /* 尺寸 4:视频起手 9:16 竖屏 */
+  .p-916 { width: 405px; height: 720px; }
+
+  /* —— 海报内容 —— */
+  .top-tag {
+    position: absolute;
+    top: 32px; left: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--ink-fade);
+  }
+  .bottom-url {
+    position: absolute;
+    bottom: 32px; left: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--ink-fade);
+    line-height: 1.6;
+  }
+  .bottom-url b { color: var(--ink-soft); font-weight: 400; }
+
+  .center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 32px;
+  }
+  .jazz {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 120px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .p-169 .jazz { font-size: 88px; }
+  .p-916 .jazz { font-size: 80px; }
+
+  .years {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    color: var(--ink-soft);
+    margin-bottom: 56px;
+  }
+  .p-169 .years { font-size: 14px; margin-bottom: 32px; }
+  .p-916 .years { font-size: 14px; margin-bottom: 40px; }
+
+  .tagline {
+    max-width: 320px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--ink-soft);
+    line-height: 1.8;
+    letter-spacing: 0.04em;
+  }
+  .tagline em {
+    font-style: normal;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .p-169 .tagline { font-size: 14px; max-width: 480px; }
+
+  /* —— 鼓棒 SVG 装饰 —— */
+  .stick-deco {
+    position: absolute;
+    width: 180px;
+    height: 14px;
+    opacity: 0.78;
+  }
+  .p-169 .stick-deco { width: 140px; }
+  .p-916 .stick-deco { width: 140px; }
+
+  /* 鼓棒在右下角斜放 */
+  .stick-deco.bottom-right {
+    bottom: 100px; right: 32px;
+    transform: rotate(-12deg);
+  }
+  .p-916 .stick-deco.bottom-right {
+    bottom: 110px; right: 24px;
+  }
+</style>
+</head>
+<body>
+
+<div class="hint">FOR SCREENSHOT — 选一个尺寸,Cmd+Shift+5 截屏。多余的灰底裁掉。</div>
+
+<!-- 3:4 竖图(Xiaohongshu 主流) -->
+<div class="poster p-34">
+  <div class="top-tag">声 音 水 系 &nbsp;&nbsp; SOUND WATER SYSTEM</div>
+  <div class="center">
+    <div class="jazz">JAZZ</div>
+    <div class="years">1 8 9 9 &nbsp;—&nbsp; 1 9 6 9</div>
+    <div class="tagline">一段<em>不肯重复自己</em>的音乐<br>每十年,有人决定<em>不要再玩现在的玩法</em></div>
+  </div>
+  <svg class="stick-deco bottom-right" viewBox="0 0 180 14">
+    <polygon points="180,5 180,9 18,8 18,6" fill="#8a6e3a"/>
+    <circle cx="14" cy="7" r="6" fill="#7a5e2a"/>
+  </svg>
+  <div class="bottom-url">
+    <b>chen-house.github.io/sound-water-system</b><br>
+    点 鼓 棒 · 听 一 百 年
+  </div>
+</div>
+
+<!-- 1:1 方图 -->
+<div class="poster p-11">
+  <div class="top-tag">声 音 水 系</div>
+  <div class="center">
+    <div class="jazz">JAZZ</div>
+    <div class="years">1 8 9 9 &nbsp;—&nbsp; 1 9 6 9</div>
+    <div class="tagline"><em>一百年</em><br>这帮人没歇过</div>
+  </div>
+  <svg class="stick-deco bottom-right" viewBox="0 0 180 14">
+    <polygon points="180,5 180,9 18,8 18,6" fill="#8a6e3a"/>
+    <circle cx="14" cy="7" r="6" fill="#7a5e2a"/>
+  </svg>
+  <div class="bottom-url"><b>SOUND WATER SYSTEM</b></div>
+</div>
+
+<!-- 16:9 视频起手帧 -->
+<div class="poster p-169">
+  <div class="top-tag">声 音 水 系 &nbsp;&nbsp; SOUND WATER SYSTEM</div>
+  <div class="center">
+    <div class="jazz">JAZZ</div>
+    <div class="years">1 8 9 9 &nbsp;—&nbsp; 1 9 6 9</div>
+    <div class="tagline">一段<em>不肯重复自己</em>的音乐</div>
+  </div>
+  <svg class="stick-deco bottom-right" viewBox="0 0 180 14">
+    <polygon points="180,5 180,9 18,8 18,6" fill="#8a6e3a"/>
+    <circle cx="14" cy="7" r="6" fill="#7a5e2a"/>
+  </svg>
+  <div class="bottom-url"><b>chen-house.github.io/sound-water-system</b></div>
+</div>
+
+<!-- 9:16 抖音/小红书竖屏视频 -->
+<div class="poster p-916">
+  <div class="top-tag">声 音 水 系</div>
+  <div class="center">
+    <div class="jazz">JAZZ</div>
+    <div class="years">1899 — 1969</div>
+    <div class="tagline"><em>一百年</em><br>这帮人没歇过<br>每十年重写一次</div>
+  </div>
+  <svg class="stick-deco bottom-right" viewBox="0 0 180 14">
+    <polygon points="180,5 180,9 18,8 18,6" fill="#8a6e3a"/>
+    <circle cx="14" cy="7" r="6" fill="#7a5e2a"/>
+  </svg>
+  <div class="bottom-url"><b>chen-house.github.io</b><br>/sound-water-system</div>
+</div>
+
+</body>
+</html>

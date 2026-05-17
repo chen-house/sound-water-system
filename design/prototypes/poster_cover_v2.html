@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Cover Poster · v2 · no brand</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ebe1c4;
+    --paper-deep: #d9cba4;
+    --ink: #2b1f10;
+    --ink-soft: rgba(43, 31, 16, 0.78);
+    --ink-fade: rgba(43, 31, 16, 0.42);
+    --gold: #8a6e3a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #444; min-height: 100vh; }
+  body {
+    display: flex; flex-wrap: wrap;
+    justify-content: center; align-items: flex-start;
+    gap: 40px; padding: 40px;
+    font-family: 'Noto Serif SC', serif;
+  }
+  .hint {
+    position: fixed; top: 16px; left: 16px;
+    color: rgba(255,255,255,0.6);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 0.2em;
+    z-index: 99;
+  }
+
+  .poster {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 30%, #f0e7ce 0%, var(--paper) 60%, var(--paper-deep) 100%);
+    color: var(--ink);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    border-radius: 4px;
+  }
+
+  .p-34 { width: 540px; height: 720px; }
+  .p-11 { width: 600px; height: 600px; }
+  .p-169 { width: 720px; height: 405px; }
+  .p-916 { width: 405px; height: 720px; }
+
+  /* —— 主体:JAZZ + 年份,极度居中 + 留白 —— */
+  .center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 32px;
+  }
+  .jazz {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 128px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .p-169 .jazz { font-size: 96px; }
+  .p-916 .jazz { font-size: 84px; }
+
+  .years {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 0.34em;
+    color: var(--ink-soft);
+  }
+  .p-169 .years { font-size: 15px; }
+  .p-916 .years { font-size: 16px; }
+
+  /* —— 一根小鼓棒,斜放在右下角,无文字 —— */
+  .stick-deco {
+    position: absolute;
+    width: 200px;
+    height: 14px;
+    opacity: 0.75;
+    bottom: 80px;
+    right: 50px;
+    transform: rotate(-14deg);
+  }
+  .p-169 .stick-deco { width: 150px; bottom: 60px; right: 40px; }
+  .p-916 .stick-deco { width: 160px; bottom: 90px; right: 30px; }
+
+  /* —— 鼓圈剪影:左上角一抹弧,留点呼吸 —— */
+  .rim-corner {
+    position: absolute;
+    top: -240px; left: -240px;
+    width: 480px; height: 480px;
+    border-radius: 50%;
+    border: 1px solid rgba(43, 31, 16, 0.18);
+  }
+  .p-169 .rim-corner { width: 380px; height: 380px; top: -190px; left: -190px; }
+  .p-916 .rim-corner { width: 360px; height: 360px; top: -180px; left: -180px; }
+</style>
+</head>
+<body>
+
+<div class="hint">v2 · 去掉所有品牌字 + URL。截图请只框白色海报。</div>
+
+<!-- 3:4 竖图(Xiaohongshu 主图) -->
+<div class="poster p-34">
+  <div class="rim-corner"></div>
+  <div class="center">
+    <div class="jazz">JAZZ</div>
+    <div class="years">1 8 9 9 &nbsp;—&nbsp; 1 9 6 9</div>
+  </div>
+  <svg class="stick-deco" viewBox="0 0 200 14">
+    <polygon points="200,5 200,9 18,8 18,6" fill="#8a6e3a"/>
+    <circle cx="14" cy="7" r="6" fill="#7a5e2a"/>
+  </svg>
+</div>
+
+<!-- 1:1 方图 -->
+<div class="poster p-11">
+  <div class="rim-corner"></div>
+  <div class="center">
+    <div class="jazz">JAZZ</div>
+    <div class="years">1 8 9 9 &nbsp;—&nbsp; 1 9 6 9</div>
+  </div>
+  <svg class="stick-deco" viewBox="0 0 200 14">
+    <polygon points="200,5 200,9 18,8 18,6" fill="#8a6e3a"/>
+    <circle cx="14" cy="7" r="6" fill="#7a5e2a"/>
+  </svg>
+</div>
+
+<!-- 16:9 横屏视频起手 -->
+<div class="poster p-169">
+  <div class="rim-corner"></div>
+  <div class="center">
+    <div class="jazz">JAZZ</div>
+    <div class="years">1 8 9 9 &nbsp;—&nbsp; 1 9 6 9</div>
+  </div>
+  <svg class="stick-deco" viewBox="0 0 200 14">
+    <polygon points="200,5 200,9 18,8 18,6" fill="#8a6e3a"/>
+    <circle cx="14" cy="7" r="6" fill="#7a5e2a"/>
+  </svg>
+</div>
+
+<!-- 9:16 竖屏视频起手 -->
+<div class="poster p-916">
+  <div class="rim-corner"></div>
+  <div class="center">
+    <div class="jazz">JAZZ</div>
+    <div class="years">1899 — 1969</div>
+  </div>
+  <svg class="stick-deco" viewBox="0 0 200 14">
+    <polygon points="200,5 200,9 18,8 18,6" fill="#8a6e3a"/>
+    <circle cx="14" cy="7" r="6" fill="#7a5e2a"/>
+  </svg>
+</div>
+
+</body>
+</html>
