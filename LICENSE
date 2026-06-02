@@ -1,0 +1,65 @@
+Copyright (c) 2026 晨听 (chen-house)
+
+This work is licensed under the
+Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License
+(CC BY-NC-ND 4.0).
+
+License deed (human-readable):
+  https://creativecommons.org/licenses/by-nc-nd/4.0/
+Full legal code:
+  https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
+
+================================================================================
+SUMMARY · 简要说明
+================================================================================
+
+You are free to:
+  Share — copy and redistribute the material in any medium or format,
+  with the following conditions:
+
+  BY  · Attribution
+        You must give appropriate credit to 晨听 (chen-house),
+        provide a link to this license, and indicate if changes were made.
+
+  NC  · NonCommercial
+        You may not use this material, or any derivative of it, for
+        commercial purposes — including reselling, monetizing in ads-driven
+        platforms, or incorporating it into paid products / services.
+
+  ND  · NoDerivatives
+        If you remix, transform, or build upon the material, you may NOT
+        distribute the modified material. Forks for personal study are fine,
+        but redistribution of modified versions is not permitted.
+
+  No additional restrictions — You may not apply legal terms or technological
+  measures that legally restrict others from doing anything the license permits.
+
+================================================================================
+NOTICE · 关于源代码与内容
+================================================================================
+
+This repository includes:
+  · Original written content (articles in `article/`)
+  · Original visual & interactive designs (HTML / CSS / JavaScript / SVG
+    in `design/prototypes/`)
+  · Original project documents (STATUS / CHANGELOG / strategy docs)
+
+All of the above are the copyrighted creation of 晨听 (chen-house) and are
+released under the CC BY-NC-ND 4.0 terms summarized above.
+
+Embedded third-party content (such as Spotify track previews) remains the
+property of their respective rights holders and is referenced under the
+terms each platform provides.
+
+================================================================================
+中文摘要 · 给读到这里的中文使用者
+================================================================================
+
+本作品(包括文章、视觉设计、交互代码、项目文档)版权归 晨听(chen-house)所有,
+按 CC BY-NC-ND 4.0 协议发布。简单说:
+
+  ✅ 可以原样转发、传播、引用,但必须署名「晨听 / chen-house」并附本许可链接
+  ❌ 不可商用(包括但不限于:打广告变现、卖给客户、做进收费产品)
+  ❌ 不可改后再发(自学可以 fork,但改完不能拿出去再传播)
+
+如对商用 / 转载 / 改编有需求,请通过 GitHub Issues 联系作者。
