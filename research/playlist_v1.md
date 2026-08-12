@@ -78,6 +78,72 @@
     代价:iframe 里是 Spotify 的界面,拿不到音频波形(星星就不能跟着频谱跳),
     也控制不了它长什么样。这是一个真选项,但要用它,星的脉动那套就得换个做法。
 
+19. **v35:同一份文件加中英切换(不是另出一个英文文件)**
+
+    cc 定的形式:一份文件,右下角一个 `EN / 中` 开关。理由是这个项目还要不断加内容 ——
+    两个文件迟早走偏,一份文件加一张对照表不会。
+
+    实现上的一条规矩:**数据数组 `S` 一个字都不动。** 中文是原稿,英文挂在 `EN` 表上按专辑名取;
+    表里没有的字段自动退回中文,不会出现空白。以后加一张碟只改 `S` 一处。
+
+    UI 对照:
+
+    | 中 | EN |
+    |---|---|
+    | 星轨 / 北斗 / 天鹅 | Orbits / Dipper / Cygnus |
+    | 2023 届 | 2023 Poll |
+    | 发行 2022 | released 2022 |
+    | 鼓手 | Drums |
+    | 打击乐 | percussion |
+    | 暂无音源 | No audio yet |
+    | 天枢/天璇/天玑/天权/玉衡/开阳/摇光 | Dubhe / Merak / Phecda / Megrez / Alioth / Mizar / Alkaid |
+
+    北斗那一行是国际通用的阿拉伯语星名,不是音译。
+
+20. **借来的乐评:英文版一律用原话,查不到出处的不显示**
+
+    cc 定的规矩:不把中文回译成英文冒充原话。8 条逐条去查,结果 **6 条找回原话,1 条是 cc 自己的,1 条查不到**。
+    摘句用省略号标出删节,句子本身逐字照抄。
+
+    - **Historicity** —「…syncopated snare hits cracking against Crump's arco groans and double-stop pluckings.」
+      出处 [PopMatters 的 Historicity 乐评](https://www.popmatters.com/113152-vijay-iyer-trio-historicity-2496098990.html)。原句前面还有一截讲 Hemphill 的 "Dogon A.D.",中文当时就删了。
+    - **Ten** —「…Moran and drummer Nasheet Waits varying the dynamics and dancing around the beat while bassist Tarus Mateen holds fast to it…」
+      出处 [Francis Davis,The Village Voice,2010-12-29](https://www.villagevoice.com/2010/12/29/jason-moran-tops-himself/)。
+      ⚠️ **中文版的出处标注要改**:标的是「Francis Davis」,人对,但发表在 Village Voice,不是 NPR —— NPR 那两篇写 *Ten* 的是 Kevin Whitehead 和 Tom Moon,没有这句。
+    - **Accelerando** —「…drummer Marcus Gilmore slam, feather, crosshatch, overlay.」
+      出处 [Patrick Jarenwattananon,NPR First Listen,2012-03-04](https://www.npr.org/2012/03/04/147514971/first-listen-vijay-iyer-trio-accelerando)。原句前半还写了贝斯手 Stephan Crump,中文只留了鼓的那半句。
+    - **Jesup Wagon** —「…his band march jubilantly in, banishing his blues like a New Orleans parade.」
+      出处 [Bill Meyer,DownBeat](https://downbeat.com/reviews/detail/jesup-wagon)。
+    - **Amaryllis** —「…an étude-like ostinato that has the band ticking like an overwound clock.」
+      出处 [J.D. Considine,DownBeat](https://downbeat.com/reviews/detail/amaryllis-belladonna)。
+    - **Breaking Stretch** —「…breaks down the time combinations to create a clave web that instantly sucks you in.」
+      出处 [Jim Macnie,DownBeat,2025-07-17](https://downbeat.com/news/detail/patricia-brennan-album-of-the-year-vibraphonist-of-the-year)。
+      ⚠️ 这不是唱片乐评,是 DownBeat 2025 年票选的人物报道,而且说的是专辑里 "555" 那一首。
+      `downbeat.com/reviews/detail/breaking-stretch` 这个地址不存在。
+    - **Waiting Game** —「A leader of power and grace, steering the whole album's emotional arc from the kit.」
+      **这是 cc 自己写的**,所以两版都不标出处。
+    - **Without a Net** —「与长期合作的节奏组之间,近乎心灵感应的互动。」→ **查不到出处,英文版不显示这条。**
+      查过 NPR、PopMatters、AllMusic、musicOMH、AllAboutJazz、The Absolute Sound、JazzTimes、Jazzwise。
+      两条近似但明显是别的句子:Bill Milkowski 在 [The Absolute Sound](https://www.theabsolutesound.com/articles/wayne-shorter-without-a-net/) 写的是 "near-telepathic **chemistry**",讲的是整个四重奏不是节奏组;
+      Mark F. Turner 在 [All About Jazz](https://www.allaboutjazz.com/without-a-net-wayne-shorter-blue-note-records-review-by-mark-f-turner) 写的是 "seemingly telepathic and subliminal messages",句子结构完全不同。
+      ⚠️ 中文那句是无动词的名词短语,而且文件里本来就没标出处 —— **很可能是当时写的概述,不是译文。中文版这条也该处理,还没动。**
+
+    统计更新:**借来的乐评原话 6/23 张**(原来记的 7 条里,Without a Net 这条不算)。
+
+21. **v36:开场曲换成 2012 届 Accelerando**
+
+    cc 的判断:2025 届 Breaking Stretch 太吵,门一开容易吓到人。量过两条 iTunes 预览:
+
+    | 开场曲 | 前 3 秒 RMS | 前 3 秒峰值 | 整段 RMS |
+    |---|---|---|---|
+    | Breaking Stretch / Five Suns | −15.8 dB | −1.9 dB | −15.8 dB |
+    | Accelerando / Human Nature (Trio Extension) | **−31.9 dB** | **−19.1 dB** | −19.8 dB |
+
+    进门那 3 秒差 **16 dB** —— Breaking Stretch 一进来就是满响度,Accelerando 是渐入的。
+    数据支持他的判断,不是口味问题。(用 Web Audio `decodeAudioData` 直接解两条预览算的,2026-08-12)
+
+    这条同样走 iTunes 预览,秒开、有 CORS、频谱是真的 —— 开场那颗星还是跟着音乐跳。
+
 ---
 
 ## 一、星轨 · 全部 20 张
