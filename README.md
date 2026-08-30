@@ -11,9 +11,9 @@
 | 作品 | 打开 | 是什么 |
 |---|---|---|
 | **星轨播放器** · DownBeat 2006—2025 | [`mixer_v36_open.html`](https://chen-house.github.io/sound-water-system/mixer_v36_open.html) | 二十张年度专辑排成一张星图,能听 |
-| **军鼓表盘** · Jazz 1899—1969 | [`design/prototypes/snare_dial_v5.html`](https://chen-house.github.io/sound-water-system/design/prototypes/snare_dial_v5.html) | 鼓面即时间表盘,八个流派 |
+| **军鼓黑胶唱片** · Jazz 1899—1969 | [`design/prototypes/snare_dial_v5.html`](https://chen-house.github.io/sound-water-system/design/prototypes/snare_dial_v5.html) | 鼓面即时间表盘,八个流派 |
 
-英文版:军鼓表盘走 `snare_dial_v5_en.html`;星轨播放器的中英切换在页面右下角的 `EN` 开关里。
+英文版:军鼓黑胶唱片走 `snare_dial_v5_en.html`;星轨播放器的中英切换在页面右下角的 `EN` 开关里。
 
 ---
 
@@ -41,7 +41,7 @@ DownBeat 国际乐评人票选(第 54–73 届 / 2006–2025)的二十张年度�
 
 ---
 
-## 二、军鼓表盘
+## 二、军鼓黑胶唱片
 
 一面军鼓的鼓面,九根张力杆就是八个爵士流派的时间表盘(1899 Ragtime → 1969 Fusion)。
 
@@ -64,11 +64,11 @@ DownBeat 国际乐评人票选(第 54–73 届 / 2006–2025)的二十张年度�
 ├── design/
 │   ├── covers/                 入口页用的封面图
 │   ├── prototypes/
-│   │   ├── snare_dial_v5.html      军鼓表盘 · 当前版
+│   │   ├── snare_dial_v5.html      军鼓黑胶唱片 · 当前版
 │   │   ├── snare_dial_v5_en.html   英文版
 │   │   ├── mixer/                  星轨播放器 v0–v35 全部历史版本
 │   │   ├── sections/               九个爵士段落页(v1 / v2)
-│   │   ├── snare/                  军鼓表盘的早期迭代
+│   │   ├── snare/                  军鼓黑胶唱片的早期迭代
 │   │   └── misc/                   其它原型
 │   ├── bird_iter/              星座形状的迭代过程图
 │   ├── palette/                配色
@@ -120,7 +120,7 @@ DownBeat 国际乐评人票选(第 54–73 届 / 2006–2025)的二十张年度�
 
 详见 `CHANGELOG.md`。
 
-- **军鼓表盘** v0.7.1(2026-05-14):9 段 v2 文章版 + 鼓盘起手 1899 + LP 唱片侧脊分隔 + 鼓棒磁头感落槽
+- **军鼓黑胶唱片** v0.7.1(2026-05-14):9 段 v2 文章版 + 鼓盘起手 1899 + LP 唱片侧脊分隔 + 鼓棒磁头感落槽
 - **星轨播放器** v36(2026-08-12):中英切换 + 开场曲换成 2012 届 Accelerando(前 3 秒比原来轻 16 dB)
 
 ## 授权
