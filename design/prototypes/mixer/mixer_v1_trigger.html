@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mixer v1 · fader = 触发器(推起 B,A 让位)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<style>
+  :root {
+    --bg: #2b2b2b; --strip: #383838; --line: #4a4a4a;
+    --txt: #d8d4cc; --dim: #8a867e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--txt);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 24px; padding: 24px;
+  }
+  h1 { font-size: 12px; font-weight: 400; color: var(--dim); letter-spacing: .12em; }
+  .desk { display: flex; gap: 12px; }
+  .strip {
+    background: var(--strip); border: 1px solid var(--line); border-radius: 6px;
+    padding: 12px 10px 16px; width: 108px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    transition: border-color .4s;
+  }
+  .strip.active { border-color: var(--accent); }
+  .tag {
+    font-size: 10px; padding: 3px 6px; border-radius: 3px; color: #222;
+    width: 100%; text-align: center; background: var(--accent);
+    opacity: .45; transition: opacity .4s;
+  }
+  .strip.active .tag { opacity: 1; }
+  .year { font-size: 9px; color: var(--dim); }
+  .fadwrap { display: flex; gap: 6px; align-items: center; height: 170px; }
+  input[type=range] {
+    writing-mode: vertical-lr; direction: rtl;
+    width: 24px; height: 170px; accent-color: var(--txt); cursor: pointer;
+  }
+  .vu { width: 5px; height: 170px; background: #222; border-radius: 2px; position: relative; overflow: hidden; }
+  .vu i {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 0%;
+    background: var(--accent); border-radius: 2px; transition: height .08s linear;
+  }
+  .np { font-size: 11px; color: var(--dim); min-height: 30px; max-width: 480px; text-align: center; line-height: 1.7; }
+  .np b { color: var(--txt); font-weight: 400; }
+  button {
+    background: none; border: 1px solid var(--line); color: var(--txt);
+    font: inherit; font-size: 12px; padding: 8px 22px; border-radius: 4px;
+    cursor: pointer; letter-spacing: .08em;
+  }
+  button.on { border-color: #e0a458; color: #e0a458; }
+  .hint { font-size: 10px; color: var(--dim); max-width: 460px; text-align: center; line-height: 1.7; }
+</style>
+</head>
+<body>
+  <h1>MIXER v1 — fader 是触发器:推起一条,其余让位</h1>
+  <div class="desk" id="desk"></div>
+  <p class="np" id="np">先点 POWER,再往上推任意一条推子</p>
+  <button id="power">POWER</button>
+  <p class="hint">验证点:推起 B 直接触发 A stop(带让位动画),不做音频 crossfade。<br>
+  正式版切换的同时右侧换真歌 embed;这里用合成音色占位。每条流各用各的速度——一次只响一条,BPM 互不牵制。</p>
+
+<script>
+/* ---------- 4 条流(占位,正式版 8-11 条) ---------- */
+const STREAMS = [
+  { id: 0, name: "FUSION",  year: "1976", color: "#e0a458", bpm: 118,
+    blurb: "<b>Fusion 的余波</b> —— 电吉他、合成器接管,jazz 插上了电" },
+  { id: 1, name: "SMOOTH",  year: "1980", color: "#c9b8d8", bpm: 76,
+    blurb: "<b>Smooth</b> —— 顺到没有棱角,黄昏感是真的" },
+  { id: 2, name: "HIP-HOP", year: "1991", color: "#7ea87e", bpm: 90,
+    blurb: "<b>Hip-hop 融合</b> —— 采样台上的 jazz,碎拍是信仰" },
+  { id: 3, name: "UK WAVE", year: "2015", color: "#6fc2b8", bpm: 132,
+    blurb: "<b>UK 新浪潮</b> —— 年轻、跳舞、出汗,dub 的回声在血里" },
+];
+const THRESHOLD = -30;   // 推过这条线 = 触发切换
+const PARK = -48;        // 让位后推子停靠位
+
+/* ---------- 每条流一套占位音色 + 各自的 pattern ---------- */
+const master = new Tone.Gain(0.9).toDestination();
+const meters = [], channels = [], patterns = [];
+
+STREAMS.forEach(s => {
+  const ch = new Tone.Channel(-10);
+  const meter = new Tone.Meter({ smoothing: 0.85 });
+  ch.connect(meter); ch.connect(master);
+  ch.volume.value = -Infinity;
+  channels.push(ch); meters.push(meter);
+});
+
+/* 0 FUSION:亮而忙的电钢琶音 + 跑动贝斯 */
+{
+  const ep = new Tone.PolySynth(Tone.Synth, { oscillator:{type:"square"}, volume:-14,
+    envelope:{attack:.004,decay:.18,sustain:.05,release:.1} }).connect(channels[0]);
+  const bs = new Tone.MonoSynth({ oscillator:{type:"sawtooth"}, volume:-10,
+    envelope:{attack:.01,decay:.2,sustain:.3,release:.2},
+    filterEnvelope:{baseFrequency:300,octaves:2,decay:.15} }).connect(channels[0]);
+  const notes = ["E4","G4","B4","D5","B4","G4"], bass = ["E2","E2","G2","A2"];
+  let i=0, j=0;
+  patterns[0] = [
+    new Tone.Loop(t => ep.triggerAttackRelease(notes[i++%6], "16n", t), "8n"),
+    new Tone.Loop(t => bs.triggerAttackRelease(bass[j++%4], "8n", t), "4n"),
+  ];
+}
+/* 1 SMOOTH:慢的正弦主音 + 软和弦 */
+{
+  const lead = new Tone.Synth({ oscillator:{type:"sine"}, volume:-8, portamento:.08,
+    envelope:{attack:.06,decay:.3,sustain:.5,release:.6} }).connect(channels[1]);
+  const pad = new Tone.PolySynth(Tone.Synth, { oscillator:{type:"triangle"}, volume:-16,
+    envelope:{attack:.3,decay:.5,sustain:.4,release:1.2} }).connect(channels[1]);
+  const mel = ["G4","A4","C5","A4"], chd = [["F3","A3","C4"],["E3","G3","C4"]];
+  let i=0, j=0;
+  patterns[1] = [
+    new Tone.Loop(t => lead.triggerAttackRelease(mel[i++%4], "4n", t), "2n"),
+    new Tone.Loop(t => pad.triggerAttackRelease(chd[j++%2], "2n", t), "1m"),
+  ];
+}
+/* 2 HIP-HOP:boom-bap 底鼓军鼓 + 低音 */
+{
+  const kick = new Tone.MembraneSynth({ volume:-4, pitchDecay:.04 }).connect(channels[2]);
+  const snr = new Tone.NoiseSynth({ volume:-10, envelope:{attack:.001,decay:.14,sustain:0} }).connect(channels[2]);
+  const sub = new Tone.MonoSynth({ oscillator:{type:"sine"}, volume:-8,
+    envelope:{attack:.01,decay:.3,sustain:.2,release:.2} }).connect(channels[2]);
+  let step = 0;
+  patterns[2] = [
+    new Tone.Loop(t => {
+      const s = step++ % 8;
+      if (s===0||s===3||s===6) kick.triggerAttackRelease("C1","8n",t);
+      if (s===2||s===6) snr.triggerAttackRelease("16n", t+0.012);   // 微拖 = 碎拍味
+      if (s===0) sub.triggerAttackRelease("F1","4n",t);
+    }, "8n"),
+  ];
+}
+/* 3 UK WAVE:快 tom 律动 + 管乐 stab 进 dub 回声(D 方案顺手带上) */
+{
+  const dub = new Tone.FeedbackDelay("8n.", 0.5).connect(channels[3]);
+  const tom = new Tone.MembraneSynth({ volume:-8, pitchDecay:.08, octaves:3 }).connect(channels[3]);
+  const stab = new Tone.PolySynth(Tone.Synth, { oscillator:{type:"sawtooth"}, volume:-14,
+    envelope:{attack:.005,decay:.12,sustain:0,release:.1} }).connect(dub);
+  let step = 0;
+  patterns[3] = [
+    new Tone.Loop(t => {
+      const s = step++ % 8;
+      tom.triggerAttackRelease(s%2 ? "G2" : "C2", "16n", t);
+      if (s===4) stab.triggerAttackRelease(["D4","F4","A4"], "16n", t);
+    }, "8n"),
+  ];
+}
+
+/* ---------- 界面 ---------- */
+const desk = document.getElementById("desk");
+const np = document.getElementById("np");
+const strips = STREAMS.map(s => {
+  const el = document.createElement("div");
+  el.className = "strip"; el.style.setProperty("--accent", s.color);
+  el.innerHTML = `
+    <div class="tag">${s.name}</div><div class="year">${s.year}</div>
+    <div class="fadwrap">
+      <input type="range" min="${PARK}" max="0" value="${PARK}" step="0.5" data-id="${s.id}">
+      <div class="vu"><i id="vu${s.id}"></i></div>
+    </div>`;
+  desk.appendChild(el);
+  return el;
+});
+
+/* ---------- 核心:fader = 触发器 ---------- */
+let active = -1, powered = false;
+const faders = [...document.querySelectorAll("input[type=range]")];
+
+function activate(id) {
+  if (active === id) return;
+  const prev = active; active = id;
+  // A 让位:停声 + 推子回落动画
+  if (prev >= 0) {
+    patterns[prev].forEach(p => p.stop());
+    channels[prev].volume.value = -Infinity;
+    strips[prev].classList.remove("active");
+    slideDown(faders[prev]);
+  }
+  // B 上台:换速度、起 pattern(正式版此处同时换真歌 embed)
+  Tone.Transport.bpm.rampTo(STREAMS[id].bpm, 0.3);
+  patterns[id].forEach(p => p.start(0));
+  channels[id].volume.value = parseFloat(faders[id].value);
+  strips[id].classList.add("active");
+  np.innerHTML = STREAMS[id].blurb + ` <span style="opacity:.6">· ${STREAMS[id].bpm} BPM</span>`;
+}
+
+function slideDown(fader) {   // 让位动画:眼睛看到"它退场了"
+  const from = parseFloat(fader.value);
+  const t0 = performance.now();
+  (function step(t) {
+    const k = Math.min((t - t0) / 500, 1);
+    fader.value = from + (PARK - from) * (1 - Math.pow(1 - k, 3));
+    if (k < 1) requestAnimationFrame(step);
+  })(t0);
+}
+
+faders.forEach(f => f.addEventListener("input", e => {
+  if (!powered) return;
+  const id = +e.target.dataset.id, v = parseFloat(e.target.value);
+  if (id === active) {
+    channels[id].volume.value = v <= PARK ? -Infinity : v;   // 活跃轨:fader 仍是音量
+  } else if (v > THRESHOLD) {
+    activate(id);                                            // 越线 = 触发切换
+  }
+}));
+
+/* ---------- VU ---------- */
+(function vu() {
+  meters.forEach((m, i) => {
+    const db = m.getValue();
+    const h = db === -Infinity ? 0 : Math.max(0, Math.min(100, (db + 48) / 48 * 100));
+    document.getElementById("vu" + i).style.height = h + "%";
+  });
+  requestAnimationFrame(vu);
+})();
+
+/* ---------- 电源(用户手势解锁 AudioContext) ---------- */
+const btn = document.getElementById("power");
+btn.addEventListener("click", async () => {
+  await Tone.start();
+  powered = !powered;
+  if (powered) { Tone.Transport.start(); btn.textContent = "OFF AIR?"; btn.classList.add("on");
+    np.textContent = "往上推任意一条推子——越过 -30dB 那条线就上台"; }
+  else {
+    if (active >= 0) { patterns[active].forEach(p => p.stop()); channels[active].volume.value = -Infinity;
+      strips[active].classList.remove("active"); slideDown(faders[active]); active = -1; }
+    Tone.Transport.stop(); btn.textContent = "POWER"; btn.classList.remove("on");
+    np.textContent = "先点 POWER,再往上推任意一条推子";
+  }
+});
+</script>
+</body>
+</html>

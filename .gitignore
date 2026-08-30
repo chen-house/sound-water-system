@@ -16,3 +16,10 @@
 tmp/
 *.tmp
 *.bak
+
+# 整理于 2026-08-12
+assets/
+_to_delete/
+push.sh
+tidy.sh
+sync.sh

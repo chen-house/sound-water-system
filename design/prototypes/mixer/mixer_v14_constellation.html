@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>星座只是地球的视角 · v14.2</title>
+<style>
+  :root{
+    --sky:#060911;
+    --ink:#e9eff7; --ink-2:#93a6bb; --ink-3:#55677d; --ink-4:#3a495c;
+    --line:#b9c4f0;          /* 人连的线 —— 参考 北斗.png 的淡紫 */
+    --orbit:#e5a8b4;         /* 天转的轨道 —— 参考 星轨照片的玫瑰 */
+    --accent:#ffd08a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--sky);color:var(--ink);overflow:hidden;user-select:none;
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",ui-sans-serif,system-ui,sans-serif}
+  #app{height:100vh;display:flex;flex-direction:column;padding:16px 26px 18px;gap:8px}
+
+  #title{display:flex;align-items:baseline;gap:14px;padding:0 4px}
+  #title h1{font-size:15px;font-weight:600;letter-spacing:.02em}
+  #title span{font-size:11.5px;color:var(--ink-3)}
+
+  #yearstrip{display:flex;padding:4px 4px 9px;border-bottom:1px solid rgba(147,166,187,.09)}
+  #yearstrip .yr{flex:1;text-align:center;font-size:11px;color:var(--ink-4);padding:3px 0;
+    cursor:pointer;transition:color .2s,transform .2s;font-variant-numeric:tabular-nums}
+  #yearstrip .yr:hover{color:var(--ink-2)}
+  #yearstrip .yr.on{color:var(--accent);font-weight:700;font-size:13px;transform:translateY(-1px)}
+
+  #skywrap{flex:1 1 auto;position:relative;min-height:0}
+  svg{width:100%;height:100%;display:block}
+
+  .bgdot{fill:#93a6bb}
+  .link{fill:none;stroke:var(--line);stroke-width:1.5;stroke-opacity:.60;
+    stroke-linecap:round;stroke-linejoin:round}
+  .orbit{fill:none;stroke:var(--orbit);stroke-width:.8;stroke-opacity:.16}
+  .tail{fill:none;stroke:var(--orbit);stroke-width:1.5;stroke-opacity:.62;stroke-linecap:round}
+  .glow{fill:#dceaf7;pointer-events:none}
+  .star{fill:#fff;pointer-events:none}
+  .hit{fill:transparent;cursor:pointer}
+  .lab{font-size:9.5px;fill:var(--ink-4);pointer-events:none;opacity:0;
+    transition:opacity .3s,fill .2s;font-variant-numeric:tabular-nums;letter-spacing:.03em}
+  .lab.show{opacity:1}
+  .lab.hot{fill:var(--accent);opacity:1;font-weight:700;font-size:11px}
+  .part{font-size:9.5px;fill:var(--ink-3);letter-spacing:.08em;opacity:0;transition:opacity .5s}
+  .part.show{opacity:.9}
+  .gapC{fill:none;stroke:var(--ink-3);stroke-width:1;stroke-dasharray:3 4;opacity:0;transition:opacity .5s}
+  .gapC.show{opacity:.8}
+  .mute{stroke:#e0a97e;stroke-width:1.1;opacity:0;transition:opacity .4s}
+  .mute.show{opacity:.85}
+
+  #deck{background:linear-gradient(180deg,#0f1626 0%,#080d18 100%);
+    border:1px solid rgba(147,166,187,.13);border-radius:10px;
+    padding:13px 20px 15px;display:flex;align-items:center;gap:24px}
+  #deck .lbl{font-size:10.5px;color:var(--ink-3);letter-spacing:.16em}
+  #fader{position:relative;flex:1 1 auto;height:42px;cursor:pointer;min-width:150px}
+  #fader .track{position:absolute;left:0;right:0;top:20px;height:2px;
+    background:rgba(147,166,187,.18);border-radius:2px}
+  #fader .notch{position:absolute;top:13px;width:1px;height:16px;background:rgba(147,166,187,.26)}
+  #fader .cap{position:absolute;top:0;width:56px;height:42px;margin-left:-28px;border-radius:5px;
+    background:linear-gradient(180deg,#2b364d 0%,#151d2b 100%);
+    border:1px solid rgba(180,205,230,.22);
+    box-shadow:0 3px 10px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.09);
+    transition:left .45s cubic-bezier(.5,.05,.2,1)}
+  #fader .cap::after{content:"";position:absolute;left:8px;right:8px;top:20px;height:2px;
+    background:var(--accent);border-radius:2px;opacity:.9}
+  #modes button{background:none;border:none;color:var(--ink-3);cursor:pointer;font-family:inherit;
+    font-size:11.5px;letter-spacing:.1em;padding:6px 13px;
+    border-left:1px solid rgba(147,166,187,.13);transition:color .25s}
+  #modes{display:flex}
+  #modes button:first-child{border-left:none}
+  #modes button.on{color:var(--accent);font-weight:700}
+  #legend{font-size:10.5px;color:var(--ink-3);min-width:250px;line-height:1.65}
+  #legend b{color:var(--ink-2);font-weight:600}
+
+  #info{position:absolute;pointer-events:none;z-index:20;opacity:0;transition:opacity .16s;
+    background:rgba(8,13,24,.95);border:1px solid rgba(147,166,187,.2);border-radius:8px;
+    padding:11px 14px;max-width:296px;backdrop-filter:blur(8px)}
+  #info.show{opacity:1}
+  #info .a{font-size:10.5px;color:var(--accent);letter-spacing:.1em;font-weight:700}
+  #info .b{font-size:13.5px;margin:3px 0 1px;line-height:1.35}
+  #info .c{font-size:11.5px;color:var(--ink-2)}
+  #info .d{font-size:10.5px;color:var(--ink-3);margin-top:7px;padding-top:7px;line-height:1.7;
+    border-top:1px solid rgba(147,166,187,.13)}
+  #info .d em{font-style:normal;color:var(--ink-2)}
+  #info .warn{color:#e0a97e}
+  #info .none{color:var(--ink-4)}
+  #info .kin-t{color:#8fd8c4}
+  .kin{pointer-events:none;transition:stroke-opacity .22s}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="title">
+    <h1>星座只是地球的视角</h1>
+    <span>2006–2025 · Francis Davis 爵士乐评人票选 · 二十张年度第一</span>
+  </div>
+  <div id="yearstrip"></div>
+  <div id="skywrap">
+    <svg id="sky" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet">
+      <g id="g-bg"></g><g id="g-orbit"></g><g id="g-tail"></g>
+      <g id="g-link"></g><g id="g-mark"></g><g id="g-star"></g>
+      <g id="g-lab"></g><g id="g-hit"></g>
+    </svg>
+    <div id="info"></div>
+  </div>
+  <div id="deck">
+    <div class="lbl">连&nbsp;法</div>
+    <div id="fader"><div class="track"></div><div class="cap"></div></div>
+    <div id="modes">
+      <button data-m="0" class="on">北斗七星</button>
+      <button data-m="1">燕</button>
+      <button data-m="2">星轨</button>
+    </div>
+    <div id="legend"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   数据:research/star_spec_v1.md,逐张 credits 核实
+   坐标:我们手摆(视觉优先)。其余字段一概不由我们定。
+   au=false 表示 iTunes 全球下架 / 艺人拒绝上流媒体 —— 看得见,听不见
+   ========================================================================= */
+/* dr:[姓名, 生年, 卒年]  —— 生年逐人核实,查不到就是 null,不推算
+   4 位无生年记录:Perry Wilson / Craig Weinrib / Mauricio Herrera / Rudy Royston(仅知约 1970–71) */
+const S=[
+ {y:2006,al:"Sound Grammar",              ar:"Ornette Coleman",     s:80.0,g:"sax", p:[692,296],dip:"天枢 Dubhe", au:1,
+  dr:[["Denardo Coleman",1956]]},
+ {y:2007,al:"Sky Blue",                   ar:"Maria Schneider",     s:44.8,g:"comp",p:[447,236],dip:"玉衡 Alioth",au:1,
+  dr:[["Clarence Penn",1968]]},
+ {y:2008,al:"Road Shows, Vol. 1",         ar:"Sonny Rollins",       s:36.7,g:"sax", p:[693,442],dip:"天璇 Merak", au:0,why:"Doxy/EmArcy 发行权断档,全球下架",
+  dr:[["Roy Haynes",1925,2024],["Al Foster",1943,2025],["Steve Jordan",1957],["Perry Wilson",null]],note:"跨 1980–2007 七场现场的合辑"},
+ {y:2009,al:"Historicity",                ar:"Vijay Iyer",          s:33.3,g:"pno", p:[382,248],au:1,
+  dr:[["Marcus Gilmore",1986]]},
+ {y:2010,al:"Ten",                        ar:"Jason Moran",         s:41.7,g:"pno", p:[318,206],au:1,
+  dr:[["Nasheet Waits",1971]]},
+ {y:2011,al:"Road Shows, Vol. 2",         ar:"Sonny Rollins",       s:29.5,g:"sax", p:[452,382],au:0,why:"同 Vol.1,全球下架",
+  dr:[["Roy Haynes",1925,2024],["Kobie Watkins",1975]]},
+ {y:2012,al:"Accelerando",                ar:"Vijay Iyer",          s:39.5,g:"pno", p:[352,181],dip:"开阳 Mizar", au:1,
+  dr:[["Marcus Gilmore",1986]]},
+ {y:2013,al:"Without a Net",              ar:"Wayne Shorter",       s:33.6,g:"sax", p:[552,439],dip:"天玑 Phecda",au:1,
+  dr:[["Brian Blade",1970]]},
+ {y:2014,al:"Mise en Abîme",              ar:"Steve Lehman",        s:28.6,g:"sax", p:[300,332],au:1,
+  dr:[["Tyshawn Sorey",1980]]},
+ {y:2015,al:"Bird Calls",                 ar:"Rudresh Mahanthappa", s:36.1,g:"sax", p:[266,456],au:1,
+  dr:[["Rudy Royston",null,null,"约 1970–71,未确认"]]},
+ {y:2016,al:"Old Locks and Irregular Verbs",ar:"Henry Threadgill",  s:29.5,g:"comp",p:[516,262],au:1,
+  dr:[["Craig Weinrib",null]]},
+ {y:2017,al:"Far From Over",              ar:"Vijay Iyer",          s:38.7,g:"pno", p:[305,140],au:1,
+  dr:[["Tyshawn Sorey",1980]]},
+ {y:2018,al:"Emanon",                     ar:"Wayne Shorter",       s:24.3,g:"sax", p:[737,280],au:1,
+  dr:[["Brian Blade",1970]]},
+ {y:2019,al:"Diatom Ribbons",             ar:"Kris Davis",          s:26.4,g:"pno", p:[410,210],au:1,
+  dr:[["Terri Lyne Carrington",1965]]},
+ {y:2020,al:"Data Lords",                 ar:"Maria Schneider",     s:36.2,g:"comp",p:[462,288],au:0,why:"艺人拒绝上流媒体",
+  dr:[["Johnathan Blake",1976]]},
+ {y:2021,al:"Jesup Wagon",                ar:"James Brandon Lewis", s:34.0,g:"sax", p:[540,300],dip:"天权 Megrez",au:1,
+  dr:[["Chad Taylor",1973]]},
+ {y:2022,al:"Amaryllis",                  ar:"Mary Halvorson",      s:31.8,g:"gtr", p:[250,90], dip:"摇光 Alkaid",au:1,
+  dr:[["Tomas Fujiwara",1977]]},
+ {y:2023,al:"For Mahalia, With Love",     ar:"James Brandon Lewis", s:29.6,g:"sax", p:[778,262],au:1,
+  dr:[["Chad Taylor",1973]]},
+ {y:2024,al:"Breaking Stretch",           ar:"Patricia Brennan",    s:33.3,g:"vib", p:[796,249],au:1,
+  dr:[["Marcus Gilmore",1986],["Mauricio Herrera",null,null,"打击乐"]]},
+ {y:2025,al:"About Ghosts",               ar:"Mary Halvorson",      s:31.5,g:"gtr", p:[205,130],au:1,
+  dr:[["Tomas Fujiwara",1977]]},
+];
+/* 共享鼓手索引:谁出现在哪几年 —— 由数据自己算,不手写 */
+const DRUM={};
+S.forEach(d=>d.dr.forEach(([n])=>{(DRUM[n]=DRUM[n]||[]).push(d.y)}));
+const ALCOR={p:[370,168]};
+const GP={sax:["萨克斯","躯干·尾"],pno:["钢琴","翅膀"],comp:["作曲·无乐器","翼根"],
+          gtr:["吉他","翼尖"],vib:["颤音琴","眼"]};
+
+const MODES={
+ 0:{n:"北斗七星",
+    /* 参考 北斗.png:一条开口折线,勺子不封口 */
+    chains:[[2022,2012,2007,2021,2013,2008,2006]],
+    lg:'<b>乐评人连的。</b>七颗 = 重复获奖的六位 + 开创者 Ornette。<br>依 北斗.png,斗魁不封口。'},
+ 1:{n:"燕",
+    chains:[
+      /* 躯干闭合 */
+      [2023,2006,2021,2011,2013,2008,2018,2023],
+      /* 尾叉两根 */
+      [2011,2014],[2011,2015],
+      /* 翅膀闭合 + 接肩 */
+      [2016,2007,2019,2012,2017,2022,2025,2010,2009,2020,2016],
+      [2021,2016]],
+    lg:'<b>我们连的。</b>按唱片 credits 上领衔者实际演奏的乐器分组。<br>萨克斯 9 躯干+尾叉 · 钢琴 5 翅 · 作曲 3 翼根 · 吉他 2 翼尖 · 颤音琴 1 眼。'},
+ 2:{n:"星轨",
+    chains:[],
+    lg:'<b>没人连,是天在转。</b>每颗星在自己的轨道上,尾迹长度 = 它已经过去了多少年。<br>前两个形状是人连出来的,这一个不是。'}
+};
+
+const NS="http://www.w3.org/2000/svg";
+const E=(t,a={})=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e};
+const $=i=>document.getElementById(i);
+const F=y=>S.find(s=>s.y===y);
+const R=s=>4.0+Math.pow(Math.max(0,s-24)/56,0.62)*7.0;
+
+/* 四角星形:主星画成星,背景才用点 */
+function starPath(cx,cy,r){
+  const w=r*0.20, d=r*0.30;
+  return `M${cx} ${cy-r} C${cx+w} ${cy-d} ${cx+d} ${cy-w} ${cx+r} ${cy}`
+       + ` C${cx+d} ${cy+w} ${cx+w} ${cy+d} ${cx} ${cy+r}`
+       + ` C${cx-w} ${cy+d} ${cx-d} ${cy+w} ${cx-r} ${cy}`
+       + ` C${cx-d} ${cy-w} ${cx-w} ${cy-d} ${cx} ${cy-r} Z`;
+}
+
+/* ---------- 背景:576 张获票专辑里 367 张只有一票 ---------- */
+(()=>{let sd=20260730;const rn=()=>{sd=(sd*1103515245+12345)&0x7fffffff;return sd/0x7fffffff};
+ const g=$("g-bg");
+ for(let i=0;i<367;i++)g.appendChild(E("circle",{class:"bgdot",
+   cx:(rn()*1000).toFixed(1),cy:(rn()*560).toFixed(1),
+   r:(.3+rn()*.8).toFixed(2),"fill-opacity":(.08+rn()*.28).toFixed(2)}));})();
+
+/* ---------- 星轨:倾斜同心椭圆(参考 IMG_3723) ---------- */
+const OC=[505,318], TH=-16*Math.PI/180, K=0.40;
+const ct=Math.cos(TH), st=Math.sin(TH);
+function ringOf(p){
+  const dx=p[0]-OC[0], dy=p[1]-OC[1];
+  const u=dx*ct+dy*st, v=(-dx*st+dy*ct)/K;
+  return {a:Math.hypot(u,v), phi:Math.atan2(v,u)};
+}
+function ptOn(a,phi){
+  const lx=a*Math.cos(phi), ly=a*K*Math.sin(phi);
+  return [OC[0]+lx*ct-ly*st, OC[1]+lx*st+ly*ct];
+}
+
+/* ---------- 画星 ---------- */
+const gS=$("g-star"),gL=$("g-lab"),gH=$("g-hit"),gM=$("g-mark");
+S.forEach(d=>{
+  const [x,y]=d.p, r=R(d.s);
+  d._g=E("circle",{class:"glow",cx:x,cy:y,r:r*1.9,"fill-opacity":.11});
+  d._s=E("path",{class:"star",d:starPath(x,y,r)});
+  gS.appendChild(d._g);gS.appendChild(d._s);
+  d._r=r;
+
+  /* 无音频:一道细斜杠,看得见听不见 */
+  if(!d.au){d._m=E("line",{class:"mute",x1:x-r*.75,y1:y+r*.75,x2:x+r*.75,y2:y-r*.75,
+    stroke:"#e0a97e"});gM.appendChild(d._m);}
+
+  /* 共享鼓手的呼应环:平时隐形,悬停时同鼓手的星一起亮 */
+  d._k=E("circle",{class:"kin",cx:x,cy:y,r:r*2.4,fill:"none",stroke:"#8fd8c4",
+    "stroke-width":1,"stroke-opacity":0});
+  gS.appendChild(d._k);
+
+  d._l=E("text",{class:"lab",x:x+r+5,y:y+3.5});d._l.textContent=d.y;gL.appendChild(d._l);
+  const h=E("circle",{class:"hit",cx:x,cy:y,r:Math.max(16,r*2.2)});
+  h.onmouseenter=e=>info(d,e);h.onmousemove=mv;h.onmouseleave=hide;gH.appendChild(h);
+});
+/* 辅星 Alcor:比最暗的还暗,不标注 */
+(()=>{const [x,y]=ALCOR.p;
+ gS.appendChild(E("path",{class:"star",d:starPath(x,y,2.6),"fill-opacity":.55}));
+ const h=E("circle",{class:"hit",cx:x,cy:y,r:10});
+ h.onmouseenter=e=>{$("info").innerHTML='<div class="a">辅 · ALCOR</div>'
+  +'<div class="b">北斗第八颗</div>'
+  +'<div class="d">紧挨着开阳,肉眼勉强可见。古代拿它当视力测试:'
+  +'<em>看得见的人,眼力好。</em></div>';
+  $("info").classList.add("show");mv(e)};
+ h.onmousemove=mv;h.onmouseleave=hide;gH.appendChild(h);})();
+
+/* 喙的空缺:小号 0 次 */
+const gapC=E("circle",{class:"gapC",cx:830,cy:254,r:9});
+const gapT=E("text",{class:"part",x:844,y:258});gapT.textContent="小号 · 0 次";
+gM.appendChild(gapC);gM.appendChild(gapT);
+
+/* 部位标注(燕模式) */
+const PARTS=[["躯干 · 萨克斯 9",600,500],["尾叉 · 萨克斯",240,406],["翅膀 · 钢琴 5",228,236],
+             ["翼根 · 作曲 3",520,318],["翼尖 · 吉他 2",148,104],["眼 · 颤音琴 1",806,232]];
+const partEls=PARTS.map(([t,x,y])=>{const e=E("text",{class:"part",x,y});e.textContent=t;gM.appendChild(e);return e});
+
+/* ---------- 年份带 ---------- */
+S.forEach(d=>{const e=document.createElement("div");e.className="yr";e.textContent=d.y;
+ e.onmouseenter=()=>hot(d.y);e.onmouseleave=()=>hot(null);$("yearstrip").appendChild(e);d._y=e});
+function hot(y){S.forEach(d=>{const on=d.y===y;
+  d._y.classList.toggle("on",on);d._l.classList.toggle("hot",on);
+  d._s.setAttribute("d",starPath(d.p[0],d.p[1],on?d._r*1.55:d._r));
+  d._g.setAttribute("fill-opacity",on?.30:.11);});}
+
+/* ---------- 信息卡 ---------- */
+function info(d,e){
+  const g=GP[d.g];
+  /* 鼓手:姓名 + 生年(查不到就留白,不推算) + 他还打了哪几年 */
+  const drHtml=d.dr.map(([n,b,dd,tag])=>{
+    const life=b?`<em>${b}</em>${dd?"–"+dd:"–"}`:'<span class="none">生年不详</span>';
+    const also=(DRUM[n]||[]).filter(y=>y!==d.y);
+    const kin=also.length?`<span class="kin-t"> · 也打了 ${also.join(" / ")}</span>`:"";
+    return `${n} ${life}${tag?" <span class='none'>"+tag+"</span>":""}${kin}`;
+  }).join("<br>");
+
+  $("info").innerHTML=`<div class="a">${d.y}${d.dip?" · "+d.dip:""}</div>
+   <div class="b">${d.al}</div><div class="c">${d.ar}</div>
+   <div class="d">得票率 <em>${d.s.toFixed(1)}%</em> · ${g[0]} → <em>${g[1]}</em>
+   ${d.au?"":'<br><span class="warn">✕ 无音源 —— '+d.why+'</span>'}</div>
+   <div class="d">${drHtml}${d.note?'<br><span class="none">'+d.note+'</span>':""}</div>`;
+  $("info").classList.add("show");
+
+  /* 同一位鼓手的星,一起亮 */
+  const mine=new Set(d.dr.map(x=>x[0]));
+  S.forEach(o=>{
+    const share=o!==d&&o.dr.some(x=>mine.has(x[0]));
+    o._k.setAttribute("stroke-opacity",share?.75:0);
+  });
+  mv(e);
+}
+function mv(e){const i=$("info"),w=$("skywrap").getBoundingClientRect();
+ let x=e.clientX-w.left+16,y=e.clientY-w.top+14;
+ if(x+306>w.width)x=e.clientX-w.left-312; if(y+140>w.height)y=e.clientY-w.top-146;
+ i.style.left=x+"px";i.style.top=y+"px";}
+function hide(){$("info").classList.remove("show");
+  S.forEach(o=>o._k.setAttribute("stroke-opacity",0));}
+
+/* ---------- 连线 / 轨道 ---------- */
+const gLk=$("g-link"),gOb=$("g-orbit"),gTl=$("g-tail");
+let mode=-1,busy=0;
+
+function drawChains(m){
+  gLk.innerHTML="";let k=0;
+  MODES[m].chains.forEach(ch=>{
+    const dstr=ch.map((y,i)=>(i?"L":"M")+F(y).p[0]+" "+F(y).p[1]).join(" ");
+    const p=E("path",{class:"link",d:dstr});gLk.appendChild(p);
+    const L=p.getTotalLength();
+    p.style.strokeDasharray=L;p.style.strokeDashoffset=L;
+    p.style.transition=`stroke-dashoffset .7s cubic-bezier(.4,0,.25,1) ${k*90}ms`;
+    requestAnimationFrame(()=>p.style.strokeDashoffset=0);k++;
+  });
+}
+function retract(cb){
+  const ps=[...gLk.querySelectorAll("path")];if(!ps.length)return cb();
+  ps.forEach((p,i)=>{p.style.transition=`stroke-dashoffset .32s ease-in ${i*40}ms`;
+    p.style.strokeDashoffset=p.getTotalLength()});
+  setTimeout(cb,330+ps.length*40);
+}
+function drawOrbits(on){
+  gOb.innerHTML="";gTl.innerHTML="";if(!on)return;
+  const deg=TH*180/Math.PI;
+  S.forEach((d,i)=>{
+    const {a,phi}=ringOf(d.p);
+    /* 完整椭圆:出画即空间感 */
+    const el=E("ellipse",{class:"orbit",cx:OC[0],cy:OC[1],rx:a.toFixed(1),ry:(a*K).toFixed(1),
+      transform:`rotate(${deg.toFixed(2)} ${OC[0]} ${OC[1]})`});
+    gOb.appendChild(el);
+    el.style.opacity=0;el.style.transition=`opacity .7s ${i*26}ms`;
+    requestAnimationFrame(()=>el.style.opacity=1);
+    /* 尾迹:沿自己的轨道往回拖,长度 ∝ 已经过去了多少年 */
+    const sweep=(2026-d.y)*2.7*Math.PI/180;
+    const p0=ptOn(a,phi-sweep);
+    const t=E("path",{class:"tail",
+      d:`M${p0[0].toFixed(1)} ${p0[1].toFixed(1)} A${a.toFixed(1)} ${(a*K).toFixed(1)} ${deg.toFixed(2)} 0 1 ${d.p[0]} ${d.p[1]}`});
+    gTl.appendChild(t);
+    const L=t.getTotalLength();
+    t.style.strokeDasharray=L;t.style.strokeDashoffset=L;
+    t.style.transition=`stroke-dashoffset .9s cubic-bezier(.3,0,.3,1) ${i*34}ms`;
+    requestAnimationFrame(()=>t.style.strokeDashoffset=0);
+  });
+}
+
+/* ---------- 切换 ---------- */
+const cap=document.querySelector("#fader .cap"),fd=$("fader");
+[0,1,2].forEach(i=>{const n=document.createElement("div");n.className="notch";
+  n.style.left=(i*50)+"%";fd.appendChild(n)});
+function setMode(m,now){
+  if(busy||m===mode)return;busy=1;mode=m;
+  cap.style.left=(m*50)+"%";
+  document.querySelectorAll("#modes button").forEach(b=>b.classList.toggle("on",+b.dataset.m===m));
+  $("legend").innerHTML=MODES[m].lg;
+  S.forEach(d=>d._l.classList.toggle("show",m!==0));
+  gapC.classList.toggle("show",m===1);gapT.classList.toggle("show",m===1);
+  partEls.forEach(e=>e.classList.toggle("show",m===1));
+  S.forEach(d=>{if(d._m)d._m.classList.toggle("show",m!==0||!!d.dip)});
+  const paint=()=>{drawOrbits(m===2);if(m!==2)drawChains(m);busy=0;};
+  if(now)paint();else{gOb.innerHTML="";gTl.innerHTML="";retract(paint);}
+}
+document.querySelectorAll("#modes button").forEach(b=>b.onclick=()=>setMode(+b.dataset.m));
+fd.onclick=e=>{const r=fd.getBoundingClientRect();
+  setMode(Math.max(0,Math.min(2,Math.round((e.clientX-r.left)/r.width*2))))};
+onkeydown=e=>{if(e.key==="ArrowRight")setMode(Math.min(2,mode+1));
+              if(e.key==="ArrowLeft")setMode(Math.max(0,mode-1))};
+
+setMode(0,1);   /* 第一屏:北斗已连好,不给选择权 */
+</script>
+</body>
+</html>

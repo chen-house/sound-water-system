@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爵士星空 · 空间感 demo(分层景深 + 视差前后感,非3D)</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { height:100%; overflow:hidden; background:#101219;
+    font-family:Georgia,"Songti SC",serif; color:#E8E0CF; }
+  #wrap { position:fixed; inset:0; }
+  svg { width:100%; height:100%; display:block; }
+  #cap { position:fixed; left:26px; top:20px; z-index:3; pointer-events:none; }
+  #cap h1 { font-size:15px; font-weight:400; color:#CDBFA6; letter-spacing:.04em; }
+  #cap p { font-size:11px; color:#8A8474; margin-top:4px; max-width:340px; line-height:1.6; }
+  .layer { will-change:transform; transition:transform .18s ease-out; }
+  .clab { fill:#9a927e; font-size:11px; letter-spacing:.14em; opacity:.55; }
+  .conline { stroke:#cfe0f0; stroke-width:1; stroke-dasharray:1.5 5; stroke-linecap:round; opacity:.26; }
+  .tie { stroke:#E07A45; stroke-width:1.4; opacity:.5; filter:url(#glow); transition:opacity .3s; }
+  .star { cursor:pointer; }
+  .star .snm { fill:#EDE4D2; font-size:12px; opacity:0; transition:opacity .25s; }
+  .star .syr { fill:#a89f8c; font-size:9px; opacity:0; transition:opacity .25s; }
+  .star:hover .snm,.star:hover .syr { opacity:.95; }
+</style>
+</head>
+<body>
+  <div id="cap"><h1>爵士星空 · 空间感(非 3D)</h1><p>分层景深:远处的星小而糊、近处的星大而亮;移动鼠标有轻微视差,画面就有了前后感。三簇 = 三种发声方式。</p></div>
+  <div id="wrap"><svg id="sky" viewBox="0 0 1100 640" preserveAspectRatio="xMidYMid slice"></svg></div>
+
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const el=(n,a)=>{const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const sky=document.getElementById("sky"); const VW=1100,VH=640;
+
+/* defs */
+const defs=el("defs",{});
+defs.innerHTML=`
+ <radialGradient id="bg" cx="44%" cy="34%" r="90%">
+   <stop offset="0%" stop-color="#262C3A"/><stop offset="46%" stop-color="#20211D"/>
+   <stop offset="80%" stop-color="#2C2318"/><stop offset="100%" stop-color="#191108"/></radialGradient>
+ <radialGradient id="neb1"><stop offset="0%" stop-color="#5b6472" stop-opacity=".5"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></radialGradient>
+ <radialGradient id="neb2"><stop offset="0%" stop-color="#6a5340" stop-opacity=".5"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></radialGradient>
+ <radialGradient id="vig" cx="50%" cy="46%" r="62%"><stop offset="60%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity=".55"/></radialGradient>
+ <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="2.6"/></filter>
+ <filter id="blurFar" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.6"/></filter>
+ <filter id="blurNeb" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="46"/></filter>`;
+sky.appendChild(defs);
+sky.appendChild(el("rect",{x:-200,y:-200,width:VW+400,height:VH+400,fill:"url(#bg)"}));
+
+/* 分层:远星云 → 远星尘 → 中星尘 → (星座+流星,近) */
+const L={};
+["neb","far","mid","near"].forEach(k=>{ const g=el("g",{class:"layer",id:"L_"+k}); sky.appendChild(g); L[k]=g; });
+
+/* 远景星云(大、模糊)*/
+[["neb1",300,220,260],["neb2",820,420,300],["neb1",640,150,180]].forEach(([id,x,y,r])=>
+  L.neb.appendChild(el("circle",{cx:x,cy:y,r,fill:`url(#${id})`,filter:"url(#blurNeb)"})));
+
+/* 星尘:远(小暗糊密)/ 中(适中)*/
+let s=13; const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};
+function dust(layer,n,rmin,rmax,omin,omax,blur){ for(let i=0;i<n;i++){ const r=rnd()*(rmax-rmin)+rmin;
+  const c=layer.appendChild(el("circle",{cx:(rnd()*VW).toFixed(1),cy:(rnd()*VH).toFixed(1),r:r.toFixed(2),
+    fill:rnd()>.85?"#c7d3e6":"#efe7d4",opacity:(rnd()*(omax-omin)+omin).toFixed(2)}));
+  if(blur)c.setAttribute("filter","url(#blurFar)"); } }
+dust(L.far,200,.2,1.0,.06,.34,true);   // 远:小、暗、糊
+dust(L.mid,120,.5,1.7,.2,.6,false);    // 中:适中
+
+/* 数据 */
+const DATA=[
+  { tag:"FUSION",c:"#F0A24A",size:"XL",yr:1976,zone:1,x:205,y:150 },
+  { tag:"JAPAN",c:"#E4735E",size:"L",yr:1976,zone:1,x:315,y:112 },
+  { tag:"UK WAVE",c:"#3FB3A4",size:"L",yr:2016,zone:1,x:470,y:158 },
+  { tag:"ACID JAZZ",c:"#EEBE52",size:"S",yr:1987,zone:1,x:372,y:214 },
+  { tag:"HIP-HOP",c:"#95BE8E",size:"XL",yr:1991,zone:2,x:772,y:250 },
+  { tag:"NU JAZZ",c:"#9d8fd4",size:"M",yr:1998,zone:2,x:868,y:322 },
+  { tag:"ECM",c:"#82A6B2",size:"M",yr:1975,zone:0,x:196,y:436 },
+  { tag:"LATIN",c:"#CE384F",size:"L",yr:1973,zone:0,x:322,y:512 },
+  { tag:"JAM",c:"#4A82C4",size:"M",yr:1991,zone:0,x:452,y:470 },
+  { tag:"NEW STD",c:"#9C7EC0",size:"L",yr:2008,zone:0,x:588,y:520 },
+  { tag:"SPIRITUAL",c:"#E4B24A",size:"L",yr:2015,zone:0,x:688,y:436 },
+];
+const idxByTag={}; DATA.forEach((d,i)=>idxByTag[d.tag]=i);
+const R={XL:8,L:6,M:5,S:4};
+const CONST={1:[["FUSION","JAPAN"],["JAPAN","UK WAVE"],["UK WAVE","ACID JAZZ"],["ACID JAZZ","FUSION"]],
+  2:[["HIP-HOP","NU JAZZ"]],0:[["ECM","LATIN"],["LATIN","JAM"],["JAM","NEW STD"],["NEW STD","SPIRITUAL"]]};
+const TIES=[["FUSION","HIP-HOP"],["ACID JAZZ","HIP-HOP"],["JAPAN","HIP-HOP"],["SPIRITUAL","HIP-HOP"],["SPIRITUAL","UK WAVE"],["ACID JAZZ","UK WAVE"],["ECM","NU JAZZ"]];
+const P=t=>DATA[idxByTag[t]];
+const CLAB={1:["电声座 · 插电",250,84],2:["电子座 · 采样",820,206],0:["原声座 · 活人",300,566]};
+
+Object.values(CLAB).forEach(([t,x,y])=>L.near.appendChild(el("text",{x,y,class:"clab","text-anchor":"middle"})).textContent=t);
+Object.values(CONST).flat().forEach(([a,b])=>{const A=P(a),B=P(b);L.near.appendChild(el("line",{x1:A.x,y1:A.y,x2:B.x,y2:B.y,class:"conline"}));});
+const tieEls=TIES.map(([a,b])=>{const A=P(a),B=P(b);const l=el("line",{x1:A.x,y1:A.y,x2:B.x,y2:B.y,class:"tie"});L.near.appendChild(l);return l;});
+
+DATA.forEach((d,i)=>{ const r=R[d.size]; const g=el("g",{class:"star",id:"star_"+i});
+  g.appendChild(el("circle",{cx:d.x,cy:d.y,r:r*3.4,fill:d.c,opacity:.16,filter:"url(#glow)"}));
+  if(d.size==="XL"||d.size==="L"){ const Ln=r*4.4;
+    g.appendChild(el("line",{x1:d.x-Ln,y1:d.y,x2:d.x+Ln,y2:d.y,stroke:d.c,"stroke-width":.8,opacity:.5}));
+    g.appendChild(el("line",{x1:d.x,y1:d.y-Ln,x2:d.x,y2:d.y+Ln,stroke:d.c,"stroke-width":.8,opacity:.5})); }
+  g.appendChild(el("circle",{cx:d.x,cy:d.y,r,fill:"#fff8ec"}));
+  g.appendChild(el("circle",{cx:d.x,cy:d.y,r:r*.6,fill:d.c,opacity:.9}));
+  const tx=d.x+r+9;
+  g.appendChild(el("text",{x:tx,y:d.y-2,class:"snm"})).textContent=d.tag;
+  g.appendChild(el("text",{x:tx,y:d.y+11,class:"syr"})).textContent=d.yr;
+  g.addEventListener("mouseenter",()=>tieEls.forEach((l,k)=>{const[a,b]=TIES[k];l.style.opacity=(a===d.tag||b===d.tag)?".95":".1";}));
+  g.addEventListener("mouseleave",()=>tieEls.forEach(l=>l.style.opacity=""));
+  L.near.appendChild(g); });
+
+/* 暗角(镜头)*/
+sky.appendChild(el("rect",{x:0,y:0,width:VW,height:VH,fill:"url(#vig)","pointer-events":"none"}));
+
+/* 视差:各层按景深不同幅度移动,营造前后感 */
+const FAC={neb:2,far:5,mid:11,near:19};
+addEventListener("mousemove",e=>{ const mx=(e.clientX/innerWidth-.5), my=(e.clientY/innerHeight-.5);
+  for(const k in L) L[k].style.transform=`translate(${(-mx*FAC[k]).toFixed(1)}px,${(-my*FAC[k]).toFixed(1)}px)`; });
+</script>
+</body>
+</html>

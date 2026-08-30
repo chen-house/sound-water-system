@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>mixer PoC v0 · 两轨同播 + 独立音量</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<style>
+  :root {
+    --bg: #2b2b2b; --strip: #383838; --line: #4a4a4a;
+    --txt: #d8d4cc; --dim: #8a867e;
+    --amber: #e0a458; --cyan: #6fc2b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--txt);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 28px; padding: 24px;
+  }
+  h1 { font-size: 13px; font-weight: 400; color: var(--dim); letter-spacing: .12em; }
+  .desk { display: flex; gap: 18px; }
+  .strip {
+    background: var(--strip); border: 1px solid var(--line); border-radius: 6px;
+    padding: 14px 18px 18px; width: 130px;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .tag { font-size: 11px; padding: 3px 8px; border-radius: 3px; color: #222; width: 100%; text-align: center; }
+  .strip:nth-child(1) .tag { background: var(--amber); }
+  .strip:nth-child(2) .tag { background: var(--cyan); }
+  .db { font-size: 11px; color: var(--dim); min-height: 14px; }
+  input[type=range] {
+    writing-mode: vertical-lr; direction: rtl;
+    width: 28px; height: 180px; accent-color: var(--txt); cursor: pointer;
+  }
+  .hint { font-size: 11px; color: var(--dim); max-width: 320px; text-align: center; line-height: 1.7; }
+  button {
+    background: none; border: 1px solid var(--line); color: var(--txt);
+    font: inherit; font-size: 12px; padding: 8px 22px; border-radius: 4px; cursor: pointer;
+    letter-spacing: .08em;
+  }
+  button.on { border-color: var(--amber); color: var(--amber); }
+</style>
+</head>
+<body>
+  <h1>MIXER PoC v0 — 两轨同播 · 独立音量 · dub send</h1>
+
+  <div class="desk">
+    <div class="strip">
+      <div class="tag">A · 律动</div>
+      <div class="db" id="dbA">-12 dB</div>
+      <input type="range" id="fadA" min="-48" max="0" value="-12" step="0.5">
+    </div>
+    <div class="strip">
+      <div class="tag">B · dub 和弦</div>
+      <div class="db" id="dbB">-12 dB</div>
+      <input type="range" id="fadB" min="-48" max="0" value="-12" step="0.5">
+    </div>
+  </div>
+
+  <button id="power">START</button>
+  <p class="hint">点 START,把两条推子都推上去——两轨同时在响,各自独立控制。B 轨自带 dub 回声(FeedbackDelay),这就是方案 D,一行代码。音色是合成占位,只为验证通路。</p>
+
+<script>
+  // ---- 通路:每轨一个 Channel(自带音量),汇入总线 ----
+  const chA = new Tone.Channel(-12).toDestination();
+  const chB = new Tone.Channel(-12).toDestination();
+
+  // A 轨:一条走路感的低音 + ride 律动(合成占位)
+  const bass = new Tone.MonoSynth({
+    oscillator: { type: "triangle" },
+    envelope: { attack: 0.01, decay: 0.3, sustain: 0.4, release: 0.4 },
+    filterEnvelope: { attack: 0.001, decay: 0.2, sustain: 0.3, baseFrequency: 200, octaves: 2 }
+  }).connect(chA);
+  const ride = new Tone.MetalSynth({
+    frequency: 320, envelope: { attack: 0.001, decay: 0.25, release: 0.05 },
+    harmonicity: 5.1, modulationIndex: 16, resonance: 3000, octaves: 1
+  }).connect(chA);
+  ride.volume.value = -18;
+
+  const bassLine = ["F2","A2","C3","D3","F2","A2","C3","E3"];
+  let bi = 0;
+  new Tone.Loop(t => { bass.triggerAttackRelease(bassLine[bi++ % 8], "8n", t); }, "4n").start(0);
+  new Tone.Loop(t => {
+    ride.triggerAttackRelease("16n", t);                    // 摇摆感:长-短
+    ride.triggerAttackRelease("32n", t + Tone.Time("4n") * 0.66);
+  }, "4n").start(0);
+
+  // B 轨:electric piano 和弦 → dub send(方案 D,就这一行)
+  const dub = new Tone.FeedbackDelay("8n.", 0.55).connect(chB);
+  const ep = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: "sine" }, envelope: { attack: 0.005, decay: 0.6, sustain: 0.1, release: 0.8 }
+  }).connect(dub);
+  ep.volume.value = -6;
+  const chords = [["F3","A3","C4","E4"], ["D3","F3","A3","C4"]];
+  let ci = 0;
+  new Tone.Loop(t => { ep.triggerAttackRelease(chords[ci++ % 2], "8n", t); }, "1m").start("8n");
+
+  // ---- fader → 音量(核心验证点) ----
+  const bind = (fad, db, ch) => {
+    document.getElementById(fad).addEventListener("input", e => {
+      const v = parseFloat(e.target.value);
+      ch.volume.value = v <= -48 ? -Infinity : v;
+      document.getElementById(db).textContent = v <= -48 ? "-∞ dB" : v + " dB";
+    });
+  };
+  bind("fadA", "dbA", chA);
+  bind("fadB", "dbB", chB);
+
+  // ---- start/stop(iOS 也要求这个手势解锁) ----
+  const btn = document.getElementById("power");
+  let on = false;
+  btn.addEventListener("click", async () => {
+    await Tone.start();
+    on = !on;
+    if (on) { Tone.Transport.bpm.value = 92; Tone.Transport.start(); btn.textContent = "STOP"; }
+    else { Tone.Transport.stop(); btn.textContent = "START"; }
+    btn.classList.toggle("on", on);
+  });
+</script>
+</body>
+</html>

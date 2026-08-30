@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>调色盘 · The Palette · v1(感官坐标 · 静态验证)</title>
+<style>
+  :root{ --bg:#1e1d1b; --ink:#d8d4cc; --dim:#8a867e; --line:#3a3834; --ring:#e8c766; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);
+    font-family:"JetBrains Mono",ui-monospace,monospace;
+    min-height:100vh;padding:26px 20px 40px;display:flex;flex-direction:column;align-items:center;}
+  header{max-width:940px;width:100%;margin-bottom:6px;}
+  h1{font-size:17px;font-weight:600;letter-spacing:.02em;}
+  h1 small{color:var(--dim);font-weight:400;font-size:11px;margin-left:10px;letter-spacing:0;}
+  .lede{font-size:11.5px;color:var(--dim);line-height:1.85;margin-top:8px;max-width:820px;}
+
+  #controls{max-width:940px;width:100%;display:flex;gap:14px;align-items:center;margin:14px 0 8px;flex-wrap:wrap;}
+  button{background:none;border:1px solid var(--line);color:var(--ink);font:inherit;font-size:11px;
+    padding:6px 14px;border-radius:4px;cursor:pointer;letter-spacing:.04em;transition:.25s;}
+  button.on{border-color:var(--ring);color:var(--ring);}
+  .legendnote{font-size:10px;color:var(--dim);line-height:1.7;}
+
+  #stage{position:relative;width:100%;max-width:940px;aspect-ratio:1.5/1;
+    background:
+      radial-gradient(circle at 72% 30%, rgba(216,180,120,.05), transparent 55%),
+      #201f1d;
+    border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  /* 轴 */
+  .axis{position:absolute;color:var(--dim);font-size:10px;letter-spacing:.08em;pointer-events:none;}
+  .axis.xl{left:14px;bottom:10px;} .axis.xr{right:14px;bottom:10px;}
+  .axis.yb{left:14px;bottom:26px;} .axis.yt{left:14px;top:12px;}
+  .axtitle{position:absolute;color:#6a6660;font-size:9.5px;letter-spacing:.14em;pointer-events:none;}
+  .axtitle.x{left:50%;bottom:9px;transform:translateX(-50%);}
+  .axtitle.y{left:11px;top:50%;transform:translate(-50%,-50%) rotate(-90deg);transform-origin:center;}
+  .grid{position:absolute;background:var(--line);opacity:.5;}
+  .grid.h{left:0;right:0;height:1px;top:50%;} .grid.v{top:0;bottom:0;width:1px;left:50%;}
+
+  /* 颜料点 */
+  .blob{position:absolute;transform:translate(-50%,50%);cursor:default;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    border-radius:50%;transition:transform .3s, box-shadow .3s, filter .3s;
+    filter:saturate(1);}
+  .blob span{font-size:9px;color:#1a1a1a;line-height:1.15;font-weight:600;
+    text-shadow:0 0 3px rgba(255,255,255,.25);padding:2px;}
+  .blob:hover{transform:translate(-50%,50%) scale(1.14);z-index:6;}
+  .blob.mine{outline:2px solid var(--ring);outline-offset:3px;}
+  #stage.focusmine .blob:not(.mine){opacity:.16;filter:grayscale(.6);}
+
+  /* cc 那一簇的圈注 */
+  #clusterRing{position:absolute;border:1.5px dashed var(--ring);border-radius:46% 54% 52% 48%;
+    opacity:0;transition:opacity .35s;pointer-events:none;}
+  #clusterRing.show{opacity:.8;}
+  #clusterLabel{position:absolute;color:var(--ring);font-size:10px;letter-spacing:.06em;
+    opacity:0;transition:opacity .35s;pointer-events:none;line-height:1.6;text-align:right;}
+  #clusterLabel.show{opacity:1;}
+
+  /* tooltip */
+  #tip{position:fixed;pointer-events:none;z-index:20;max-width:280px;
+    background:#26251f;border:1px solid var(--line);border-radius:8px;padding:11px 13px;
+    font-size:10.5px;line-height:1.75;color:var(--ink);opacity:0;transition:opacity .12s;
+    box-shadow:0 8px 30px rgba(0,0,0,.5);}
+  #tip.show{opacity:1;}
+  #tip b{color:#fff;font-size:11.5px;} #tip .role{color:var(--dim);}
+  #tip .paint{margin-top:7px;display:grid;grid-template-columns:auto 1fr;gap:2px 8px;}
+  #tip .paint i{color:var(--dim);font-style:normal;}
+  #tip .why{margin-top:7px;color:#cbb98c;border-top:1px solid var(--line);padding-top:6px;}
+
+  footer{max-width:940px;width:100%;margin-top:16px;font-size:10px;color:#6a6660;line-height:1.9;}
+</style>
+</head>
+<body>
+  <header>
+    <h1>调色盘 · The Palette<small>v1 · 感官坐标静态验证 · 不按 genre,按颜料</small></h1>
+    <p class="lede">每个音乐家是一块颜料,位置=他的气质,不是他的标签。横轴 <b>节奏</b>(左静右动),纵轴 <b>空间</b>(下密上疏),颜色 <b>音色温度</b>(蓝冷→金暖,电子偏紫),越亮越 <b>炽烈</b>。位置是我对各家气质的<b>解读</b>,不是测量——摆错了你说,这张图的意义只在"像不像你的耳朵"。</p>
+  </header>
+
+  <div id="controls">
+    <button id="btnMine" class="on">高亮"你的调色盘"</button>
+    <button id="btnFocus">只看你那一簇</button>
+    <span class="legendnote">悬停任意一块看它的四种颜料读数 + 我为什么这么摆。</span>
+  </div>
+
+  <div id="stage">
+    <div class="grid h"></div><div class="grid v"></div>
+    <div class="axtitle x">节奏 · RHYTHM</div>
+    <div class="axtitle y">空间 · SPACE</div>
+    <div class="axis xl">静 · 自由</div><div class="axis xr">驱动 · 律动</div>
+    <div class="axis yt">疏 · 透气</div><div class="axis yb">密 · 满</div>
+    <div id="clusterRing"></div>
+    <div id="clusterLabel"></div>
+  </div>
+
+  <div id="tip"></div>
+
+  <footer>
+    v1 只验证一件事:你的最爱会不会自动抱成一团、且是同一个色系。会 → 再谈接音源、可拖动、点一簇就听。<br>
+    对照组(Kamasi 炽烈 / Köln 冷静空 / Theon Cross 生猛 / St Germain 电子夜)是故意放的参照,好让"你那一簇"显出形状。
+  </footer>
+
+<script>
+/* x=节奏驱动(0静→100动) y=空间(0密→100疏) color=手挑(承载温度×炽烈)
+   mine=cc 最爱那一簇  ·  坐标为解读,可调 */
+const PAINTS = [
+  { name:"Brian Blade\nFellowship", role:"鼓手 · 灵性/民谣爵士", x:42, y:78, r:52, c:"#d9a25a", mine:true,
+    timbre:"暖 · 原声为主", melody:"歌唱性强,主题清晰", harmony:"耐心、开阔、留白", rhythm:"驱动但极克制",
+    why:"福音赞美诗底子,鼓有摇滚的推进却从不填满——留白是他的签名。" },
+  { name:"Aaron Parks\nInvisible Cinema", role:"钢琴家 · 电影感爵士", x:40, y:80, r:52, c:"#d8b36f", mine:true,
+    timbre:"暖中带一丝电子质感", melody:"意象化、旋律构建精美", harmony:"细腻、留白、诗意", rhythm:"从容,不赶",
+    why:"AllMusic 原话:重 nuance/space/beautifully constructed melodies。和 Blade 是同一片天。" },
+  { name:"Heernt\nLocked In A Basement", role:"Guiliana 三重奏 · jazz×indie rock", x:60, y:60, r:48, c:"#bdaa53", mine:true,
+    timbre:"原声鼓 + 模拟合成器,颗粒感", melody:"riff 化、有摇滚勾子", harmony:"简洁、不炫技", rhythm:"摇滚驱动更明显",
+    why:"资料极少但真好。比另外两位更靠'动'和'电',但那份空间感和克制让它仍在你这一簇里。" },
+  { name:"Wayne Shorter\nQuartet", role:"萨克斯 · Blade 长期同台", x:46, y:82, r:50, c:"#cc935e", mine:true,
+    timbre:"暖 · 原声", melody:"抽象与歌唱之间", harmony:"开放、悬置、心灵感应式互动", rhythm:"自由、呼吸感",
+    why:"Blade 在这个四重奏待了 20 年。放这里让'你那一簇'的血缘看得见。" },
+  { name:"Amina C. Myers\nSolace of the Mind", role:"钢琴独奏", x:26, y:73, r:46, c:"#cf8f4f", mine:true,
+    timbre:"暖 · 纯原声(钢琴+管风琴)", melody:"赞美诗/民谣式,全是心", harmony:"温厚、根基稳", rhythm:"近乎静止、沉思",
+    why:"比你的核心簇更'静',但暖度和歌唱性完全同族——像调色盘里更深一号的同色。" },
+  { name:"James Davis\nBeveled", role:"室内乐爵士", x:24, y:86, r:46, c:"#e0b878", mine:true,
+    timbre:"暖 · 柔音号+低音单簧管", melody:"飞翔般、屏息的美", harmony:"透明、层叠", rhythm:"缓、留白",
+    why:"最'疏'的一块。和你的簇共享'暖+歌唱+空间',坐在它更透气的上缘。" },
+  { name:"Yazz Ahmed\nA Paradise In the Hold", role:"小号 · 双文化", x:52, y:64, r:46, c:"#cf7a4a",
+    timbre:"暖偏辣、微分音", melody:"叙事性强、辨识度高", harmony:"东方调式色彩", rhythm:"中速、有推进",
+    why:"贴着你的簇但更热更满一点——边界上的候选,看你收不收。" },
+  { name:"Nujabes\nFeather", role:"制作人 · lofi 源流", x:45, y:55, r:44, c:"#c2a866",
+    timbre:"暖但电子(采样+碎拍)", melody:"柔、循环、慵懒", harmony:"简单温暖", rhythm:"中速 hip-hop 律动",
+    why:"暖色系一员,但电子处理把它往下往'动'拉,离你的原声核心一步之遥。" },
+  { name:"Keith Jarrett\nThe Köln Concert", role:"钢琴独奏 · ECM", x:20, y:88, r:48, c:"#6f9fc4",
+    timbre:"冷 · 纯原声", melody:"绵长、即兴流淌", harmony:"澄澈、克制", rhythm:"极自由、留白",
+    why:"和你的簇一样'疏',但音色是冷的蓝。故意放这里,让'温度'这根轴显出来。" },
+  { name:"Mary Halvorson\nAbout Ghosts", role:"吉他 · 前卫", x:55, y:55, r:46, c:"#8f7bc0",
+    timbre:"电吉他 + 失真/电子", melody:"抽象、出人意料", harmony:"张力、不谐", rhythm:"棱角、错位",
+    why:"对照组。旋律抽象、和声带刺——正是你说'不太抓得住'的那一侧,颜色也偏紫。" },
+  { name:"St Germain\nRose Rouge", role:"制作人 · nu jazz", x:60, y:58, r:46, c:"#7d6fb8",
+    timbre:"电子 · house 鼓+采样", melody:"loop、人声采样", harmony:"极简", rhythm:"四四拍舞池律动",
+    why:"对照组:深夜电子。暖旋律但机器骨架,坐进紫色的电子区。" },
+  { name:"Kamasi Washington\nThe Epic", role:"萨克斯 · spiritual", x:64, y:52, r:54, c:"#cf5340",
+    timbre:"暖到发烫、大编制", melody:"宏大、宣言式", harmony:"厚、堆叠、炽烈", rhythm:"驱动、推着走",
+    why:"炽烈极点。暖但满、亮、密——和你偏爱的'留白'正相反,当参照最有用。" },
+  { name:"Theon Cross\nAffirmations", role:"大号 · UK", x:88, y:30, r:50, c:"#d6603a",
+    timbre:"暖 · 大号当主唱", melody:"riff、身体性", harmony:"简、猛", rhythm:"生猛、最'动'",
+    why:"最右下角:驱动拉满、空间压满。你的簇的对角线对立面。" },
+];
+
+const stage=document.getElementById("stage"), tip=document.getElementById("tip");
+const ring=document.getElementById("clusterRing"), rlabel=document.getElementById("clusterLabel");
+
+function place(){
+  const W=stage.clientWidth, H=stage.clientHeight;
+  PAINTS.forEach(p=>{
+    const el=document.createElement("div");
+    el.className="blob"+(p.mine?" mine":"");
+    el.style.width=el.style.height=p.r+"px";
+    el.style.left=(p.x/100*W)+"px";
+    el.style.bottom=(p.y/100*H)+"px";
+    el.style.background=`radial-gradient(circle at 38% 32%, ${p.c}, ${shade(p.c,-28)} 92%)`;
+    el.innerHTML=`<span>${p.name.split("\n")[0]}</span>`;
+    el.addEventListener("mousemove",e=>showTip(e,p));
+    el.addEventListener("mouseleave",()=>tip.classList.remove("show"));
+    stage.appendChild(el);
+  });
+  drawRing();
+}
+function shade(hex,amt){ // 简单加深
+  const n=parseInt(hex.slice(1),16); let r=(n>>16)+amt,g=((n>>8)&255)+amt,b=(n&255)+amt;
+  r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));
+  return "#"+((r<<16)|(g<<8)|b).toString(16).padStart(6,"0");
+}
+function showTip(e,p){
+  const [t,sub]=p.name.split("\n");
+  tip.innerHTML=`<b>${t}</b>${sub?` <span class="role">${sub}</span>`:""}<br><span class="role">${p.role}</span>
+    <div class="paint">
+      <i>音色</i><span>${p.timbre}</span>
+      <i>旋律</i><span>${p.melody}</span>
+      <i>和声</i><span>${p.harmony}</span>
+      <i>节奏</i><span>${p.rhythm}</span>
+    </div><div class="why">${p.why}</div>`;
+  tip.classList.add("show");
+  let x=e.clientX+16, y=e.clientY+16;
+  if(x+290>innerWidth) x=e.clientX-290;
+  if(y+160>innerHeight) y=e.clientY-160;
+  tip.style.left=x+"px"; tip.style.top=y+"px";
+}
+function drawRing(){
+  const W=stage.clientWidth,H=stage.clientHeight;
+  const mine=PAINTS.filter(p=>p.mine);
+  const xs=mine.map(p=>p.x/100*W), ys=mine.map(p=>(1-p.y/100)*H); // top-origin
+  const pad=46;
+  const x0=Math.min(...xs)-pad, x1=Math.max(...xs)+pad, y0=Math.min(...ys)-pad, y1=Math.max(...ys)+pad;
+  ring.style.left=x0+"px"; ring.style.top=y0+"px";
+  ring.style.width=(x1-x0)+"px"; ring.style.height=(y1-y0)+"px";
+  rlabel.style.left=(x1-4)+"px"; rlabel.style.top=(y0-2)+"px";
+  rlabel.innerHTML="你的调色盘<br><span style='color:#8a867e'>疏 · 暖 · 歌唱性强<br>鼓在驱动却克制</span>";
+}
+addEventListener("resize",()=>{stage.querySelectorAll(".blob").forEach(b=>b.remove());place();
+  if(document.getElementById("btnMine").classList.contains("on")){ring.classList.add("show");rlabel.classList.add("show");}});
+
+const btnMine=document.getElementById("btnMine"), btnFocus=document.getElementById("btnFocus");
+btnMine.addEventListener("click",()=>{const on=btnMine.classList.toggle("on");
+  ring.classList.toggle("show",on);rlabel.classList.toggle("show",on);});
+btnFocus.addEventListener("click",()=>{const on=btnFocus.classList.toggle("on");
+  stage.classList.toggle("focusmine",on);});
+
+place();
+ring.classList.add("show"); rlabel.classList.add("show");
+</script>
+</body>
+</html>

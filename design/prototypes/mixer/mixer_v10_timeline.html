@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第二段 · 平行水文 · v10(暖纸时间图 + 底部调音台 · 音频暂屏蔽)</title>
+<style>
+  :root { --paper:#F0EADC; --paper2:#E8E1CF; --ink:#3A3629; --line:#4A4534; --grid:#B7AF9B;
+    --terra:#C25A2E; --dim:#8A8474; --accentink:#3A3629; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); color:var(--ink);
+    font-family:Georgia,"Songti SC","Times New Roman",serif; height:100vh; overflow:hidden;
+    display:flex; flex-direction:column; align-items:center; }
+
+  /* ===== 上部容器:和调音台等宽、居中、在调音台上方;时间图作它的淡背景 ===== */
+  #topstage { position:relative; width:100%; max-width:1000px; flex:1 1 auto; min-height:0; margin-top:14px; }
+  #timeline { position:absolute; inset:0; width:100%; height:100%; z-index:0; opacity:.55; }
+  .grid-line { stroke:var(--grid); stroke-width:1; opacity:.45; }
+  .grid-year { fill:var(--dim); font-size:11px; opacity:.8; }
+  .zlabel { fill:var(--dim); font-size:11px; letter-spacing:.06em; opacity:.7; }
+  .band .stream { stroke:var(--line); transition:stroke-width .25s, opacity .25s; }
+  .band .src { fill:var(--ink); transition:r .25s; }
+  .band .nm { font-size:12px; fill:var(--dim); transition:fill .25s; }
+  .band { cursor:pointer; }
+  .band.dim .stream { opacity:.4; } .band.dim .src { opacity:.4; } .band.dim .nm { opacity:.45; }
+  .band.on .stream { stroke:var(--terra); stroke-width:4; }
+  .band.on .src { fill:var(--terra); }
+  .band.on .nm { fill:var(--terra); }
+  .tie { stroke:var(--terra); stroke-width:1.2; stroke-dasharray:2.5 4; opacity:.7; }
+  .tiedot { fill:var(--terra); }
+  .tienum-c { fill:var(--paper); stroke:var(--terra); stroke-width:1.2; }
+  .tienum-t { fill:var(--terra); font-size:10px; text-anchor:middle; }
+
+  /* ===== 调音台(俯视,在下部,与背景等宽)===== */
+  #stage { position:relative; width:100%; max-width:1000px; margin:0 auto 22px; z-index:1;
+    perspective:1050px; perspective-origin:50% 42%; }
+  #glass { transform:rotateX(58deg); transform-origin:50% 100%;
+    background:linear-gradient(158deg, rgba(240,234,220,.6), rgba(214,206,188,.4));
+    border:1px solid rgba(255,255,255,.55); border-radius:18px; padding:20px 18px 16px;
+    display:flex; gap:14px; justify-content:space-between; align-items:flex-end; width:100%;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 26px 54px rgba(74,69,52,.28); }
+  .zone { display:flex; flex-direction:column; padding:9px 10px 7px;
+    background:rgba(255,255,255,.24); border:1px solid rgba(120,112,92,.22); border-radius:12px; }
+  .zone-label { font-size:9px; color:var(--dim); letter-spacing:.14em; margin:0 0 8px 1px; white-space:nowrap; }
+  .zone-row { display:flex; gap:8px; justify-content:center; align-items:flex-end; flex:1; }
+  .strip { background:rgba(255,255,255,.4); border:1px solid rgba(120,112,92,.28); border-radius:10px;
+    padding:7px 5px 9px; display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.7); transition:box-shadow .35s, border-color .35s, background .35s; }
+  .strip:hover { background:rgba(255,255,255,.55); }
+  .strip.active { border-color:var(--accent); background:rgba(255,255,255,.62);
+    box-shadow:0 0 0 1px var(--accent), 0 0 22px -3px var(--accent), inset 0 1px 0 rgba(255,255,255,.7); }
+  .tag { font-size:8.5px; font-family:ui-monospace,monospace; padding:3px 3px; border-radius:4px; color:#fff; width:100%;
+    text-align:center; background:var(--accent); opacity:.62; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    transition:opacity .35s, box-shadow .35s; text-shadow:0 1px 1px rgba(0,0,0,.3); }
+  .strip.active .tag { opacity:1; box-shadow:0 0 10px -1px var(--accent); }
+  .fadwrap { display:flex; gap:4px; align-items:center; }
+  input[type=range] { writing-mode:vertical-lr; direction:rtl; width:20px; accent-color:var(--accent); cursor:pointer; }
+  .rail { width:7px; border-radius:4px; background:linear-gradient(to top, var(--c0), var(--c1)); box-shadow:inset 0 0 3px rgba(0,0,0,.18); }
+</style>
+</head>
+<body>
+  <div id="topstage"><svg id="timeline" preserveAspectRatio="xMidYMid slice"></svg></div>
+
+  <div id="stage"><div id="glass"></div></div>
+
+  <!-- v10 暖纸纹理版:上=平行水文时间图(三区泳道+源头点+赤陶红血缘虚线编号),下=俯视调音台(暖纸,贴底)。
+    音频暂屏蔽;点推子/点带子→高亮对应流。文字面板"上面那块"待定稿再放。 -->
+
+<script>
+const SIZE = { XL:{w:82,fh:116}, L:{w:72,fh:102}, M:{w:62,fh:88}, S:{w:52,fh:74} };
+const CHANNELS = [
+  { tag:"ECM", zone:0, color:"#6E93A0", size:"M", start:1975, note:"冷、空、留白" },
+  { tag:"SPIRITUAL", zone:0, color:"#D6A32E", size:"L", start:2015, note:"大、向上、迷狂" },
+  { tag:"LATIN", zone:0, color:"#B21E38", size:"L", start:1973, note:"加勒比的节奏心脏" },
+  { tag:"JAM", zone:0, color:"#2F6DB5", size:"M", start:1991, note:"现场为王,groove 管够" },
+  { tag:"NEW STD", zone:0, color:"#8A6BB0", size:"L", start:2008, note:"当代原声,作曲驱动" },
+  { tag:"FUSION", zone:1, color:"#E98C01", size:"XL", start:1976, note:"jazz 插上了电" },
+  { tag:"JAPAN", zone:1, color:"#CB5A48", size:"L", start:1976, note:"自成生态的精密" },
+  { tag:"ACID JAZZ", zone:1, color:"#E6B23C", size:"S", start:1987, note:"把 jazz 拉回舞池" },
+  { tag:"UK WAVE", zone:1, color:"#2E9C8E", size:"L", start:2016, note:"年轻、跳舞、diaspora" },
+  { tag:"HIP-HOP", zone:2, color:"#7ea87e", size:"XL", start:1991, note:"采样台上的 jazz", spectrum:true, cLo:"#5f7a53", cHi:"#a9c98f" },
+  { tag:"NU JAZZ", zone:2, color:"#8d7fc7", size:"M", start:1998, note:"喂给机器的 jazz", spectrum:true, cLo:"#8d7fc7", cHi:"#5a6fb0" },
+];
+/* 血缘:两条流互相灌水的年份(idx: ECM0 SPIR1 LAT2 JAM3 NEW4 FUS5 JP6 ACID7 UK8 HIP9 NU10) */
+const TIES = [
+  { a:5, b:9, year:1983, num:1, cap:"Herbie Hancock〈Rockit〉" },
+  { a:7, b:9, year:1993, num:2, cap:"Us3〈Cantaloop〉" },
+  { a:0, b:10, year:1997, num:3, cap:"Nils Petter Molvær《Khmer》" },
+  { a:6, b:9, year:2005, num:4, cap:"Nujabes" },
+  { a:1, b:9, year:2015, num:5, cap:"洛杉矶 Brainfeeder" },
+  { a:7, b:8, year:2018, num:6, cap:"Gilles Peterson《We Out Here》" },
+  { a:1, b:8, year:2024, num:7, cap:"Shabaka Hutchings" },
+];
+const ZONES = ["原声 · 活人","电声 · 插电乐队","电子 · 采样/编程"];
+const SVGNS = "http://www.w3.org/2000/svg";
+const Y0=1976, Y1=2026;
+
+/* ===== 时间图(整页背景,铺满视口)===== */
+const tl = document.getElementById("timeline");
+const VW=1000, VH=620, padL=132, padR=34, padT=62, groupGap=46;
+const groups=[0,1,2];
+const rowY={}; const bands={};
+const rowsTotal=CHANNELS.length; const rowGap=(VH-padT-40-(groups.length-1)*groupGap)/rowsTotal;
+let yc=padT;
+groups.forEach(z=>{ const members=CHANNELS.map((s,i)=>i).filter(i=>CHANNELS[i].zone===z).sort((a,b)=>CHANNELS[a].start-CHANNELS[b].start||a-b);
+  members.forEach(idx=>{ rowY[idx]=yc+rowGap/2; yc+=rowGap; }); yc+=groupGap; });
+const el=(n,a)=>{ const e=document.createElementNS(SVGNS,n); for(const k in a) e.setAttribute(k,a[k]); return e; };
+tl.setAttribute("viewBox",`0 0 ${VW} ${VH}`);
+const xOf = y => padL + (Math.max(Y0,Math.min(Y1,y))-Y0)/(Y1-Y0)*(VW-padL-padR);
+const BH = { XL:4.5, L:3, M:2.2, S:1.6 };
+/* 年代竖网格 + 顶部年份 */
+[1976,1986,1996,2006,2016,2026].forEach(yr=>{ const x=xOf(yr);
+  tl.appendChild(el("line",{x1:x,y1:padT-14,x2:x,y2:VH-14,class:"grid-line"}));
+  tl.appendChild(el("text",{x:x,y:padT-24,"text-anchor":"middle",class:"grid-year"})).textContent=yr; });
+/* 区标签 */
+groups.forEach(z=>{ const mem=CHANNELS.map((s,i)=>i).filter(i=>CHANNELS[i].zone===z);
+  const ys=mem.map(i=>rowY[i]); const my=(Math.min(...ys)+Math.max(...ys))/2;
+  tl.appendChild(el("text",{x:14,y:my+4,class:"zlabel"})).textContent=ZONES[z].split(" · ")[0]; });
+/* 河流带 */
+CHANNELS.forEach((s,idx)=>{ const y=rowY[idx], bh=BH[s.size], x0=xOf(s.start), x1=xOf(Y1);
+  const g=el("g",{class:"band",id:"band_"+idx}); g.style.setProperty("--nc",s.color);
+  g.appendChild(el("line",{x1:x0,y1:y,x2:x1,y2:y,class:"stream","stroke-width":bh,"stroke-linecap":"round"}));
+  g.appendChild(el("circle",{cx:x0,cy:y,r:bh/1.4+3,class:"src"}));
+  const nm=el("text",{x:padL-16,y:y+5,"text-anchor":"end",class:"nm"}); nm.textContent=s.tag; g.appendChild(nm);
+  g.addEventListener("click",()=>activate(idx)); tl.appendChild(g); bands[idx]=g; });
+/* 血缘虚线 + 编号 */
+TIES.forEach(t=>{ const x=xOf(t.year), ya=rowY[t.a], yb=rowY[t.b], y1=Math.min(ya,yb), y2=Math.max(ya,yb);
+  const g=el("g",{class:"tiegroup"});
+  g.appendChild(el("line",{x1:x,y1:y1,x2:x,y2:y2,class:"tie"}));
+  g.appendChild(el("circle",{cx:x,cy:ya,r:4,class:"tiedot"}));
+  g.appendChild(el("circle",{cx:x,cy:yb,r:4,class:"tiedot"}));
+  const cy=(ya+yb)/2; g.appendChild(el("circle",{cx:x,cy:cy,r:9,class:"tienum-c"}));
+  const nt=el("text",{x:x,y:cy+4,class:"tienum-t"}); nt.textContent=t.num; g.appendChild(nt);
+  tl.appendChild(g); });
+
+/* ===== 调音台 ===== */
+const desk=document.getElementById("glass"); const strips=[];
+[0,1,2].forEach(z=>{ const zone=document.createElement("div"); zone.className="zone";
+  zone.innerHTML=`<div class="zone-label">${ZONES[z]}</div>`;
+  const row=document.createElement("div"); row.className="zone-row";
+  CHANNELS.forEach((s,idx)=>{ if(s.zone!==z) return; const sz=SIZE[s.size]; const d=document.createElement("div");
+    d.className="strip"; d.style.setProperty("--accent",s.color); d.style.width=sz.w+"px";
+    let mid;
+    if(s.spectrum){ d.style.setProperty("--c0",s.cLo); d.style.setProperty("--c1",s.cHi);
+      mid=`<div class="fadwrap"><input type="range" min="-48" max="0" value="-48" step="1" data-id="${idx}" style="height:${sz.fh}px"><div class="rail" style="height:${sz.fh}px"></div></div>`;
+    } else { mid=`<div class="fadwrap"><input type="range" min="-48" max="0" value="-48" step="1" data-id="${idx}" style="height:${sz.fh}px"></div>`; }
+    d.innerHTML=`<div class="tag">${s.tag}</div>${mid}`;
+    d.addEventListener("click",(e)=>{ if(e.target.tagName==="INPUT")return; activate(idx); });
+    row.appendChild(d); strips[idx]=d; });
+  zone.appendChild(row); desk.appendChild(zone); });
+const faders=[...document.querySelectorAll("input[type=range]")];
+
+/* ===== 交互(音频暂屏蔽)===== */
+let active=-1;
+function activate(id){ if(active===id) return;
+  if(active>=0){ strips[active].classList.remove("active"); const of=faders.find(f=>+f.dataset.id===active); if(of)of.value=-48; }
+  active=id; strips[id].classList.add("active");
+  Object.keys(bands).forEach(k=>bands[k].classList.toggle("dim",+k!==id)); bands[id].classList.add("on");
+  const f=faders.find(f=>+f.dataset.id===id); if(f&&parseFloat(f.value)<=-46) f.value=-16; }
+function clearActive(){ if(active>=0){ strips[active].classList.remove("active"); active=-1; }
+  Object.keys(bands).forEach(k=>{bands[k].classList.remove("dim");bands[k].classList.remove("on");}); }
+faders.forEach(f=>f.addEventListener("input",e=>{ const id=+e.target.dataset.id, v=parseFloat(e.target.value);
+  if(id===active){ if(v<=-47){ strips[id].classList.remove("active"); clearActive(); } }
+  else if(v>-30) activate(id); }));
+</script>
+</body>
+</html>

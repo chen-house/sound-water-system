@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>星座只是地球的视角</title>
+<style>
+  :root{--ink:#e9eff7;--ink2:#8fa2b8;--ink3:#4c5d72;--ink4:#33404f;--gold:#ffd08a}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  body{background:#04070f;color:var(--ink);user-select:none;
+    font-family:"PingFang SC","Hiragino Sans GB",ui-sans-serif,system-ui,sans-serif}
+
+  #gate{position:fixed;inset:0;z-index:100;background:#04070f;display:flex;
+    align-items:center;justify-content:center;cursor:pointer;transition:opacity 1.6s ease}
+  #gate.off{opacity:0;pointer-events:none}
+  @keyframes br{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.4);opacity:1}}
+  #gate g{transform-origin:center;animation:br 3.4s ease-in-out infinite}
+
+  .lnk{fill:none;stroke:#dbe9fb;stroke-opacity:.55;stroke-width:2.3;
+    stroke-linecap:round;stroke-dasharray:.1 7}
+  .lnk.gold{stroke:var(--gold);stroke-opacity:.9;stroke-width:2.6}
+  .lnk.kin{stroke-width:1.6;stroke-opacity:.5;stroke-dasharray:none}
+  .orb{fill:none;stroke:#e5a8b4;stroke-opacity:.11;stroke-width:.8}
+  .trl{fill:none;stroke:#e5a8b4;stroke-opacity:.5;stroke-width:1.5;stroke-linecap:round}
+  .hit{fill:none;pointer-events:all;cursor:pointer}
+
+  #app{position:fixed;inset:0;opacity:0;transition:opacity 1.4s ease .5s}
+  #app.on{opacity:1}
+  #skywrap{position:absolute;inset:0}
+  svg#sky{width:100%;height:100%;display:block}
+  #scrim{position:absolute;left:0;right:0;bottom:0;height:32%;pointer-events:none;
+    background:linear-gradient(180deg,rgba(1,3,8,0),rgba(1,3,8,.5) 52%,rgba(1,3,8,.85))}
+  /* 底部漂浮微尘:字周围有空间,字才在空间里 */
+  #dustl{position:absolute;left:0;right:0;bottom:0;height:34%;pointer-events:none;
+    display:block}
+
+  /* 控制项浮在天上:无背景、无边框、无容器 */
+  /* 曲名与视图名同在右下角,曲名在上 */
+  #deck{position:absolute;right:0;bottom:0;display:flex;flex-direction:column;
+    align-items:flex-end;gap:clamp(5px,.9vh,11px);
+    padding:0 clamp(18px,3.2vw,52px) clamp(16px,3vh,34px);max-width:min(92vw,640px)}
+  #now{min-width:0;display:flex;align-items:baseline;justify-content:flex-end;
+    gap:9px;opacity:.4;transition:opacity .4s}
+  #now.on{opacity:.92}
+  #now .t{font-size:clamp(11px,1vw,13px);white-space:nowrap;overflow:hidden;
+    text-overflow:ellipsis;color:#8fa2b8;filter:url(#fdust);text-align:right}
+  #now .s{font-size:clamp(9.5px,.85vw,11px);color:#4c5d72;filter:url(#fdust)}
+  #modes{display:flex;flex:0 0 auto;gap:clamp(10px,1.4vw,22px)}
+  #modes button{background:none;border:none;color:#4c5d72;cursor:pointer;font-family:inherit;
+    font-size:clamp(12px,1.15vw,15px);letter-spacing:.16em;padding:6px 0;
+    transition:color .25s;filter:url(#fdust2)}
+  #modes button:hover{color:#8fa2b8}
+  #modes button.on{color:var(--gold)}
+  /* 竖屏:同样右下角堆叠,只是留白更大 */
+  @media (max-aspect-ratio: 4/5){
+    #deck{gap:8px;padding-bottom:clamp(20px,4vh,40px);max-width:92vw}
+  }
+
+  #info{position:absolute;pointer-events:none;z-index:20;opacity:0;transition:opacity .16s;
+    background:rgba(5,9,17,.95);border:1px solid rgba(147,166,187,.16);border-radius:8px;
+    padding:10px 13px;max-width:292px;backdrop-filter:blur(8px)}
+  #info.show{opacity:1}
+  #info .y{font-size:10px;color:var(--gold);letter-spacing:.12em;font-weight:700}
+  #info .a{font-size:13px;margin:3px 0 1px;line-height:1.35}
+  #info .b{font-size:11px;color:var(--ink2)}
+  #info .c{font-size:10.5px;color:var(--ink3);margin-top:7px;padding-top:7px;line-height:1.65;
+    border-top:1px solid rgba(147,166,187,.1)}
+  #info .c em{font-style:normal;color:#8fd8c4}
+  #info .q{font-size:10.5px;color:var(--ink2);margin-top:6px;line-height:1.7;font-style:italic}
+  #info .x{color:#e0a97e}
+</style>
+</head>
+<body>
+
+<div id="gate"><svg viewBox="-60 -60 120 120" width="130" height="130"><g>
+  <circle r="30" fill="url(#g0)"/>
+  <path fill="#fff" d="M0-16Q3-3 16 0Q3 3 0 16Q-3 3-16 0Q-3-3 0-16Z"/></g>
+  <defs><radialGradient id="g0">
+    <stop offset="0%" stop-color="#dff0ff" stop-opacity=".5"/>
+    <stop offset="35%" stop-color="#cfe4f7" stop-opacity=".12"/>
+    <stop offset="100%" stop-color="#cfe4f7" stop-opacity="0"/></radialGradient></defs>
+</svg></div>
+
+<!-- 字被星尘啃过的边缘:feTurbulence 位移,字仍是字 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="fdust" x="-25%" y="-40%" width="150%" height="180%"
+          color-interpolation-filters="sRGB" filterUnits="objectBoundingBox">
+    <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="3" seed="9" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="1.4"
+                       xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="fdust2" x="-25%" y="-40%" width="150%" height="180%"
+          color-interpolation-filters="sRGB" filterUnits="objectBoundingBox">
+    <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="3" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.1"
+                       xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</defs></svg>
+
+<div id="app">
+  <div id="skywrap">
+    <svg id="sky" viewBox="0 0 1000 560">
+      <defs>
+        <radialGradient id="h"><stop offset="0%" stop-color="#ffffff" stop-opacity=".62"/>
+          <stop offset="26%" stop-color="#dbe9fb" stop-opacity=".15"/>
+          <stop offset="100%" stop-color="#cfe4f7" stop-opacity="0"/></radialGradient>
+        <radialGradient id="hg"><stop offset="0%" stop-color="#ffe3b8" stop-opacity=".6"/>
+          <stop offset="28%" stop-color="#ffd08a" stop-opacity=".2"/>
+          <stop offset="100%" stop-color="#ffd08a" stop-opacity="0"/></radialGradient>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#010308"/>
+          <stop offset="55%"  stop-color="#03060e"/>
+          <stop offset="100%" stop-color="#050a15"/></linearGradient>
+        <linearGradient id="mw" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"   stop-color="#8fa6c8" stop-opacity="0"/>
+          <stop offset="34%"  stop-color="#8fa6c8" stop-opacity=".055"/>
+          <stop offset="50%"  stop-color="#b9c8e4" stop-opacity=".085"/>
+          <stop offset="66%"  stop-color="#8fa6c8" stop-opacity=".055"/>
+          <stop offset="100%" stop-color="#8fa6c8" stop-opacity="0"/></linearGradient>
+        <radialGradient id="vg" cx="50%" cy="40%" r="70%">
+          <stop offset="0%"   stop-color="#000" stop-opacity="0"/>
+          <stop offset="52%"  stop-color="#000" stop-opacity="0"/>
+          <stop offset="100%" stop-color="#000" stop-opacity=".55"/></radialGradient>
+      </defs>
+      <rect id="bgrect" fill="url(#sky)"/>
+      <g id="far">
+        <rect id="mwrect" fill="url(#mw)" pointer-events="none"/>
+        <g id="farstars"></g>
+      </g>
+      <g id="g-orb"></g><g id="g-trl"></g><g id="g-lnk"></g><g id="g-kin"></g>
+      <g id="g-star"></g>
+      <g id="g-prog" pointer-events="none">
+        <circle id="progbg" fill="none" stroke="#93a6bb" stroke-opacity="0" stroke-width=".9"/>
+        <path id="progarc" fill="none" stroke="#ffd08a" stroke-width="1.7"
+              stroke-linecap="round" stroke-opacity="0"/>
+      </g>
+      <rect id="vgrect" fill="url(#vg)" pointer-events="none"/>
+      <g id="g-hit"></g>
+    </svg>
+    <div id="info"></div>
+    <div id="scrim"></div>
+    <svg id="dustl" preserveAspectRatio="none"><g id="dustg"></g></svg>
+    <div id="deck">
+    <div id="now"><span class="t"></span><span class="s"></span></div>
+    <div id="modes">
+      <button data-m="0" class="on">星轨</button>
+      <button data-m="1">北斗</button>
+      <button data-m="2">天鹅</button>
+      </div>
+    </div>
+  </div>
+</div>
+<audio id="au"></audio>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   DownBeat 国际乐评人票选 · 年度专辑 · 第 54–73 届
+   三个视角,三套坐标。切换 = 观察者换了位置(视差),不是星被搬了。
+   ══════════════════════════════════════════════════════════════════════ */
+const P="https://audio-ssl.itunes.apple.com/itunes-assets/";
+const S=[
+{pv:2006,y:2006,al:"Time Lines",ar:"Andrew Hill",lit:1,tr:"Time Lines",
+ dr:[["Eric McPherson",1970]],
+ u:P+"AudioPreview115/v4/37/c4/22/37c4221f-692f-4ad5-2bfd-c332345ead76/mzaf_11072773332030456122.plus.aac.p.m4a"},
+{pv:2007,y:2006,al:"Sound Grammar",ar:"Ornette Coleman",lit:2,tr:"Sleep Talking",
+ dr:[["Denardo Coleman",1956]],
+ u:P+"Music/v4/26/a8/30/26a830c5-5ceb-3bf3-8adf-789837c8492f/mzaf_8181021655787780711.plus.aac.p.m4a"},
+{pv:2008,y:2007,al:"Sky Blue",ar:"Maria Schneider",lit:2,tr:"Cerulean Skies",
+ dr:[["Clarence Penn",1968]],
+ u:P+"Music2/v4/f2/33/c1/f233c152-32ff-086c-610b-701e0e79cbe5/mzaf_1030507276110813604.plus.aac.p.m4a"},
+{pv:2009,y:2008,al:"Road Shows, Vol. 1",ar:"Sonny Rollins",lit:2,
+ dr:[["Roy Haynes",1925,2024],["Al Foster",1943,2025],["Steve Jordan",1957],["Perry Wilson",null]],
+ u:null,x:"全球下架"},
+{pv:2010,y:2009,al:"Historicity",ar:"Vijay Iyer",lit:2,tr:"Historicity",
+ dr:[["Marcus Gilmore",1986]],q:"切分小鼓的击打,撞上贝斯弓弦的呻吟与双音拨奏。 — PopMatters",
+ u:P+"AudioPreview115/v4/b1/03/35/b10335c0-feeb-fd28-0acb-0ae510fb9e61/mzaf_4697549408838661274.plus.aac.p.m4a"},
+{pv:2011,y:2010,al:"Ten",ar:"Jason Moran",lit:2,dip:"摇光",tr:"Crepuscule With Nellie",
+ dr:[["Nasheet Waits",1971]],q:"钢琴与鼓不断变换力度、绕着拍点起舞,而贝斯死死咬住它。 — Francis Davis",
+ u:P+"AudioPreview115/v4/cf/f3/42/cff34277-330f-5dcb-d979-8483c65b7398/mzaf_8180937352554969913.plus.aac.p.m4a"},
+{pv:2012,y:2012,al:"Accelerando",ar:"Vijay Iyer",lit:2,dip:"开阳",tr:"Human Nature (Trio Extension)",
+ dr:[["Marcus Gilmore",1986]],q:"听他猛击、轻抚、交叉打网、层层叠加。 — NPR",
+ u:P+"AudioPreview115/v4/0c/80/76/0c8076a7-ca94-cf2b-ec5c-7049b89ce3be/mzaf_8436248345337857613.plus.aac.p.m4a"},
+{pv:2013,y:2013,al:"Without a Net",ar:"Wayne Shorter",lit:2,tr:"Orbits",
+ dr:[["Brian Blade",1970]],q:"与长期合作的节奏组之间,近乎心灵感应的互动。",
+ u:P+"AudioPreview115/v4/99/f3/05/99f3057a-326b-0125-22d2-3b04700b2527/mzaf_15214274710547283164.plus.aac.p.m4a"},
+{pv:2014,y:2013,al:"WomanChild",ar:"Cécile McLorin Salvant",lit:1,tr:"WomanChild",
+ dr:[["Herlin Riley",1957]],
+ u:P+"AudioPreview221/v4/55/88/ef/5588ef7c-0a24-75ab-1f28-3ae95ba99689/mzaf_7578455160665149812.plus.aac.p.m4a"},
+{pv:2015,y:2015,al:"Bird Calls",ar:"Rudresh Mahanthappa",lit:2,tr:"On the DL",
+ dr:[["Rudy Royston",null]],
+ u:P+"AudioPreview125/v4/99/64/5a/99645ace-a9e5-f9f9-f6c8-01b6754fa144/mzaf_3014805104328615474.plus.aac.p.m4a"},
+{pv:2016,y:2015,al:"The Epic",ar:"Kamasi Washington",lit:1,dip:"玉衡",tr:"Change of the Guard",
+ dr:[["Tony Austin",null],["Ronald Bruner Jr.",1982],["Leon Mobley",null,null,"打击乐"]],
+ note:"双鼓 · 三碟 · 合唱团与弦乐",
+ u:P+"AudioPreview125/v4/6f/6b/21/6f6b21bc-41be-1d3e-685d-42642403af1a/mzaf_3266234963051955895.plus.aac.p.m4a"},
+{pv:2017,y:2016,al:"America's National Parks",ar:"Wadada Leo Smith",lit:1,tr:"Yellowstone",
+ dr:[["Pheeroan akLaff",1955]],
+ u:P+"AudioPreview62/v4/26/7c/06/267c06bb-f429-1d5a-6482-6559696bf854/mzaf_7943256302215271933.plus.aac.p.m4a"},
+{pv:2018,y:2017,al:"Dreams and Daggers",ar:"Cécile McLorin Salvant",lit:1,tr:"Devil May Care",
+ dr:[["Lawrence Leathers",1981,2019]],
+ u:P+"AudioPreview221/v4/09/38/6d/09386dbb-dc27-529c-d868-bfc9bd700273/mzaf_1368971770810376253.plus.aac.p.m4a"},
+{pv:2019,y:2018,al:"Emanon",ar:"Wayne Shorter",lit:3,tr:"Pegasus",
+ dr:[["Brian Blade",1970]],
+ u:P+"AudioPreview125/v4/30/e1/8f/30e18fe0-e592-c36c-2ad5-223cba138d05/mzaf_16031007953832573930.plus.aac.p.m4a"},
+{pv:2020,y:2019,al:"Waiting Game",ar:"Terri Lyne Carrington & Social Science",lit:1,dip:"天权",
+ tr:"Bells (Ring Loudly)",dr:[["Terri Lyne Carrington",1965,null,"领衔者本人"]],
+ note:"二十张里唯一一张鼓手领衔的年度专辑",
+ u:P+"AudioPreview115/v4/12/d2/e4/12d2e4fe-0e5c-ef83-df56-1f38b4043c90/mzaf_17159530516973863325.plus.aac.p.m4a"},
+{pv:2021,y:2020,al:"Data Lords",ar:"Maria Schneider",lit:3,
+ dr:[["Johnathan Blake",1976]],u:null,x:"艺人拒绝上流媒体"},
+{pv:2022,y:2021,al:"Jesup Wagon",ar:"James Brandon Lewis",lit:2,dip:"天玑",tr:"Jesup Wagon",
+ dr:[["Chad Taylor",1973]],q:"乐队欢腾地列队进场,像一支新奥尔良游行队伍。 — DownBeat",
+ u:P+"AudioPreview124/v4/50/eb/8a/50eb8a3a-dda0-774f-6a64-b7fd4870f94e/mzaf_7677527122179805057.plus.aac.p.m4a"},
+{pv:2023,y:2022,al:"Amaryllis",ar:"Mary Halvorson",lit:2,dip:"天璇",tr:"Night Shift",
+ dr:[["Tomas Fujiwara",1977]],q:"固定音型让整支乐队像一只上过头的钟那样嘀嗒作响。 — DownBeat",
+ u:P+"AudioPreview122/v4/94/42/f7/9442f76d-3430-5c27-cf06-0cbfc4ab3f3c/mzaf_2151578293423039107.plus.aac.p.m4a"},
+{pv:2024,y:2024,al:"The Sky Will Still Be There Tomorrow",ar:"Charles Lloyd",lit:1,
+ tr:"Defiant, Tender Warrior",dr:[["Brian Blade",1970]],
+ u:P+"AudioPreview221/v4/6b/dc/2c/6bdc2c26-06db-d718-86c9-a3b498459adc/mzaf_9864382816205733470.plus.aac.p.m4a"},
+{pv:2025,y:2024,al:"Breaking Stretch",ar:"Patricia Brennan",lit:2,dip:"天枢",tr:"Five Suns",
+ dr:[["Marcus Gilmore",1986],["Mauricio Herrera",null,null,"打击乐"]],
+ q:"把时间组合拆开,织出一张 clave 网,立刻把你吸进去。 — DownBeat",
+ u:P+"AudioPreview221/v4/f4/94/34/f49434e4-812d-3b55-fbcb-2cf04c26a45d/mzaf_15770357953061205629.plus.aac.p.m4a"},
+];
+const OPEN="Jesup Wagon";
+const DIPORDER=["Ten","Accelerando","The Epic","Waiting Game","Jesup Wagon","Amaryllis","Breaking Stretch"];
+
+/* ── 三套坐标:每项 [x, y, 透视缩放] ───────────────────────────────── */
+const FOC=700, LIFT=26;
+function pj(x,y,z,cx,cy){const k=FOC/(FOC+z);return [cx+(x-cx)*k, cy+(y-cy)*k-LIFT, k]}
+/* ① 星轨:散布,不做深度(保可点性),缩放恒为 1 */
+const POS_ORB=[[120,280],[150,120],[200,420],[260,520],[280,230],[300,80],[370,380],
+ [440,510],[450,290],[470,140],[530,440],[610,235],[620,520],[640,95],[690,395],
+ [790,300],[820,150],[860,450],[900,110],[920,240]].map(p=>[500+(p[0]-500)*.86, 268+(p[1]-268)*.80-LIFT, 1]);
+/* ② 北斗:斗柄缩进深处,斗魁的口朝向观察者张开 */
+const DIP3D={"Ten":[196,150,330],"Accelerando":[320,224,240],"The Epic":[444,272,150],
+ "Waiting Game":[566,318,60],"Jesup Wagon":[590,452,10],"Amaryllis":[792,452,-40],
+ "Breaking Stretch":[768,306,-30]};
+const RESTPOS=[[110,180],[170,330],[130,470],[250,250],[300,420],[240,530],[400,120],
+ [430,400],[520,470],[600,120],[640,430],[880,180],[900,430]];
+/* ③ 天鹅座:真实星表 2D 布局,绕竖直轴转 40° 做四分之三侧向 */
+const CYG_SK=["Albireo","η","Sadr","Deneb","Gienah","ζ","δ","ι"];
+const POS_CYG=[[412,61],[486,235],[525,389],[577,515],[355,402],[225,454],[699,311],[854,338],
+ [383,173],[509,138],[462,325],[572,296],[433,398],[275,402],[625,353],[775,320],
+ [614,440],[496,483],[614,259],[413,460]];
+const CYG_ED=[[0,1],[1,2],[2,3],[5,4],[4,2],[2,6],[6,7]];
+function cyg34(deg=40,tilt=10,k=0.96){
+  const th=deg*Math.PI/180, tx=tilt*Math.PI/180;
+  return POS_CYG.map(([x,y])=>{
+    const dx=(x-500)*k, dy=(y-262)*k;
+    const X=dx*Math.cos(th), Z=-dx*Math.sin(th)+dy*Math.sin(tx), Y=dy*Math.cos(tx);
+    return pj(500+X,268+Y,Z,500,268);
+  });
+}
+
+/* 收缩:让星座只占画面约六成,四周留大片空天 */
+const FIT=(p,k=0.72,cx=500,cy=258)=>[cx+(p[0]-cx)*k, cy+(p[1]-cy)*k];
+const NS="http://www.w3.org/2000/svg";
+const E=(t,a={})=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e};
+const $=i=>document.getElementById(i);
+const F=n=>S.find(s=>s.al===n);
+const lerp=(a,b,t)=>a+(b-a)*t;
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+
+/* 四芒星 */
+function spike(x,y,r){
+  x=+x;y=+y;r=+r;
+  return `M${x} ${y-r*3.2}Q${x+r*.22} ${y-r*.5} ${x+r*3.2} ${y}`
+   +`Q${x+r*.22} ${y+r*.5} ${x} ${y+r*3.2}`
+   +`Q${x-r*.22} ${y+r*.5} ${x-r*3.2} ${y}`
+   +`Q${x-r*.22} ${y-r*.5} ${x} ${y-r*3.2}Z`}
+
+/* ── 远景星场:随 viewBox 面积重建 ── */
+function buildFar(){
+  const g=$("farstars"); g.innerHTML="";
+  let sd=20260802; const rn=()=>{sd=(sd*1103515245+12345)&0x7fffffff;return sd/0x7fffffff};
+  const n=Math.round(VB.w*VB.h/620);                 /* 密度恒定,不随屏幕变稀 */
+  for(let i=0;i<n;i++){
+    const x=VB.x+rn()*VB.w, y=VB.y+rn()*VB.h, m=rn();
+    if(m>.9945){const r=1.8;
+      g.appendChild(E("circle",{cx:x.toFixed(1),cy:y.toFixed(1),r:(r*4).toFixed(1),fill:"url(#h)"}));
+      g.appendChild(E("path",{d:spike(x,y,r),fill:"#fff","fill-opacity":".9"}));}
+    else if(m>.972)g.appendChild(E("circle",{cx:x.toFixed(1),cy:y.toFixed(1),
+      r:(.8+rn()*.45).toFixed(2),fill:"#fff","fill-opacity":(.5+rn()*.42).toFixed(2)}));
+    else g.appendChild(E("circle",{cx:x.toFixed(1),cy:y.toFixed(1),
+      r:(.25+rn()*.38).toFixed(2),fill:"#dbe9fb","fill-opacity":(.07+rn()*.30).toFixed(2)}));
+  }
+}
+/* ── 响应式 viewBox:横屏固定高、竖屏固定宽;星座尺寸不变,天空延伸 ── */
+const ANCHOR={x:500,y:268};
+let VB={x:0,y:-12,w:1000,h:560};
+function layout(){
+  const r=$("skywrap").getBoundingClientRect();
+  const asp=Math.max(.35,r.width/Math.max(1,r.height));
+  let w,h;
+  if(asp>=1){h=640; w=640*asp;} else {w=880; h=880/asp;}
+  VB={x:ANCHOR.x-w/2, y:ANCHOR.y-h*0.46, w, h};
+  $("sky").setAttribute("viewBox",`${VB.x.toFixed(1)} ${VB.y.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}`);
+  [["bgrect"],["vgrect"]].forEach(([id])=>{const e=$(id);
+    e.setAttribute("x",VB.x.toFixed(1));e.setAttribute("y",VB.y.toFixed(1));
+    e.setAttribute("width",w.toFixed(1));e.setAttribute("height",h.toFixed(1));});
+  const mw=$("mwrect"), L=Math.hypot(w,h)*1.25;
+  mw.setAttribute("x",(ANCHOR.x-L/2).toFixed(1));
+  mw.setAttribute("y",(ANCHOR.y-L*0.16).toFixed(1));
+  mw.setAttribute("width",L.toFixed(1));
+  mw.setAttribute("height",(L*0.32).toFixed(1));
+  mw.setAttribute("transform",`rotate(-20 ${ANCHOR.x} ${ANCHOR.y})`);
+  buildFar();
+  buildDust();
+}
+addEventListener("resize",layout);
+
+/* ── 底部微尘:屏幕像素坐标,越靠下越密,横向缓慢漂移 ── */
+let MOTE=[], DW=0, DH=0;
+function buildDust(){
+  const el=$("dustl"), r=el.getBoundingClientRect();
+  DW=Math.max(1,Math.round(r.width)); DH=Math.max(1,Math.round(r.height));
+  el.setAttribute("viewBox",`0 0 ${DW} ${DH}`);
+  const g=$("dustg"); g.innerHTML=""; MOTE=[];
+  const n=Math.round(DW*DH/1750);
+  for(let i=0;i<n;i++){
+    const b=Math.pow(Math.random(),2.1);
+    /* 只横向、极慢(0.3–1.2 px/秒)。尘是环境,不是动画 —— 一被看见就错了 */
+    const m={x:Math.random()*DW,
+             y:DH*(1-Math.pow(Math.random(),1.5)),   /* 越靠下越密 */
+             vx:(Math.random()<.5?-1:1)*(0.3+Math.random()*0.9)/1000,
+             vy:0};
+    const c=E("circle",{cx:m.x.toFixed(1),cy:m.y.toFixed(1),
+      r:(.42+.72*b).toFixed(2),fill:"#c8d8f0",
+      "fill-opacity":(.14+.42*b).toFixed(2)});
+    g.appendChild(c); m.el=c; MOTE.push(m);
+  }
+}
+let dustT=performance.now();
+function driftDust(){
+  const now=performance.now(), dt=Math.min(64,now-dustT); dustT=now;
+  for(const m of MOTE){
+    m.x+=m.vx*dt;
+    if(m.x<-4)m.x=DW+4; else if(m.x>DW+4)m.x=-4;
+    m.el.setAttribute("cx",m.x.toFixed(1));
+  }
+}
+
+/* ── 位置分配 ── 骨架 8 = 你挑的七首 + Emanon(唯一格莱美) */
+const CYG_MAIN=["Ten","Accelerando","The Epic","Emanon",
+                "Waiting Game","Jesup Wagon","Amaryllis","Breaking Stretch"];
+const CYGP=cyg34(40);
+const restC=S.filter(d=>!CYG_MAIN.includes(d.al));
+CYG_MAIN.forEach((n,i)=>{const d=F(n);d._cyg=CYGP[i];d._cygName=CYG_SK[i]});
+restC.forEach((d,i)=>{d._cyg=CYGP[8+i]});
+S.forEach((d,i)=>{d._orb=POS_ORB[i]});
+let ri=0;
+S.forEach(d=>{
+  if(d.dip){const[a,b,c]=DIP3D[d.al];d._dip=pj(a,b,c,500,290)}
+  else{const p=RESTPOS[ri++];d._dip=[500+(p[0]-500)*.88, 290+(p[1]-290)*.84-LIFT, .55]}
+});
+const VIEWS=[d=>d._orb,d=>d._dip,d=>d._cyg];
+
+/* ── 建星 ──
+   芒半径 = _r × 3.2。三档分开放大(×1.6 / ×2.0 / ×2.4),
+   让「几个榜同时认可」从"仔细看才看得出"变成一眼看得出。
+   参照:背景最亮星芒半径 5.76 —— 现在最小的专辑星也是它的 1.56 倍。 */
+const R=d=>({3:5.6*1.32, 2:4.2*1.10, 1:3.2*0.88})[d.lit];
+S.forEach((d,i)=>{
+  d.p=[d._orb[0],d._orb[1]]; d.sc=d._orb[2]; d._r=R(d); d._heard=false;
+  d._g=0; d._pv=false;                      /* 金的程度(听过) · 预告态 */
+  d._h=E("circle",{cx:0,cy:0,r:d._r*4.2,fill:"url(#h)"});
+  d._hg=E("circle",{cx:0,cy:0,r:d._r*5.4,fill:"url(#hg)","fill-opacity":0});  /* 金晕 */
+  d._s=E("path",{d:"",fill:"#fff","fill-opacity":".38"});
+  $("g-star").appendChild(d._h);$("g-star").appendChild(d._hg);
+  $("g-star").appendChild(d._s);
+  d._t=E("circle",{class:"hit",r:Math.max(18,d._r*3.2*1.12).toFixed(1)});   /* 随星长大 */
+  d._t.onmouseenter=e=>show(d,e);d._t.onmousemove=mv;d._t.onmouseleave=hide;
+  d._t.onclick=()=>play(d);
+  $("g-hit").appendChild(d._t);
+});
+/* 独立轨道:每颗自己的中心/倾角/扁率,彼此不套嵌 */
+S.forEach((d,i)=>{
+  const a=1.1+i*2.399, L=170+((i*137)%210), k=.30+((i*53)%28)/100;
+  d._oc=[d._orb[0]-Math.cos(a)*L, d._orb[1]-Math.sin(a)*L*k];
+  d._oa=L; d._ok=k; d._oth=a*180/Math.PI; d._ophi=a;
+});
+
+/* 「听过几首」不另设指示器:北斗视图里那颗星自己会亮、连线自己会接上,
+   那就是反馈。底下再放七个点,是把同一件事用另一套语言重说一遍。
+
+   但「是哪七颗」这个信息要留住 —— 挂在「北斗」两个字上:
+   悬停 = 切换前的预告。不连线,形状得点进去才给;
+   也不套圈 —— 圈已经归进度专用了,改成那几颗星放大加亮,还是星的语言。 */
+const PREVIEW={1:DIPORDER, 2:CYG_MAIN};
+const PV_HZ=112/60*1.25;                    /* 预告闪烁频率(Hz)—— 调快慢改这里 */
+function preview(m,on){
+  const set=PREVIEW[m];
+  if(!set||m===view)return;                 /* 已经在这个视图里 = 形状都连出来了,不重复 */
+  set.forEach(n=>{F(n)._pv=on})}
+
+/* ── 连线定义(按视图) ── */
+const DRUM={};S.forEach(d=>d.dr.forEach(([n])=>{(DRUM[n]=DRUM[n]||[]).push(d.al)}));
+const KIN=[];Object.entries(DRUM).forEach(([n,as])=>{
+  if(as.length>1)for(let i=1;i<as.length;i++)KIN.push([as[i-1],as[i],n])});
+const KINCOL={"Brian Blade":"#8fc4e5","Marcus Gilmore":"#8fd8c4"};
+function edgesFor(m){
+  if(m===1){const e=[];for(let i=1;i<DIPORDER.length;i++)e.push({a:DIPORDER[i-1],b:DIPORDER[i],gold:1});return e}
+  if(m===2){return CYG_ED.map(([i,j])=>({a:CYG_MAIN[i],b:CYG_MAIN[j]}))}
+  return []}
+
+/* ── 视图切换:断 → 移(视差)→ 连 ── */
+let view=-1, anim=null, farRot=0, farTarget=0, curEdges=[];
+const FARROT=[0,4.2,-4.2];
+function setView(m){
+  if(m===view)return;
+  const from=S.map(d=>[d.p[0],d.p[1],d.sc]), to=S.map(d=>VIEWS[m](d));
+  const r0=farRot; farTarget=FARROT[m]; view=m;
+  document.querySelectorAll("#modes button").forEach(b=>b.classList.toggle("on",+b.dataset.m===m));
+  curEdges=edgesFor(m);
+  anim={t0:performance.now(),from,to,r0,drawn:false};
+  $("g-lnk").innerHTML="";$("g-orb").innerHTML="";
+}
+const T_BREAK=300,T_MOVE=1200,T_LINK=500,T_ALL=T_BREAK+T_MOVE+T_LINK;
+
+function paintLinks(prog){
+  const g=$("g-lnk");
+  if(!curEdges.length){if(g.childNodes.length)g.innerHTML="";return}
+  if(g.childNodes.length!==curEdges.length){
+    g.innerHTML="";
+    curEdges.forEach(e=>{const p=E("path",{class:"lnk"+(e.gold?" gold":"")+(e.kin?" kin":"")});
+      if(e.col)p.style.stroke=e.col;g.appendChild(p);e._el=p});
+  }
+  curEdges.forEach((e,i)=>{
+    const A=F(e.a).p,B=F(e.b).p;
+    if(e.kin){                                   /* 鼓手:向外拱的弧,淡入 */
+      const mx=(A[0]+B[0])/2,my=(A[1]+B[1])/2,dx=B[0]-A[0],dy=B[1]-A[1];
+      const L=Math.hypot(dx,dy)||1; let nx=-dy/L,ny=dx/L;
+      if((mx-500)*nx+(my-290)*ny<0){nx=-nx;ny=-ny}
+      const bw=L*.30,cx=mx+nx*bw,cy=my+ny*bw;
+      e._el.setAttribute("d",`M${A[0].toFixed(1)} ${A[1].toFixed(1)}Q${cx.toFixed(1)} ${cy.toFixed(1)} ${B[0].toFixed(1)} ${B[1].toFixed(1)}`);
+      e._el.style.strokeOpacity=(prog*.5).toFixed(2);
+      return;
+    }
+    const k=Math.max(0,Math.min(1,(prog-i*.045)/(1-Math.min(.5,curEdges.length*.045))));
+    e._el.setAttribute("d",`M${A[0].toFixed(1)} ${A[1].toFixed(1)}L${lerp(A[0],B[0],k).toFixed(1)} ${lerp(A[1],B[1],k).toFixed(1)}`);
+    if(e.gold){const on=F(e.a)._heard&&F(e.b)._heard;
+      e._el.setAttribute("stroke-opacity",on?.9:.14)}
+  });
+}
+const OC=[505,318],TH=-16*Math.PI/180,KK=.40,ctv=Math.cos(TH),stv=Math.sin(TH);
+function ringOf(p){const dx=p[0]-OC[0],dy=p[1]-OC[1];
+  const u=dx*ctv+dy*stv,v=(-dx*stv+dy*ctv)/KK;return{a:Math.hypot(u,v),phi:Math.atan2(v,u)}}
+function ptOn(a,phi){const lx=a*Math.cos(phi),ly=a*KK*Math.sin(phi);
+  return[OC[0]+lx*ctv-ly*stv, OC[1]+lx*stv+ly*ctv]}
+function paintOrbits(){
+  const g=$("g-orb");
+  if(view!==0){if(g.childNodes.length)g.innerHTML="";return}
+  if(g.childNodes.length===S.length*2)return;
+  g.innerHTML="";
+  const dg=(TH*180/Math.PI).toFixed(2);
+  S.forEach(d=>{
+    const{a,phi}=ringOf(d._orb);
+    g.appendChild(E("ellipse",{class:"orb",cx:OC[0],cy:OC[1],
+      rx:a.toFixed(1),ry:(a*KK).toFixed(1),
+      transform:`rotate(${dg} ${OC[0]} ${OC[1]})`}));
+    const sw=(2026-d.pv)*2.7*Math.PI/180, q=ptOn(a,phi-sw);
+    g.appendChild(E("path",{class:"trl",
+      d:`M${q[0].toFixed(1)} ${q[1].toFixed(1)} A${a.toFixed(1)} ${(a*KK).toFixed(1)} ${dg} 0 1 ${d._orb[0]} ${d._orb[1]}`}));
+  });
+}
+
+/* ── 声音 + 脉动 ── */
+const au=$("au");let AC,AN,BUF,able=false,cur=null,tried=false,pct=0;
+au.ontimeupdate=()=>{if(!cur)return;
+  pct=au.currentTime/(au.duration||30);
+  if(!cur._heard&&au.currentTime>4)cur._heard=true;};   /* 听过 → 星永久转金 */
+au.onended=()=>{pct=0;$("now").classList.remove("on");cur=null};
+
+/* 圈 = 进度(临时,播完即消) · 金 = 听过(永久)。两件事,两种表达,不重叠。 */
+function goldMix(t){
+  return `rgb(255,${Math.round(255-47*t)},${Math.round(255-117*t)})`}  /* #fff → #ffd08a */
+
+/* 进度环必须包裹住星。星在脉动(鼓点能把它胀到 1.85 倍),
+   所以环不能用静态半径 —— 用主循环里算出的「本帧实际芒尖」_rNow,外扩 22%。 */
+const PR_K=1.22;
+function arcPath(cx,cy,r,p){
+  p=Math.max(0,Math.min(p,0.99993));
+  const a=-Math.PI/2+p*Math.PI*2;
+  return `M${cx.toFixed(2)} ${(cy-r).toFixed(2)}A${r} ${r} 0 ${p>.5?1:0} 1 `
+        +`${(cx+r*Math.cos(a)).toFixed(2)} ${(cy+r*Math.sin(a)).toFixed(2)}`;
+}
+function paintProg(){
+  const bg=$("progbg"), ar=$("progarc");
+  if(!cur){bg.setAttribute("stroke-opacity",0);ar.setAttribute("stroke-opacity",0);return}
+  const[x,y]=cur.p, r=(cur._rNow||cur._r*3.2*cur.sc)*PR_K;
+  bg.setAttribute("cx",x.toFixed(2));bg.setAttribute("cy",y.toFixed(2));
+  bg.setAttribute("r",r.toFixed(2));bg.setAttribute("stroke-opacity",.22);
+  ar.setAttribute("d",arcPath(x,y,r,pct));
+  ar.setAttribute("stroke-opacity",pct>0?.92:0);
+}
+function initAN(){if(AC)return;try{
+  AC=new(window.AudioContext||window.webkitAudioContext)();
+  const s=AC.createMediaElementSource(au);AN=AC.createAnalyser();
+  AN.fftSize=256;AN.smoothingTimeConstant=.55;s.connect(AN);AN.connect(AC.destination);
+  BUF=new Uint8Array(AN.frequencyBinCount);able=true}catch(e){able=false}}
+function play(d){
+  if(!d.u)return;cur=d;$("now").classList.add("on");
+  document.querySelector("#now .t").textContent=d.tr+" — "+d.ar;
+  document.querySelector("#now .s").textContent=d.pv+" 届";
+  if(!tried){tried=true;au.crossOrigin="anonymous"}
+  au.src=d.u;
+  au.play().then(()=>{initAN();if(AC&&AC.state==="suspended")AC.resume()})
+   .catch(()=>{au.removeAttribute("crossorigin");able=false;au.src=d.u;au.play().catch(()=>{})})}
+
+/* ── 信息卡 ── */
+function show(d,e){
+  const dr=d.dr.map(([n,b,dd,t])=>{const life=b?` ${b}${dd?"–"+dd:""}`:"";
+    const also=(DRUM[n]||[]).filter(v=>v!==d.al);
+    return n+life+(t?" · "+t:"")+(also.length?` <em>· ${also.join(" / ")}</em>`:"")}).join("<br>");
+  $("info").innerHTML=`<div class="y">${d.pv} 届${d.dip?" · "+d.dip:""}${d._cygName&&view===2?" · "+d._cygName:""}</div>
+   <div class="a">${d.al}</div><div class="b">${d.ar} <span style="color:#33404f">· 发行 ${d.y}</span></div>
+   <div class="c">${dr}${d.note?"<br>"+d.note:""}${d.u?"":'<br><span class="x">✕ '+d.x+'</span>'}</div>
+   ${d.q?'<div class="q">'+d.q+'</div>':""}`;
+  $("info").classList.add("show");
+  const mine=new Set(d.dr.map(v=>v[0]));
+  S.forEach(o=>{if(o!==d&&o.dr.some(v=>mine.has(v[0])))o._s.setAttribute("fill-opacity",1)});
+  /* 同一位鼓手:悬停才画弧 */
+  const g=$("g-kin");g.innerHTML="";
+  KIN.filter(([a,b])=>a===d.al||b===d.al||mine.has(0)).forEach(([a,b,n])=>{
+    if(!mine.has(n))return;
+    const A=F(a).p,B=F(b).p,mx=(A[0]+B[0])/2,my=(A[1]+B[1])/2;
+    const dx=B[0]-A[0],dy=B[1]-A[1],L=Math.hypot(dx,dy)||1;
+    let nx=-dy/L,ny=dx/L; if((mx-500)*nx+(my-258)*ny<0){nx=-nx;ny=-ny}
+    const bw=L*.28,p=E("path",{class:"lnk kin",
+      d:`M${A[0].toFixed(1)} ${A[1].toFixed(1)}Q${(mx+nx*bw).toFixed(1)} ${(my+ny*bw).toFixed(1)} ${B[0].toFixed(1)} ${B[1].toFixed(1)}`});
+    p.style.stroke=KINCOL[n]||"#8fd8c4"; g.appendChild(p)});
+  mv(e)}
+function mv(e){const i=$("info"),w=$("skywrap").getBoundingClientRect();
+ let x=e.clientX-w.left+16,y=e.clientY-w.top+14;
+ if(x+300>w.width)x=e.clientX-w.left-306;if(y+156>w.height)y=e.clientY-w.top-162;
+ i.style.left=x+"px";i.style.top=y+"px"}
+function hide(){$("info").classList.remove("show");$("g-kin").innerHTML="";
+ S.forEach(o=>o._s.setAttribute("fill-opacity",o._heard?1:.38))}
+
+/* ── 主循环 ── */
+const T0=performance.now();
+(function loop(){
+  requestAnimationFrame(loop);
+  /* 转场 */
+  if(anim){
+    const el=performance.now()-anim.t0;
+    if(el<T_BREAK){                                  /* 断 */
+      const k=1-el/T_BREAK; $("g-lnk").style.opacity=k;
+      $("g-orb").style.opacity=k;$("g-trl").style.opacity=k;
+    }else if(el<T_BREAK+T_MOVE){                     /* 移:视差 */
+      const t=ease((el-T_BREAK)/T_MOVE);
+      S.forEach((d,i)=>{d.p[0]=lerp(anim.from[i][0],anim.to[i][0],t);
+                        d.p[1]=lerp(anim.from[i][1],anim.to[i][1],t);
+                        d.sc =lerp(anim.from[i][2],anim.to[i][2],t)});
+      farRot=lerp(anim.r0,farTarget,t);              /* 远景只转一点点 */
+      $("g-lnk").style.opacity=0;
+    }else{                                           /* 连 */
+      const t=Math.min(1,(el-T_BREAK-T_MOVE)/T_LINK);
+      S.forEach((d,i)=>{d.p[0]=anim.to[i][0];d.p[1]=anim.to[i][1];d.sc=anim.to[i][2]});
+      farRot=farTarget;
+      $("g-lnk").style.opacity=1;$("g-orb").style.opacity=1;$("g-trl").style.opacity=1;
+      paintOrbits(); paintLinks(t);
+      if(el>T_ALL)anim=null;
+    }
+  }else if(view>=0){ paintOrbits(); paintLinks(1) }
+  $("far").setAttribute("transform",`rotate(${farRot.toFixed(2)} 480 300)`);
+
+  /* 脉动 */
+  let e=0;
+  if(cur&&!au.paused){
+    if(able&&AN){AN.getByteFrequencyData(BUF);let s=0;for(let i=0;i<8;i++)s+=BUF[i];
+      e=Math.min(1,Math.max(0,(s/8-96)/110))}
+    else e=(.5+.5*Math.sin((performance.now()-T0)/1000*Math.PI*2*112/60))*.55}
+
+  /* 预告的闪:112 BPM 呼吸 ×1.25 = 2.33 Hz。改快慢就改 PV_HZ */
+  const pvW=.775+.225*Math.sin((performance.now()-T0)/1000*2*Math.PI*PV_HZ);
+  S.forEach(d=>{
+    /* 金 = 听过,永久;柔和过渡约 0.5 秒,不硬切 */
+    d._g += ((d._heard?1:0)-d._g)*0.035;
+    const pv=d._pv?pvW:0;                              /* 预告:放大加亮闪,不套圈 */
+    const[x,y]=d.p, big=(d===cur)?1+e*.85:1, r=d._r*big*d.sc*(1+pv*0.45);
+    d._rNow=r*3.2;                       /* 本帧实际芒尖半径,给进度环用 */
+    d._s.setAttribute("d",spike(x.toFixed(1),y.toFixed(1),r));
+    d._s.setAttribute("fill",d._g>.01?goldMix(d._g):"#fff");
+    d._h.setAttribute("cx",x.toFixed(1));d._h.setAttribute("cy",y.toFixed(1));
+    d._h.setAttribute("r",(r*4.2).toFixed(1));
+    d._h.setAttribute("fill",(d.dip&&view===1)?"url(#hg)":"url(#h)");
+    d._hg.setAttribute("cx",x.toFixed(1));d._hg.setAttribute("cy",y.toFixed(1));
+    d._hg.setAttribute("r",(r*5.4).toFixed(1));
+    d._hg.setAttribute("fill-opacity",(d._g*0.9).toFixed(3));
+    d._t.setAttribute("cx",x.toFixed(1));d._t.setAttribute("cy",y.toFixed(1));
+    if(!cur||d!==cur)d._s.setAttribute("fill-opacity",
+      Math.min(1,((d._heard||pv)?1:.42)*(0.55+0.55*d.sc)));
+  });
+  paintProg();
+  driftDust();
+})();
+
+layout();
+$("gate").onclick=()=>{play(F(OPEN));$("gate").classList.add("off");
+  setTimeout(()=>{$("app").classList.add("on");setView(0)},450)};
+document.querySelectorAll("#modes button").forEach(b=>{
+  const m=+b.dataset.m;
+  b.onclick=()=>{preview(m,false);setView(m)};
+  b.onmouseenter=()=>preview(m,true);
+  b.onmouseleave=()=>preview(m,false);
+});
+onkeydown=e=>{if(e.key==="ArrowRight")setView(Math.min(2,view+1));
+ if(e.key==="ArrowLeft")setView(Math.max(0,view-1))};
+</script>
+</body>
+</html>

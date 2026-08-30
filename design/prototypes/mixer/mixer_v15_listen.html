@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>星座只是地球的视角</title>
+<style>
+  :root{
+    --sky:#050810;
+    --ink:#e9eff7; --ink2:#8fa2b8; --ink3:#4c5d72; --ink4:#2f3d4e;
+    --line:#b9c4f0;      /* 人连的线 */
+    --orbit:#e5a8b4;     /* 天转的轨道 */
+    --gold:#ffd08a;      /* 北斗 */
+    --kin:#8fd8c4;       /* 同一位鼓手 */
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  body{background:var(--sky);color:var(--ink);user-select:none;
+    font-family:"PingFang SC","Hiragino Sans GB",ui-sans-serif,system-ui,sans-serif}
+
+  /* ---------- 开场:先听见,再看见 ---------- */
+  #gate{position:fixed;inset:0;z-index:100;background:var(--sky);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:opacity 1.6s ease}
+  #gate.off{opacity:0;pointer-events:none}
+  #gate svg{width:120px;height:120px;overflow:visible}
+  @keyframes breathe{
+    0%,100%{transform:scale(1);opacity:.55}
+    50%{transform:scale(1.5);opacity:1}}
+  #gate .g{transform-origin:center;animation:breathe 3.4s ease-in-out infinite}
+
+  /* ---------- 主体 ---------- */
+  #app{height:100vh;display:flex;flex-direction:column;padding:14px 24px 16px;gap:6px;
+    opacity:0;transition:opacity 1.4s ease .5s}
+  #app.on{opacity:1}
+  #skywrap{flex:1 1 auto;position:relative;min-height:0}
+  svg#sky{width:100%;height:100%;display:block}
+
+  .bgdot{fill:#93a6bb}
+  .swal{fill:none;stroke:var(--line);stroke-width:1;stroke-opacity:.10;
+    stroke-linejoin:round;stroke-linecap:round}
+  .link{fill:none;stroke:var(--line);stroke-width:1.5;stroke-opacity:.55;
+    stroke-linecap:round;stroke-linejoin:round}
+  .dip{fill:none;stroke:var(--gold);stroke-width:1.7;stroke-opacity:.85;
+    stroke-linecap:round;stroke-linejoin:round}
+  .orbit{fill:none;stroke:var(--orbit);stroke-width:.8;stroke-opacity:.14}
+  .tail{fill:none;stroke:var(--orbit);stroke-width:1.5;stroke-opacity:.6;stroke-linecap:round}
+  .kin{pointer-events:none;transition:stroke-opacity .22s}
+  .glow{pointer-events:none}
+  .star{pointer-events:none;transition:fill-opacity .9s}
+  .hit{fill:transparent;cursor:pointer}
+  .lab{font-size:9px;fill:var(--ink4);pointer-events:none;opacity:0;
+    transition:opacity .3s;font-variant-numeric:tabular-nums}
+  .lab.show{opacity:1}
+
+  /* ---------- 调音台 ---------- */
+  #deck{flex:0 0 auto;display:flex;align-items:center;gap:20px;
+    background:linear-gradient(180deg,#0d1422 0%,#070b14 100%);
+    border:1px solid rgba(147,166,187,.11);border-radius:10px;padding:11px 18px 13px}
+  #now{flex:1 1 auto;min-width:0;display:flex;align-items:baseline;gap:10px;opacity:.55;
+    transition:opacity .4s}
+  #now.on{opacity:1}
+  #now .t{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #now .s{font-size:10.5px;color:var(--ink3);white-space:nowrap}
+  #bar{flex:0 0 132px;height:2px;background:rgba(147,166,187,.16);border-radius:2px;overflow:hidden}
+  #bar i{display:block;height:100%;width:0;background:var(--gold);border-radius:2px}
+  #modes{display:flex;flex:0 0 auto}
+  #modes button{background:none;border:none;color:var(--ink3);cursor:pointer;font-family:inherit;
+    font-size:11.5px;letter-spacing:.12em;padding:5px 14px;transition:color .25s;
+    border-left:1px solid rgba(147,166,187,.11)}
+  #modes button:first-child{border-left:none}
+  #modes button.on{color:var(--gold);font-weight:700}
+  /* 七颗的进度:不写字,只有七个点 */
+  #seven{flex:0 0 auto;display:flex;gap:5px;align-items:center}
+  #seven i{width:4px;height:4px;border-radius:50%;background:var(--ink4);transition:background .6s,box-shadow .6s}
+  #seven i.on{background:var(--gold);box-shadow:0 0 6px rgba(255,208,138,.8)}
+
+  /* ---------- 信息卡 ---------- */
+  #info{position:absolute;pointer-events:none;z-index:20;opacity:0;transition:opacity .16s;
+    background:rgba(6,10,20,.95);border:1px solid rgba(147,166,187,.18);border-radius:8px;
+    padding:10px 13px;max-width:284px;backdrop-filter:blur(8px)}
+  #info.show{opacity:1}
+  #info .y{font-size:10px;color:var(--gold);letter-spacing:.12em;font-weight:700}
+  #info .a{font-size:13px;margin:3px 0 1px;line-height:1.35}
+  #info .b{font-size:11px;color:var(--ink2)}
+  #info .c{font-size:10.5px;color:var(--ink3);margin-top:7px;padding-top:7px;line-height:1.65;
+    border-top:1px solid rgba(147,166,187,.12)}
+  #info .c em{font-style:normal;color:var(--kin)}
+  #info .q{font-size:10.5px;color:var(--ink2);margin-top:6px;line-height:1.7;font-style:italic}
+  #info .x{color:#e0a97e}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <svg viewBox="-60 -60 120 120"><g class="g">
+    <circle r="26" fill="#cfe6f5" fill-opacity=".10"/>
+    <path fill="#fff" d="M0 -13 C2.6 -3.9 3.9 -2.6 13 0 C3.9 2.6 2.6 3.9 0 13 C-2.6 3.9 -3.9 2.6 -13 0 C-3.9 -2.6 -2.6 -3.9 0 -13 Z"/>
+  </g></svg>
+</div>
+
+<div id="app">
+  <div id="skywrap">
+    <svg id="sky" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet">
+      <g id="g-bg"></g><g id="g-swal"></g><g id="g-orbit"></g><g id="g-tail"></g>
+      <g id="g-link"></g><g id="g-dip"></g><g id="g-star"></g><g id="g-lab"></g><g id="g-hit"></g>
+    </svg>
+    <div id="info"></div>
+  </div>
+  <div id="deck">
+    <div id="now"><span class="t"></span><span class="s"></span></div>
+    <div id="bar"><i></i></div>
+    <div id="seven"></div>
+    <div id="modes">
+      <button data-m="0" class="on">燕</button>
+      <button data-m="1">鼓手</button>
+      <button data-m="2">星轨</button>
+    </div>
+  </div>
+</div>
+
+<audio id="au"></audio>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   占位数据 = Davis 票选 20 张(待换 DownBeat)
+   lit  亮度档 = 跨榜命中数 3/2/1(DownBeat + Davis + 格莱美获奖)
+   dip  = 我们挑的七首 —— 这是我们的视角,不是数据算出来的
+   q    = 乐评人写鼓的原话(借来的,不是我们写的);没有就留空
+   ═══════════════════════════════════════════════════════════════ */
+const P="https://audio-ssl.itunes.apple.com/itunes-assets/";
+const S=[
+{y:2006,al:"Sound Grammar",ar:"Ornette Coleman",p:[692,296],g:"sax",lit:2,dip:"天枢",
+ dr:[["Denardo Coleman",1956]],
+ u:P+"Music/v4/26/a8/30/26a830c5-5ceb-3bf3-8adf-789837c8492f/mzaf_8181021655787780711.plus.aac.p.m4a",
+ tr:"Sleep Talking"},
+{y:2007,al:"Sky Blue",ar:"Maria Schneider",p:[447,236],g:"comp",lit:2,dip:"玉衡",
+ dr:[["Clarence Penn",1968]],
+ u:P+"Music2/v4/f2/33/c1/f233c152-32ff-086c-610b-701e0e79cbe5/mzaf_1030507276110813604.plus.aac.p.m4a",
+ tr:"Cerulean Skies"},
+{y:2008,al:"Road Shows, Vol. 1",ar:"Sonny Rollins",p:[737,280],g:"sax",lit:2,
+ dr:[["Roy Haynes",1925,2024],["Al Foster",1943,2025],["Steve Jordan",1957],["Perry Wilson",null]],
+ u:null,x:"全球下架"},
+{y:2009,al:"Historicity",ar:"Vijay Iyer",p:[382,248],g:"pno",lit:2,
+ dr:[["Marcus Gilmore",1986]],
+ u:P+"AudioPreview115/v4/b1/03/35/b10335c0-feeb-fd28-0acb-0ae510fb9e61/mzaf_4697549408838661274.plus.aac.p.m4a",
+ tr:"Historicity",q:"切分小鼓的击打,撞上贝斯弓弦的呻吟与双音拨奏。 — PopMatters"},
+{y:2010,al:"Ten",ar:"Jason Moran",p:[318,206],g:"pno",lit:2,
+ dr:[["Nasheet Waits",1971]],
+ u:P+"AudioPreview115/v4/cf/f3/42/cff34277-330f-5dcb-d979-8483c65b7398/mzaf_8180937352554969913.plus.aac.p.m4a",
+ tr:"Crepuscule With Nellie",q:"钢琴与鼓不断变换力度、绕着拍点起舞,而贝斯死死咬住它。 — Francis Davis"},
+{y:2011,al:"Road Shows, Vol. 2",ar:"Sonny Rollins",p:[452,382],g:"sax",lit:1,
+ dr:[["Roy Haynes",1925,2024],["Kobie Watkins",1975]],
+ u:null,x:"全球下架"},
+{y:2012,al:"Accelerando",ar:"Vijay Iyer",p:[352,181],g:"pno",lit:2,dip:"开阳",
+ dr:[["Marcus Gilmore",1986]],
+ u:P+"AudioPreview115/v4/0c/80/76/0c8076a7-ca94-cf2b-ec5c-7049b89ce3be/mzaf_8436248345337857613.plus.aac.p.m4a",
+ tr:"Human Nature (Trio Extension)",q:"听他猛击、轻抚、交叉打网、层层叠加。 — NPR"},
+{y:2013,al:"Without a Net",ar:"Wayne Shorter",p:[552,439],g:"sax",lit:2,dip:"天玑",
+ dr:[["Brian Blade",1970]],
+ u:P+"AudioPreview115/v4/99/f3/05/99f3057a-326b-0125-22d2-3b04700b2527/mzaf_15214274710547283164.plus.aac.p.m4a",
+ tr:"Orbits",q:"与长期合作的节奏组之间,近乎心灵感应的互动。"},
+{y:2014,al:"Mise en Abîme",ar:"Steve Lehman",p:[300,332],g:"sax",lit:1,
+ dr:[["Tyshawn Sorey",1980]],
+ u:P+"AudioPreview115/v4/7d/31/f5/7d31f5f1-14d0-27ec-bd2b-b57c7ed3c803/mzaf_4010595820569483602.plus.aac.p.m4a",
+ tr:"Segregated and Sequential",q:"鼓点那种俏皮的僵腿式步态。 — Francis Davis"},
+{y:2015,al:"Bird Calls",ar:"Rudresh Mahanthappa",p:[266,456],g:"sax",lit:2,
+ dr:[["Rudy Royston",null]],
+ u:P+"AudioPreview125/v4/99/64/5a/99645ace-a9e5-f9f9-f6c8-01b6754fa144/mzaf_3014805104328615474.plus.aac.p.m4a",
+ tr:"On the DL"},
+{y:2016,al:"Old Locks and Irregular Verbs",ar:"Henry Threadgill",p:[516,262],g:"comp",lit:1,
+ dr:[["Craig Weinrib",null]],
+ u:P+"AudioPreview125/v4/91/8d/fe/918dfe95-0bbd-3c14-0e82-c45d632ec24b/mzaf_3472288378636203486.plus.aac.p.m4a",
+ tr:"Part One"},
+{y:2017,al:"Far From Over",ar:"Vijay Iyer",p:[305,140],g:"pno",lit:1,
+ dr:[["Tyshawn Sorey",1980]],
+ u:P+"AudioPreview115/v4/47/ec/cc/47eccc22-4322-7149-8f5a-1e5f62614650/mzaf_18368628572557381549.plus.aac.p.m4a",
+ tr:"Poles",q:"从一段低声的 vamp,建成一台咔嗒作响的机械芭蕾。 — Rolling Stone"},
+{y:2018,al:"Emanon",ar:"Wayne Shorter",p:[693,442],g:"sax",lit:3,dip:"天璇",
+ dr:[["Brian Blade",1970]],
+ u:P+"AudioPreview125/v4/30/e1/8f/30e18fe0-e592-c36c-2ad5-223cba138d05/mzaf_16031007953832573930.plus.aac.p.m4a",
+ tr:"Pegasus"},
+{y:2019,al:"Diatom Ribbons",ar:"Kris Davis",p:[410,210],g:"pno",lit:1,
+ dr:[["Terri Lyne Carrington",1965]],
+ u:P+"AudioPreview211/v4/a5/8f/ca/a58fcac4-bcf8-4991-9c63-f73996fe1b53/mzaf_6488056907950131255.plus.aac.p.m4a",
+ tr:"Diatom Ribbons",q:"加料钢琴与鼓,以细微的错位搭出一段钻探式的节奏。 — DownBeat"},
+{y:2020,al:"Data Lords",ar:"Maria Schneider",p:[462,288],g:"comp",lit:3,
+ dr:[["Johnathan Blake",1976]],
+ u:null,x:"艺人拒绝上流媒体"},
+{y:2021,al:"Jesup Wagon",ar:"James Brandon Lewis",p:[540,300],g:"sax",lit:2,dip:"天权",
+ dr:[["Chad Taylor",1973]],
+ u:P+"AudioPreview124/v4/50/eb/8a/50eb8a3a-dda0-774f-6a64-b7fd4870f94e/mzaf_7677527122179805057.plus.aac.p.m4a",
+ tr:"Jesup Wagon",q:"乐队欢腾地列队进场,像一支新奥尔良游行队伍。 — DownBeat"},
+{y:2022,al:"Amaryllis",ar:"Mary Halvorson",p:[250,90],g:"gtr",lit:2,dip:"摇光",
+ dr:[["Tomas Fujiwara",1977]],
+ u:P+"AudioPreview122/v4/94/42/f7/9442f76d-3430-5c27-cf06-0cbfc4ab3f3c/mzaf_2151578293423039107.plus.aac.p.m4a",
+ tr:"Night Shift",q:"固定音型让整支乐队像一只上过头的钟那样嘀嗒作响。 — DownBeat"},
+{y:2023,al:"For Mahalia, With Love",ar:"James Brandon Lewis",p:[778,262],g:"sax",lit:1,
+ dr:[["Chad Taylor",1973]],
+ u:P+"AudioPreview116/v4/8e/d5/d4/8ed5d419-b79a-68a9-a4f8-8792eb7fd233/mzaf_7834106441683298482.plus.aac.p.m4a",
+ tr:"Calvary",q:"时而遮蔽节拍,时而加一条对位线,时而是走走停停的打击乐表层。 — All About Jazz"},
+{y:2024,al:"Breaking Stretch",ar:"Patricia Brennan",p:[796,249],g:"vib",lit:2,
+ dr:[["Marcus Gilmore",1986],["Mauricio Herrera",null,null,"打击乐"]],
+ u:P+"AudioPreview221/v4/f4/94/34/f49434e4-812d-3b55-fbcb-2cf04c26a45d/mzaf_15770357953061205629.plus.aac.p.m4a",
+ tr:"Five Suns",q:"把时间组合拆开,织出一张 clave 网,立刻把你吸进去。 — DownBeat"},
+{y:2025,al:"About Ghosts",ar:"Mary Halvorson",p:[205,130],g:"gtr",lit:1,
+ dr:[["Tomas Fujiwara",1977]],
+ u:P+"AudioPreview211/v4/8d/77/ab/8d77ab59-bb55-d76d-06c7-9bf5986f17da/mzaf_1721883823067216759.plus.aac.p.m4a",
+ tr:"Carved From"},
+];
+const OPEN=2021;                       /* 开场那一首 */
+const DIP=[2022,2012,2007,2021,2013,2018,2006];   /* 北斗:开口折线,勺子不封口 */
+
+/* 共享鼓手索引 —— 数据自己算 */
+const DRUM={}; S.forEach(d=>d.dr.forEach(([n])=>{(DRUM[n]=DRUM[n]||[]).push(d.y)}));
+const KIN=[]; Object.values(DRUM).forEach(ys=>{
+  if(ys.length>1) for(let i=1;i<ys.length;i++) KIN.push([ys[i-1],ys[i]]);
+});
+
+const SWALLOW=[
+ [2023,2006,2021,2011,2013,2018,2008,2023],   /* 躯干 */
+ [2011,2014],[2011,2015],                      /* 尾叉 */
+ [2021,2016],                                  /* 接肩 */
+ [2016,2007,2019,2012,2017,2022,2025,2010,2009,2020,2016]  /* 翅膀 */
+];
+const MODE={0:SWALLOW,1:KIN.map(e=>[e[0],e[1]]),2:[]};
+
+const NS="http://www.w3.org/2000/svg";
+const E=(t,a={})=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e};
+const $=i=>document.getElementById(i);
+const F=y=>S.find(s=>s.y===y);
+const R=d=>({3:8.2,2:5.6,1:3.8})[d.lit];
+function sp(cx,cy,r){const w=r*.20,q=r*.30;
+ return `M${cx} ${cy-r}C${cx+w} ${cy-q} ${cx+q} ${cy-w} ${cx+r} ${cy}`
+  +`C${cx+q} ${cy+w} ${cx+w} ${cy+q} ${cx} ${cy+r}`
+  +`C${cx-w} ${cy+q} ${cx-q} ${cy+w} ${cx-r} ${cy}`
+  +`C${cx-q} ${cy-w} ${cx-w} ${cy-q} ${cx} ${cy-r}Z`}
+
+/* ── 背景 ── */
+(()=>{let s=20260731;const rn=()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff};
+ const g=$("g-bg"); BG=[];
+ for(let i=0;i<340;i++){const c=E("circle",{class:"bgdot",cx:(rn()*1000).toFixed(1),
+   cy:(rn()*560).toFixed(1),r:(.3+rn()*.75).toFixed(2)});
+   c._o=.07+rn()*.24; c.setAttribute("fill-opacity",c._o); g.appendChild(c); BG.push(c);}})();
+var BG;
+
+/* ── 燕的常驻淡轮廓 ── */
+SWALLOW.forEach(ch=>$("g-swal").appendChild(E("path",{class:"swal",
+  d:ch.map((y,i)=>(i?"L":"M")+F(y).p[0]+" "+F(y).p[1]).join(" ")})));
+
+/* ── 画星 ── */
+const gS=$("g-star");
+S.forEach(d=>{
+  const [x,y]=d.p, r=R(d);
+  d._r=r; d._heard=false;
+  d._g=E("circle",{class:"glow",cx:x,cy:y,r:r*1.9,fill:"#dceaf7","fill-opacity":.04});
+  d._s=E("path",{class:"star",d:sp(x,y,r),fill:"#fff","fill-opacity":.20});
+  d._k=E("circle",{class:"kin",cx:x,cy:y,r:r*2.5,fill:"none",stroke:"var(--kin)",
+    "stroke-width":1,"stroke-opacity":0});
+  gS.appendChild(d._g);gS.appendChild(d._s);gS.appendChild(d._k);
+  d._l=E("text",{class:"lab",x:x+r+5,y:y+3.5});d._l.textContent=d.y;$("g-lab").appendChild(d._l);
+  const h=E("circle",{class:"hit",cx:x,cy:y,r:Math.max(17,r*2.4)});
+  h.onmouseenter=e=>show(d,e); h.onmousemove=mv; h.onmouseleave=hide;
+  h.onclick=()=>play(d);
+  $("g-hit").appendChild(h);
+});
+
+/* ── 七个点 ── */
+DIP.forEach(()=>$("seven").appendChild(document.createElement("i")));
+function sevenUp(){
+  const n=DIP.filter(y=>F(y)._heard).length;
+  [...$("seven").children].forEach((e,i)=>e.classList.toggle("on",i<n));
+  if(n===DIP.length) drawDipper();
+}
+
+/* ── 信息卡 ── */
+function show(d,e){
+  const dr=d.dr.map(([n,b,dd,t])=>{
+    const life=b?` ${b}${dd?"–"+dd:""}`:"";
+    const also=(DRUM[n]||[]).filter(v=>v!==d.y);
+    return n+life+(t?" · "+t:"")+(also.length?` <em>· ${also.join(" / ")}</em>`:"");
+  }).join("<br>");
+  $("info").innerHTML=`<div class="y">${d.y}${d.dip?" · "+d.dip:""}</div>
+   <div class="a">${d.al}</div><div class="b">${d.ar}</div>
+   <div class="c">${dr}${d.u?"":'<br><span class="x">✕ '+d.x+'</span>'}</div>
+   ${d.q?'<div class="q">'+d.q+'</div>':""}`;
+  $("info").classList.add("show");
+  const mine=new Set(d.dr.map(v=>v[0]));
+  S.forEach(o=>o._k.setAttribute("stroke-opacity",(o!==d&&o.dr.some(v=>mine.has(v[0])))?.7:0));
+  mv(e);
+}
+function mv(e){const i=$("info"),w=$("skywrap").getBoundingClientRect();
+ let x=e.clientX-w.left+16,y=e.clientY-w.top+14;
+ if(x+296>w.width)x=e.clientX-w.left-302; if(y+150>w.height)y=e.clientY-w.top-156;
+ i.style.left=x+"px";i.style.top=y+"px"}
+function hide(){$("info").classList.remove("show");
+ S.forEach(o=>o._k.setAttribute("stroke-opacity",0))}
+
+/* ═══════════ 声音 + 脉动 ═══════════ */
+const au=$("au"); let AC,AN,BUF,analysable=false,cur=null,corsTried=false;
+au.addEventListener("timeupdate",()=>{
+  if(!cur)return;
+  const pct=au.duration?au.currentTime/au.duration:0;
+  document.querySelector("#bar i").style.width=(pct*100)+"%";
+  if(!cur._heard&&au.currentTime>4){cur._heard=true;lightUp(cur);sevenUp();}
+});
+au.addEventListener("ended",()=>{document.querySelector("#bar i").style.width="0%";
+  $("now").classList.remove("on");cur=null});
+
+function lightUp(d){d._s.setAttribute("fill-opacity",1);d._g.setAttribute("fill-opacity",.16)}
+
+function initAnalyser(){
+  if(AC)return;
+  try{
+    AC=new (window.AudioContext||window.webkitAudioContext)();
+    const src=AC.createMediaElementSource(au);
+    AN=AC.createAnalyser(); AN.fftSize=256; AN.smoothingTimeConstant=.55;
+    src.connect(AN); AN.connect(AC.destination);
+    BUF=new Uint8Array(AN.frequencyBinCount); analysable=true;
+  }catch(err){analysable=false}
+}
+
+function play(d){
+  if(!d.u)return;
+  cur=d;
+  $("now").classList.add("on");
+  document.querySelector("#now .t").textContent=d.tr+" — "+d.ar;
+  document.querySelector("#now .s").textContent=d.y;
+  if(!corsTried){corsTried=true;au.crossOrigin="anonymous"}
+  au.src=d.u;
+  au.play().then(()=>{initAnalyser();if(AC&&AC.state==="suspended")AC.resume()})
+   .catch(()=>{ /* CORS 拦了音频:去掉 crossOrigin 重来,脉动退回合成 */
+      au.removeAttribute("crossorigin"); analysable=false;
+      au.src=d.u; au.play().catch(()=>{});
+   });
+}
+
+/* 脉动:优先真实鼓点包络;拿不到就合成呼吸 */
+let t0=performance.now();
+function pulse(){
+  requestAnimationFrame(pulse);
+  let e=0;
+  if(cur&&!au.paused){
+    if(analysable&&AN){
+      AN.getByteFrequencyData(BUF);
+      let s=0;for(let i=0;i<8;i++)s+=BUF[i];       /* 低频 = 底鼓/军鼓体 */
+      e=Math.min(1,Math.max(0,(s/8-96)/110));
+    }else{
+      e=.5+.5*Math.sin((performance.now()-t0)/1000*Math.PI*2*(112/60));
+      e*=.55;
+    }
+  }
+  if(cur){
+    const r=cur._r*(1+e*.85);
+    cur._s.setAttribute("d",sp(cur.p[0],cur.p[1],r));
+    cur._g.setAttribute("r",r*1.9);
+    cur._g.setAttribute("fill-opacity",.16+e*.34);
+  }
+  const g=e*.5;
+  for(let i=0;i<BG.length;i++)BG[i].setAttribute("fill-opacity",(BG[i]._o*(1+g)).toFixed(3));
+}
+pulse();
+
+/* ═══════════ 连线 ═══════════ */
+const gL=$("g-link"),gO=$("g-orbit"),gT=$("g-tail"),gD=$("g-dip");
+let mode=-1,busy=0;
+
+function chains(m){
+  gL.innerHTML="";
+  MODE[m].forEach((ch,i)=>{
+    const p=E("path",{class:"link",d:ch.map((y,j)=>(j?"L":"M")+F(y).p[0]+" "+F(y).p[1]).join(" ")});
+    gL.appendChild(p);
+    const L=p.getTotalLength();
+    p.style.strokeDasharray=L;p.style.strokeDashoffset=L;
+    p.style.transition=`stroke-dashoffset .7s cubic-bezier(.4,0,.25,1) ${i*70}ms`;
+    requestAnimationFrame(()=>p.style.strokeDashoffset=0);
+  });
+}
+function retract(cb){
+  const ps=[...gL.querySelectorAll("path")];if(!ps.length)return cb();
+  ps.forEach((p,i)=>{p.style.transition=`stroke-dashoffset .3s ease-in ${i*30}ms`;
+    p.style.strokeDashoffset=p.getTotalLength()});
+  setTimeout(cb,310+ps.length*30);
+}
+/* 星轨:倾斜同心椭圆 */
+const OC=[505,318],TH=-16*Math.PI/180,K=.40,ct=Math.cos(TH),st=Math.sin(TH);
+function ring(p){const dx=p[0]-OC[0],dy=p[1]-OC[1];
+  const u=dx*ct+dy*st,v=(-dx*st+dy*ct)/K;return{a:Math.hypot(u,v),phi:Math.atan2(v,u)}}
+function on(a,phi){const lx=a*Math.cos(phi),ly=a*K*Math.sin(phi);
+  return[OC[0]+lx*ct-ly*st,OC[1]+lx*st+ly*ct]}
+function orbits(go){
+  gO.innerHTML="";gT.innerHTML="";if(!go)return;
+  const dg=(TH*180/Math.PI).toFixed(2);
+  S.forEach((d,i)=>{
+    const{a,phi}=ring(d.p);
+    const el=E("ellipse",{class:"orbit",cx:OC[0],cy:OC[1],rx:a.toFixed(1),ry:(a*K).toFixed(1),
+      transform:`rotate(${dg} ${OC[0]} ${OC[1]})`});
+    gO.appendChild(el);el.style.opacity=0;el.style.transition=`opacity .7s ${i*24}ms`;
+    requestAnimationFrame(()=>el.style.opacity=1);
+    const sw=(2026-d.y)*2.7*Math.PI/180, q=on(a,phi-sw);
+    const t=E("path",{class:"tail",d:`M${q[0].toFixed(1)} ${q[1].toFixed(1)} A${a.toFixed(1)} ${(a*K).toFixed(1)} ${dg} 0 1 ${d.p[0]} ${d.p[1]}`});
+    gT.appendChild(t);const L=t.getTotalLength();
+    t.style.strokeDasharray=L;t.style.strokeDashoffset=L;
+    t.style.transition=`stroke-dashoffset .9s cubic-bezier(.3,0,.3,1) ${i*30}ms`;
+    requestAnimationFrame(()=>t.style.strokeDashoffset=0);
+  });
+}
+/* 北斗:听完七颗才连 */
+let dipDrawn=false;
+function drawDipper(){
+  if(dipDrawn)return;dipDrawn=true;
+  const p=E("path",{class:"dip",d:DIP.map((y,i)=>(i?"L":"M")+F(y).p[0]+" "+F(y).p[1]).join(" ")});
+  gD.appendChild(p);
+  const L=p.getTotalLength();
+  p.style.strokeDasharray=L;p.style.strokeDashoffset=L;
+  p.style.transition="stroke-dashoffset 2.4s cubic-bezier(.35,0,.2,1)";
+  requestAnimationFrame(()=>p.style.strokeDashoffset=0);
+  DIP.forEach(y=>{const d=F(y);d._g.setAttribute("fill",'#ffd08a');d._g.setAttribute("fill-opacity",.24)});
+}
+
+function setMode(m,now){
+  if(busy||m===mode)return;busy=1;mode=m;
+  document.querySelectorAll("#modes button").forEach(b=>b.classList.toggle("on",+b.dataset.m===m));
+  S.forEach(d=>d._l.classList.toggle("show",m!==0));
+  const paint=()=>{orbits(m===2);if(m!==2)chains(m);busy=0};
+  if(now)paint();else{gO.innerHTML="";gT.innerHTML="";retract(paint)}
+}
+document.querySelectorAll("#modes button").forEach(b=>b.onclick=()=>setMode(+b.dataset.m));
+onkeydown=e=>{if(e.key==="ArrowRight")setMode(Math.min(2,mode+1));
+              if(e.key==="ArrowLeft")setMode(Math.max(0,mode-1))};
+
+/* ═══════════ 开场:先听见,再看见 ═══════════ */
+$("gate").onclick=()=>{
+  play(F(OPEN));
+  $("gate").classList.add("off");
+  setTimeout(()=>{$("app").classList.add("on");setMode(0,1)},450);
+};
+</script>
+</body>
+</html>

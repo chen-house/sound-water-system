@@ -3,26 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>声音水系 · 一枚爱听歌的听客</title>
-<meta name="description" content="一枚听客给自己画的音乐谱系。Jazz 1899—1969 · 军鼓鼓面交互。">
-<meta http-equiv="refresh" content="0; url=design/prototypes/snare_dial_v5.html">
-<link rel="canonical" href="design/prototypes/snare_dial_v5.html">
+<title>声音水系 · Sound Water System</title>
+<meta name="description" content="一枚爱听歌的听客,给自己画的音乐谱系。Jazz 1899—1969 军鼓表盘 · DownBeat 2006—2025 星轨播放器。">
+<meta property="og:title" content="声音水系 · Sound Water System">
+<meta property="og:description" content="一枚爱听歌的听客,给自己画的音乐谱系。">
+<meta property="og:image" content="design/covers/mixer.jpg">
 <style>
-  body {
-    margin: 0; min-height: 100vh;
-    display: flex; align-items: center; justify-content: center;
-    font-family: -apple-system, 'Noto Serif SC', serif;
-    background: #ebe1c4; color: #2b1f10;
+  :root{
+    --bg:#0a0d13; --card:#11151d; --line:#1e2530;
+    --ink:#e7ecf3; --ink2:#93a2b5; --ink3:#5b6a7d; --gold:#ffd08a;
+    --serif:"Songti SC","Noto Serif SC","Source Han Serif SC",Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC",Helvetica,Arial,sans-serif;
   }
-  a { color: #8a6e3a; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);
+       -webkit-font-smoothing:antialiased;line-height:1.7}
+  .wrap{max-width:1080px;margin:0 auto;padding:clamp(48px,9vh,110px) clamp(20px,5vw,40px) 72px}
+
+  /* ── 抬头 ── */
+  header{margin-bottom:clamp(40px,7vh,72px)}
+  h1{font-family:var(--serif);font-size:clamp(26px,4.4vw,40px);font-weight:400;
+     letter-spacing:.04em;line-height:1.3}
+  h1 .en{display:block;font-family:var(--sans);font-size:clamp(11px,1.5vw,13px);
+     letter-spacing:.28em;text-transform:uppercase;color:var(--ink3);margin-top:12px}
+  .lede{margin-top:22px;max-width:34em;color:var(--ink2);font-size:clamp(14px,1.6vw,15.5px)}
+  .lede em{font-style:normal;color:var(--ink)}
+
+  /* ── 两件作品 ── */
+  .works{display:grid;gap:clamp(20px,3vw,30px);grid-template-columns:1fr 1fr}
+  @media (max-width:760px){ .works{grid-template-columns:1fr} }
+
+  .work{display:block;text-decoration:none;color:inherit;background:var(--card);
+    border:1px solid var(--line);border-radius:12px;overflow:hidden;
+    transition:transform .28s cubic-bezier(.2,.7,.3,1), border-color .28s}
+  .work:hover{transform:translateY(-3px);border-color:#33404f}
+  .shot{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;
+    background:#070a0f;border-bottom:1px solid var(--line)}
+  .body{padding:20px clamp(18px,2.4vw,24px) 24px}
+  .kicker{font-size:10.5px;letter-spacing:.2em;color:var(--ink3);text-transform:uppercase}
+  .work h2{font-family:var(--serif);font-weight:400;font-size:clamp(19px,2.5vw,23px);
+    margin:9px 0 3px;letter-spacing:.03em}
+  .work h2 .sub{display:block;font-family:var(--sans);font-size:12px;letter-spacing:.14em;
+    color:var(--ink3);margin-top:6px}
+  .desc{color:var(--ink2);font-size:13.5px;margin-top:12px}
+  .meta{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--ink3)}
+  .meta b{font-weight:400;color:var(--ink2)}
+
+  /* ── 副链接:英文版 ── */
+  .alt{margin-top:10px;font-size:11.5px;color:var(--ink3)}
+  .alt a{color:var(--ink3);text-decoration:none;border-bottom:1px solid #26313f}
+  .alt a:hover{color:var(--gold);border-color:var(--gold)}
+
+  /* ── 页脚 ── */
+  footer{margin-top:clamp(48px,8vh,84px);padding-top:26px;border-top:1px solid var(--line);
+    color:var(--ink3);font-size:12px;display:flex;flex-wrap:wrap;gap:8px 22px}
+  footer a{color:var(--ink3);text-decoration:none;border-bottom:1px solid #26313f}
+  footer a:hover{color:var(--ink2)}
 </style>
 </head>
 <body>
-  <p>正在打开声音水系 ·
-    <a href="design/prototypes/snare_dial_v5.html">如果没有自动跳转,点这里</a>
+<div class="wrap">
+
+  <header>
+    <h1>声音水系<span class="en">Sound Water System</span></h1>
+    <p class="lede">
+      一枚爱听歌的听客,给自己画的音乐谱系。<br>
+      两条已经画完的支流:一条往回追到 <em>1899</em>,一条只看最近 <em>二十年</em>。
+      两个页面都能听,都可以直接打开,不需要装任何东西。
+    </p>
+  </header>
+
+  <div class="works">
+
+    <a class="work" href="mixer_v36_open.html">
+      <img class="shot" src="design/covers/mixer.jpg" alt="星轨播放器:二十张年度专辑排成一张星图" loading="lazy">
+      <div class="body">
+        <div class="kicker">DownBeat 2006 — 2025</div>
+        <h2>星轨播放器<span class="sub">A Constellation of Twenty Years</span></h2>
+        <p class="desc">
+          DownBeat 国际乐评人票选的二十张年度专辑,按真实的赤经赤纬排成一张星图,
+          星的大小取自真实视星等。三个视角:全部二十张 / 用耳朵挑的北斗七首 / 按鼓挑的天鹅八首。
+          听过的星会变金,星座的连线是被听出来的。
+        </p>
+        <div class="meta">
+          <span><b>23</b> 张唱片</span>
+          <span><b>20</b> 位鼓手</span>
+          <span>中 / EN 切换</span>
+        </div>
+      </div>
+    </a>
+
+    <a class="work" href="design/prototypes/snare_dial_v5.html">
+      <img class="shot" src="design/covers/snare.jpg" alt="军鼓表盘:九根张力杆标出八个爵士流派的年份" loading="lazy">
+      <div class="body">
+        <div class="kicker">Jazz 1899 — 1969</div>
+        <h2>军鼓表盘<span class="sub">The Snare Dial</span></h2>
+        <p class="desc">
+          一面军鼓的鼓面,九根张力杆就是八个爵士流派的时间表盘。
+          拨动鼓棒切换年代,右边展开那一段的引子和唱片。
+          每一段的版式是按它自己的音乐设计的,不是同一个模板换文字。
+        </p>
+        <div class="meta">
+          <span><b>8</b> 个流派</span>
+          <span><b>70</b> 年</span>
+          <span>Ragtime → Fusion</span>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <p class="alt">
+    English: <a href="design/prototypes/snare_dial_v5_en.html">The Snare Dial</a> ·
+    星轨播放器的英文版在页面右下角的 <b>EN</b> 开关里。
   </p>
-  <script>
-    window.location.replace('design/prototypes/snare_dial_v5.html');
-  </script>
+
+  <footer>
+    <span>作者 晨听 / cc</span>
+    <a href="https://github.com/chen-house/sound-water-system">源码与研究记录 GitHub</a>
+    <span>CC BY-NC-ND 4.0</span>
+  </footer>
+
+</div>
 </body>
 </html>

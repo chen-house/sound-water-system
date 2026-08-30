@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第二段 · 平行水文调音台 · v4 全量版(十条流 + 真歌 + 过渡仪式)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<style>
+  :root {
+    --bg: #2b2b2b; --panel: #242424; --strip: #383838; --line: #4a4a4a;
+    --txt: #d8d4cc; --dim: #8a867e; --onair: #c25b4e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--txt);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+  }
+
+  /* ======= 上:ON AIR 面板 ======= */
+  #onair {
+    width: 100%; max-width: 980px; background: var(--panel);
+    border: 1px solid var(--line); border-top: none; border-radius: 0 0 10px 10px;
+    padding: 18px 26px 20px; display: flex; gap: 24px; align-items: flex-start;
+    min-height: 210px;
+  }
+  #nowinfo { flex: 1; min-width: 0; }
+  #segtitle { font-size: 15px; margin-bottom: 4px; display: flex; align-items: center; gap: 9px; }
+  #dot { width: 9px; height: 9px; border-radius: 50%; background: #5a5751;
+    flex-shrink: 0; transition: background .4s, box-shadow .4s; }
+  #dot.on { background: #69b06b; box-shadow: 0 0 7px rgba(105,176,107,.55); }
+  #segmeta { font-size: 10.5px; color: var(--dim); margin-bottom: 10px; letter-spacing: .04em; }
+  #segblurb { font-size: 12px; color: var(--txt); line-height: 1.95; opacity: .92; }
+  #segblurb p + p { margin-top: 9px; }
+  #segblurb .mut { color: var(--dim); }
+  #embedcol { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
+  #embed {
+    width: 100%; min-height: 80px; border: 1px dashed var(--line); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: var(--dim); text-align: center; line-height: 1.8;
+    overflow: hidden;
+  }
+  #embed.live { border: none; }
+  #embed iframe { border-radius: 12px; display: block; }
+  #trackline { font-size: 9.5px; color: var(--dim); line-height: 1.7; text-align: right; }
+
+  /* ======= 中:留白 ======= */
+  #gap { flex: 1; min-height: 26px; }
+
+  /* ======= 下:混音台 ======= */
+  #deskwrap { width: 100%; max-width: 980px; overflow-x: auto; padding: 0 10px 8px; }
+  .desk { display: flex; gap: 8px; justify-content: center; min-width: max-content; margin: 0 auto; }
+  .strip {
+    background: var(--strip); border: 1px solid var(--line); border-radius: 6px 6px 0 0;
+    padding: 10px 7px 13px; width: 86px;
+    display: flex; flex-direction: column; align-items: center; gap: 7px;
+    transition: border-color .4s;
+  }
+  .strip.active { border-color: var(--accent); }
+  .chno { font-size: 8px; color: var(--dim); letter-spacing: .12em; }
+  .tag { font-size: 9px; padding: 3px 4px; border-radius: 3px; color: #222;
+    width: 100%; text-align: center; background: var(--accent);
+    opacity: .45; transition: opacity .4s; white-space: nowrap; }
+  .strip.active .tag { opacity: 1; }
+  .year { font-size: 8.5px; color: var(--dim); }
+  .fadwrap { display: flex; gap: 5px; align-items: center; height: 150px; }
+  input[type=range] { writing-mode: vertical-lr; direction: rtl;
+    width: 22px; height: 150px; accent-color: var(--txt); cursor: pointer; }
+  .vu { width: 5px; height: 150px; background: #222; border-radius: 2px; position: relative; overflow: hidden; }
+  .vu i { position: absolute; bottom: 0; left: 0; right: 0; height: 0%;
+    background: var(--accent); border-radius: 2px; transition: height .09s linear; }
+  #bench {
+    width: 100%; max-width: 980px; background: var(--panel);
+    border-top: 1px solid var(--line); padding: 12px; text-align: center;
+  }
+  button { background: none; border: 1px solid var(--line); color: var(--txt);
+    font: inherit; font-size: 12px; padding: 7px 20px; border-radius: 4px;
+    cursor: pointer; letter-spacing: .08em; }
+  button.on { border-color: #e0a458; color: #e0a458; }
+  .hint { font-size: 10px; color: var(--dim); margin-top: 8px; line-height: 1.7; }
+  /* ======= 过渡覆盖层 ======= */
+  #overlay { position: fixed; inset: 0; display: none;
+    align-items: center; justify-content: center; flex-direction: column; gap: 18px;
+    background: rgba(20,20,20,.85); z-index: 10; }
+  #overlay.show { display: flex; }
+  .caption { font-size: 12.5px; color: var(--txt); max-width: 460px; text-align: center;
+    line-height: 1.9; padding: 0 20px; }
+  .caption small { color: var(--dim); display: block; margin-top: 6px; font-size: 10px; line-height: 1.8; }
+  #vinyl { width: 130px; height: 130px; border-radius: 50%; display: none;
+    background: radial-gradient(circle at 50% 50%, #d8d4cc 0 12%, #1c1c1c 12.5% 13%, transparent 13%),
+      repeating-radial-gradient(circle at 50% 50%, #1a1a1a 0 3px, #242424 3px 6px);
+    border: 1px solid #4a4a4a; position: relative; }
+  #vinyl::after { content:""; position: absolute; top: 6px; left: 50%; width: 2px; height: 26px;
+    background: #d8d4cc; transform-origin: bottom; opacity: .7; }
+  #vinyl.spin { display: block; animation: brake 1.6s cubic-bezier(.2,.8,.4,1) forwards; }
+  @keyframes brake { 0%{transform:rotate(0turn)} 55%{transform:rotate(1.6turn)}
+    75%{transform:rotate(1.45turn)} 88%{transform:rotate(1.75turn)} 100%{transform:rotate(2turn)} }
+  #padbox { display: none; gap: 10px; }
+  #padbox.show { display: flex; }
+  .pad { width: 56px; height: 56px; border-radius: 8px; background: #444; border: 1px solid #555; }
+  .pad.hit { animation: padflash .18s ease-out; }
+  @keyframes padflash { 0%{background:var(--flash,#7ea87e);box-shadow:0 0 22px var(--flash,#7ea87e)} 100%{background:#444} }
+
+  @media (max-width: 760px) {
+    #onair { flex-direction: column; gap: 14px; }
+    #embedcol { width: 100%; }
+    #trackline { text-align: left; }
+    .desk { justify-content: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+  <div id="onair">
+    <div id="nowinfo">
+      <div id="segtitle"><span id="dot" title="播放状态"></span><span id="segtxt">平行水文 · 1976—2026</span></div>
+      <div id="segmeta">十条推子 · 十条还活着的支流</div>
+      <div id="segblurb"></div>
+    </div>
+    <div id="embedcol">
+      <div id="embed">Spotify embed<br>(POWER 之后随当前流切换)</div>
+      <div id="trackline"></div>
+    </div>
+  </div>
+
+  <div id="gap"></div>
+
+  <div id="deskwrap"><div class="desk" id="desk"></div></div>
+  <div id="bench">
+    <button id="power">POWER</button>
+    <div class="hint">fader = 触发器:推过阈值即上台,上一条自动让位。<br>有血缘的两条流之间,过渡会自己演出来。</div>
+  </div>
+
+  <div id="overlay">
+    <div id="vinyl"></div>
+    <div id="padbox"><div class="pad" id="p0"></div><div class="pad" id="p1"></div><div class="pad" id="p2"></div><div class="pad" id="p3"></div></div>
+    <div class="caption" id="cap"></div>
+  </div>
+
+  <!-- v4 拍板便签(不上屏,详见 STATUS_LOG 2026-07-11 与 ep2_mixer_content_v1.md 待拍板清单):
+    ① CH8 默认 Casiopea〈Asayake〉,备选 Nujabes〈Feather〉ID 在配置 alt;纠错:Asayake 在《Super Flight》非首专
+    ② CH9 =〈Change of the Guard〉 ③ CH10 =〈Victory Dance〉(已核在专辑内)
+    ④ 结尾落款未定 ⑤ ECM 1975 点破未定 · VU 为视觉演出 -->
+
+
+<script>
+/* ================= 内容配置(来自 article/ep2_mixer_content_v1.md) ================= */
+const OPENING = [
+  "上一段我们停在 1969,Miles 把电吉他搬进了棚子。",
+  "这一段不太一样。1976 年往后,爵士不再一段接一段往前走——它分了岔,好几条一起流。",
+  "所以这次不给你唱针了。给你一张调音台:十条推子,每条是一条还活着的支流。推哪条,听哪条。",
+  "有些推子之间有血缘。碰上了,你会知道的。"
+];
+const CLOSING = [
+  "十条推子都亮过一遍了。",
+  "上一段的故事是接力——每一代把上一代拍在沙滩上。这一段没有谁取代谁:1977 年的〈Birdland〉和 2023 年的伦敦舞池,今晚同时在播。",
+  "所以这台调音台不关机。你走之后,它们还各自流各自的。"
+];
+
+const CHANNELS = [
+  { ch:"CH 1", tag:"FUSION", year:"1976—", color:"#e0a458",
+    track:{ label:"Weather Report —〈Birdland〉· 1977", id:"19vVghIuHm3IAfN4xpRF3q" },
+    paras:[
+      "电已经通进来七年了。Miles 开的口子,到 70 年代中变成了一整代乐队:Weather Report、Return to Forever、Herbie Hancock 的 Headhunters。",
+      "1977 年,Weather Report 录了一首〈Birdland〉。低音不走路了——一个叫 Jaco Pastorius 的人把贝斯上的品丝拆了,让低音开口唱歌。",
+      "老派骂这是背叛,年轻人管这叫解放。你听一下再站队。"
+    ]},
+  { ch:"CH 2", tag:"SMOOTH", year:"1976—", color:"#c9b8d8",
+    track:{ label:"Grover Washington Jr. & Bill Withers —〈Just the Two of Us〉· 1980", id:"5fdNHVZHbWB1AaXk4RBGVD" },
+    paras:[
+      "同一股电,往另一边流,流进了 FM 电台。",
+      "80 年代,美国电台有个深夜时段叫 Quiet Storm——音量放低,萨克斯像黄油一样化开。乐评人给这类音乐起了不少外号:电梯音乐,牙医诊所背景乐。",
+      "但先别急着笑。对很多人来说,这是他们这辈子主动听的第一首“爵士”。",
+      "1980 年,Grover Washington Jr. 和 Bill Withers 录了〈Just the Two of Us〉。黄昏那味儿,是真的。"
+    ]},
+  { ch:"CH 3", tag:"NEO-TRAD", year:"1980s—", color:"#c96f5a",
+    track:{ label:"Wynton Marsalis —〈Black Codes (From the Underground)〉· 1985", id:"5YgifWgpWSqm451l7Y7c6L" },
+    paras:[
+      "也有人烦透了这股电。",
+      "80 年代初,一个二十出头的新奥尔良小号手穿着西装登台,古典和爵士两边的格莱美都拿了。他说爵士的根在 bebop、在 blues、在原声乐器里。他叫 Wynton Marsalis。",
+      "1985 年他录了《Black Codes (From the Underground)》,转年拿下两座格莱美。技术无可挑剔,品位无可挑剔——争议也是真的:有人说他把传统救了回来,有人说他把活的音乐关进了博物馆。",
+      "这场“往前还是往回”的架,吵到今天还没散场。"
+    ]},
+  { ch:"CH 4", tag:"ECM", year:"1975·全程", color:"#a8c3d4",
+    track:{ label:"Keith Jarrett —《The Köln Concert》Part I · 1975", id:"0f18qaZPd4UdIsryK37vjx" },
+    paras:[
+      "大西洋另一边,有人在录完全相反的东西。",
+      "慕尼黑有个厂牌叫 ECM,老板 Manfred Eicher 信一句话:最美的声音,是仅次于寂静的那种。",
+      "1975 年 1 月,科隆歌剧院。Keith Jarrett 背伤发作,几天没睡好,剧院还搬错了钢琴——一台音不准的小排练琴。他差点掉头就走。",
+      "他最后还是坐下了,即兴弹了一个多小时。那盘录音叫《The Köln Concert》,后来成了历史上最卖座的爵士独奏专辑。",
+      "冷、空、留白。这条支流不陪你,它让你一个人待着。"
+    ]},
+  { ch:"CH 5", tag:"ACID JAZZ", year:"1980s末—", color:"#b5c453",
+    track:{ label:"The Brand New Heavies —〈Never Stop〉· 1991", id:"4kJsd28kYN9n6X87Duf9Zp" },
+    paras:[
+      "伦敦的 DJ 们把爸妈那辈的 funk、soul、jazz-funk 老唱片翻出来,在俱乐部里放给人跳。一个叫 Gilles Peterson 的 DJ 给这股风起了名字——acid jazz。那是 1987 年,转年他就开了张同名厂牌。",
+      "光放唱片不够,有人索性组了活乐队,把这种声音现场重造出来。1991 年前后,The Brand New Heavies 这样的乐队把 acid jazz 顶进了主流:funk 的底、soul 的嗓、jazz 的即兴,台上全是活人。",
+      "这条支流不考你耳朵,它让你站起来。爵士重新变成俱乐部里跳的东西。"
+    ]},
+  { ch:"CH 6", tag:"HIP-HOP", year:"1991—", color:"#7ea87e",
+    track:{ label:"A Tribe Called Quest —〈Excursions〉· 1991", id:"4tEaytMs86hIaOSsiGoLcP" },
+    paras:[
+      "纽约这边,采样机是新乐器。",
+      "1991 年,A Tribe Called Quest 出了《The Low End Theory》,还把 bebop 年代的贝斯大师 Ron Carter 请进了棚。低音提琴走在说唱底下。开场曲〈Excursions〉里有一句词,大意是:我爸说,你们这 hip-hop,听着像我年轻时的 bebop。",
+      "这句词,就是这条支流的身份证。",
+      "二十几年后,主动权回到乐手手里:2015 年,Kendrick Lamar 的《To Pimp a Butterfly》——弹琴的、吹萨克斯的、弹贝斯的,全是爵士出身。一张说唱专辑,同时是一张爵士专辑。"
+    ]},
+  { ch:"CH 7", tag:"NU JAZZ", year:"1990s末—", color:"#8d7fc7",
+    track:{ label:"St Germain —〈Rose Rouge〉· 2000", id:"1divptdjcWXvF1aflfTQnw" },
+    paras:[
+      "千禧年前后,有人把爵士直接喂进了采样器和鼓机。",
+      "巴黎制作人 Ludovic Navarre,艺名 St Germain。2000 年他在 Blue Note 出了张《Tourist》,开场曲〈Rose Rouge〉:一句 Marlena Shaw 的人声采样打底,钢琴一圈一圈转,house 的鼓在下面走,小号在上面即兴。",
+      "演奏和编程,活人和机器,在这张唱片里分不出谁是谁。",
+      "这条支流不请你跳舞,也不考你耳朵——它给你铺一间深夜的房间。"
+    ]},
+  { ch:"CH 8", tag:"JAPAN", year:"1970s—", color:"#e8a1a1",
+    track:{ label:"Casiopea —〈Asayake〉· 1979", id:"4pOVSSVmz7Y2i4i000UviG",
+            alt:{ label:"Nujabes —〈Feather〉· 2005", id:"2ej1A2Ze6P2EOW7KfIosZR" } },
+    paras:[
+      "这条支流自己养活自己,快五十年了。",
+      "东京,1979 年。一支叫 Casiopea 的乐队出道当年连发两张专辑,第二张《Super Flight》里有一首〈Asayake〉(朝焼け)——技术密得像精密仪器,却一点不冷,亮得像它名字里那场日出。",
+      "日本人听爵士有多认真?全国开着几百家 jazz 喫茶——不聊天,不社交,坐下来,郑重其事听一张唱片。",
+      "这份认真后来转了世:2005 年,东京制作人 Nujabes 把爵士采样揉进碎拍,做出〈Feather〉。今天全世界陪人写作业的那种 lofi,家谱里绕不开他。"
+    ]},
+  { ch:"CH 9", tag:"SPIRITUAL", year:"2010s—", color:"#d9b23f",
+    track:{ label:"Kamasi Washington —〈Change of the Guard〉· 2015", id:"4xw8UnKYxsiRFjigtQcVAL" },
+    paras:[
+      "60 年代那种大到近乎宗教的爵士——Coltrane 晚期,Pharoah Sanders——熄了几十年,2015 年在洛杉矶重新点着了。",
+      "萨克斯手 Kamasi Washington 一出手就是三张碟:合唱团、弦乐,全编制往上堆。专辑名也不客气,就叫《The Epic》。",
+      "这条支流不要“好听”,它要把你抬起来。",
+      "2021 年还有一封告别信:电子制作人 Floating Points、80 岁的 Pharoah Sanders、伦敦交响乐团,合录了《Promises》。九个乐章,一口气。转年,老人走了。"
+    ]},
+  { ch:"CH 10", tag:"UK WAVE", year:"2010s—", color:"#6fc2b8",
+    track:{ label:"Ezra Collective —〈Victory Dance〉· 2022", id:"6GumLQysBiahvtJmxMXOpn" },
+    paras:[
+      "最后这条,最年轻,现在进行时。",
+      "伦敦有个青训营叫 Tomorrow's Warriors,专教移民街区的孩子玩爵士。这批孩子长大,把 grime、afrobeat、dub 全焊进了爵士——在俱乐部里,人群跟着萨克斯蹦。",
+      "2023 年 9 月,Mercury 奖开奖。拿奖的是支爵士乐队:Ezra Collective,《Where I'm Meant to Be》。这个奖发了三十年,爵士头一回。鼓手 Femi Koleoso 上台第一句:先感谢上帝。",
+      "这支乐队,就是从那个青训营里长出来的。"
+    ]}
+];
+
+/* 交集连线(索引 = CHANNELS 下标,CH1=0 … CH10=9) */
+const REL = {
+  "0-5": { type:"scratch", cap:"Herbie Hancock〈Rockit〉· 1983", sub:"一个 fusion 大佬亲手玩搓碟,提前十年预告了这场联姻" },
+  "0-1": { type:"scratch", cap:"同一股电,两个流向", sub:"一路进了俱乐部,一路进了 FM 电台" },
+  "4-5": { type:"pad", cap:"Us3〈Cantaloop (Flip Fantasia)〉· 1993", sub:"一脚踩 acid jazz、一脚踩 hip-hop——采 Herbie 1964〈Cantaloupe Island〉,Blue Note 头一回授权自家唱片被整张采样" },
+  "5-7": { type:"pad", cap:"Nujabes · 东京", sub:"爵士采样、碎拍、lofi,三条路在他家门口交汇" },
+  "5-8": { type:"pad", cap:"洛杉矶 · Brainfeeder", sub:"Kamasi 的萨克斯吹在《To Pimp a Butterfly》里;《The Epic》出在 Flying Lotus 的厂牌上" },
+  "8-9": { type:"scratch", cap:"Shabaka Hutchings", sub:"浪尖上的人,2024 年放下萨克斯,拿起了笛子" },
+  "4-9": { type:"scratch", cap:"Gilles Peterson", sub:"80 年代末办 Acid Jazz 厂牌的人,2018 年给伦敦新浪潮升旗:《We Out Here》" },
+  "3-6": { type:"scratch", cap:"Nils Petter Molvær《Khmer》· 1997", sub:"一把电子化的小号,从 ECM 漂进了氛围" },
+};
+const relOf = (a,b) => REL[`${Math.min(a,b)}-${Math.max(a,b)}`] || null;
+const THRESHOLD = -30, PARK = -48;
+
+/* ================= Spotify iframe API ================= */
+let spCtrl = null, spReady = false, pendingId = null;
+window.onSpotifyIframeApiReady = (IFrameAPI) => {
+  const box = document.getElementById("embed");
+  box.innerHTML = "";               /* 清掉占位文字,防止挤成竖排残字 */
+  box.classList.add("live");        /* 去虚线框 */
+  const holder = document.createElement("div");
+  box.appendChild(holder);
+  IFrameAPI.createController(holder,
+    { uri: `spotify:track:${CHANNELS[0].track.id}`, width: "100%", height: 80 },
+    (controller) => {
+      spCtrl = controller; spReady = true;
+      if (pendingId) { loadAndPlay(pendingId); pendingId = null; }
+    });
+};
+function loadAndPlay(id){
+  if (!spReady) { pendingId = id; return; }
+  spCtrl.loadUri(`spotify:track:${id}`);
+  setTimeout(() => spCtrl.play(), 350);
+}
+function pauseTrack(){ if (spReady) spCtrl.pause(); }
+
+/* ================= 过渡音效(Tone.js 仅用于仪式) ================= */
+const scrGain=new Tone.Gain(0).toDestination();
+const scrFilter=new Tone.Filter(800,"bandpass");scrFilter.Q.value=6;
+const scrNoise=new Tone.Noise("pink");scrNoise.connect(scrFilter);scrFilter.connect(scrGain);
+function playScratch(){scrNoise.start();const now=Tone.now(),f=scrFilter.frequency,g=scrGain.gain;
+  [[0,.12,400,2600],[.14,.1,2600,500],[.28,.12,500,3000],[.44,.16,3000,300],[.66,.1,300,2200],[.8,.14,2200,600]]
+  .forEach(([t,d,a,b])=>{f.setValueAtTime(a,now+t);f.rampTo(b,d,now+t);g.setValueAtTime(.5,now+t);g.rampTo(.05,d,now+t);});
+  g.rampTo(0,.2,now+1.0);setTimeout(()=>scrNoise.stop(),1400);}
+const padSynth=new Tone.PolySynth(Tone.Synth,{oscillator:{type:"sawtooth"},volume:-8,envelope:{attack:.003,decay:.2,sustain:0,release:.15}}).toDestination();
+const padThump=new Tone.MembraneSynth({volume:-4,pitchDecay:.03}).toDestination();
+function playPads(color){[["C3","G3"],["D3","A3"],["F3","C4"],["G3","D4"]].forEach((c,i)=>{
+  setTimeout(()=>{padThump.triggerAttackRelease("C1","16n");padSynth.triggerAttackRelease(c,"16n");
+    const p=document.getElementById("p"+i);p.style.setProperty("--flash",color);
+    p.classList.remove("hit");void p.offsetWidth;p.classList.add("hit");},i*160);});}
+
+/* ================= 界面 ================= */
+const desk=document.getElementById("desk");
+const dot=document.getElementById("dot"), segtxt=document.getElementById("segtxt"),
+      segmeta=document.getElementById("segmeta"), segblurb=document.getElementById("segblurb"),
+      embed=document.getElementById("embed"), trackline=document.getElementById("trackline");
+const overlay=document.getElementById("overlay"),vinyl=document.getElementById("vinyl"),
+      padbox=document.getElementById("padbox"),cap=document.getElementById("cap");
+
+const strips=CHANNELS.map((s,idx)=>{const el=document.createElement("div");
+  el.className="strip";el.style.setProperty("--accent",s.color);
+  el.innerHTML=`<div class="chno">${s.ch}</div><div class="tag">${s.tag}</div><div class="year">${s.year}</div>
+    <div class="fadwrap"><input type="range" min="${PARK}" max="0" value="${PARK}" step="0.5" data-id="${idx}">
+    <div class="vu"><i id="vu${idx}"></i></div></div>`;
+  desk.appendChild(el);return el;});
+const faders=[...document.querySelectorAll("input[type=range]")];
+
+let active=-1,powered=false,busy=false;
+
+function renderParas(arr, mut=false){
+  segblurb.innerHTML = arr.map(p=>`<p${mut?' class="mut"':''}>${p}</p>`).join("");
+}
+function showOpening(){
+  dot.classList.remove("on");
+  segtxt.textContent="平行水文 · 1976—2026";
+  segmeta.textContent="十条推子 · 十条还活着的支流";
+  renderParas(OPENING, true);
+  trackline.textContent="";
+}
+function showClosing(){
+  dot.classList.remove("on");
+  segtxt.textContent="平行水文 · 1976—2026";
+  segmeta.textContent="";
+  renderParas(CLOSING, true);
+  trackline.textContent="";
+}
+function updateOnAir(id){
+  const s=CHANNELS[id];
+  dot.classList.add("on");
+  segtxt.textContent=`${s.ch} · ${s.tag}`;
+  segmeta.textContent=s.track.label;
+  renderParas(s.paras);
+  trackline.textContent="▶ "+s.track.label;
+  embed.classList.add("live");
+}
+function stopStream(id,animate=true){
+  strips[id].classList.remove("active");
+  if(animate)slideDown(faders[id]);
+}
+function startStream(id){
+  strips[id].classList.add("active");
+  updateOnAir(id);
+  loadAndPlay(CHANNELS[id].track.id);
+}
+function slideDown(fader){const from=parseFloat(fader.value),t0=performance.now();
+  (function step(t){const k=Math.min((t-t0)/500,1);
+    fader.value=from+(PARK-from)*(1-Math.pow(1-k,3));
+    if(k<1)requestAnimationFrame(step);})(t0);}
+
+function activate(id){
+  if(active===id||busy)return;
+  const prev=active,rel=prev>=0?relOf(prev,id):null;
+  if(!rel){
+    if(prev>=0){pauseTrack();stopStream(prev);}
+    active=id;startStream(id);return;
+  }
+  busy=true;active=id;
+  cap.innerHTML=rel.cap+`<small>${rel.sub}</small>`;
+  overlay.classList.add("show");
+  pauseTrack();stopStream(prev);
+  if(rel.type==="scratch"){
+    vinyl.classList.add("spin");padbox.classList.remove("show");
+    playScratch();
+    setTimeout(()=>startStream(id),1100);
+    setTimeout(()=>{overlay.classList.remove("show");vinyl.classList.remove("spin");busy=false;},2100);
+  }else{
+    padbox.classList.add("show");vinyl.classList.remove("spin");
+    playPads(CHANNELS[id].color);
+    setTimeout(()=>startStream(id),750);
+    setTimeout(()=>{overlay.classList.remove("show");padbox.classList.remove("show");busy=false;},1900);
+  }
+}
+
+faders.forEach(f=>f.addEventListener("input",e=>{
+  if(!powered||busy)return;
+  const id=+e.target.dataset.id,v=parseFloat(e.target.value);
+  if(id===active){
+    if(v<=PARK+0.5){ /* 自己拉到底 = 下台 */
+      pauseTrack();stopStream(id,false);active=-1;
+      dot.classList.remove("on");
+      segmeta.textContent="";trackline.textContent="";
+      segblurb.innerHTML='<p class="mut">推子归零,这条流下台了。推任意一条继续。</p>';
+    }
+  }
+  else if(v>THRESHOLD)activate(id);
+}));
+
+/* VU:视觉演出(Spotify iframe 无电平接口) */
+let vuLevel=0;
+(function vu(){
+  CHANNELS.forEach((_,i)=>{
+    let h=0;
+    if(i===active&&powered){
+      vuLevel += (Math.random()*90+8-vuLevel)*0.18;
+      h=vuLevel;
+    } else if(i===active){ h=0; }
+    document.getElementById("vu"+i).style.height=h+"%";
+  });
+  requestAnimationFrame(vu);
+})();
+
+const btn=document.getElementById("power");
+btn.addEventListener("click",async()=>{
+  await Tone.start();powered=!powered;
+  if(powered){
+    btn.textContent="OFF AIR?";btn.classList.add("on");
+    segblurb.innerHTML='<p class="mut">往上推任意一条推子——越过阈值就上台,ON AIR 面板跟着换。</p>';
+  } else {
+    if(active>=0){pauseTrack();stopStream(active);active=-1;}
+    btn.textContent="POWER";btn.classList.remove("on");
+    showClosing();
+  }
+});
+
+showOpening();
+</script>
+<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+</body>
+</html>

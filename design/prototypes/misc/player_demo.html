@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自制暖纸风播放器 · demo(30s 预览)</title>
+<style>
+  :root { --paper:#F0EADC; --ink:#3A3629; --dim:#8A8474; --terra:#C25A2E; --hair:#C9C0AC; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:radial-gradient(120% 90% at 50% 0%, #C8C6BD 0%, var(--paper) 46%, #E4DCC9 100%);
+    color:var(--ink); font-family:Georgia,"Songti SC","Times New Roman",serif;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:40px 20px; }
+  h1 { font-size:15px; font-weight:400; color:var(--dim); letter-spacing:.02em; margin-bottom:22px; }
+  h1 b { color:var(--ink); font-weight:700; }
+
+  /* 一排流名 chip */
+  #chips { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; max-width:640px; margin-bottom:30px; }
+  .chip { font-size:11px; font-family:ui-monospace,monospace; letter-spacing:.04em; padding:5px 11px;
+    border-radius:20px; border:1px solid var(--cc); color:var(--cc); background:transparent; cursor:pointer;
+    transition:.2s; }
+  .chip:hover { background:rgba(0,0,0,.03); }
+  .chip.on { background:var(--cc); color:#fff; border-color:var(--cc); }
+
+  /* 当前流卡片(暖纸半透浮色)*/
+  #card { width:100%; max-width:440px; background:rgba(255,255,255,.42); border:1px solid rgba(255,255,255,.6);
+    border-radius:16px; padding:22px 24px; box-shadow:0 10px 30px rgba(74,69,52,.16);
+    -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); border-left:4px solid var(--cc); }
+  #ctag { display:inline-block; font-size:10.5px; font-family:ui-monospace,monospace; letter-spacing:.06em;
+    color:#fff; background:var(--cc); padding:3px 9px; border-radius:5px; margin-bottom:12px; }
+  #cnote { font-size:12px; color:var(--dim); margin-left:9px; }
+  #csong { font-size:16px; color:var(--ink); line-height:1.5; margin-bottom:18px; }
+
+  /* 自制播放器 */
+  #player { display:flex; align-items:center; gap:14px; }
+  #playbtn { width:46px; height:46px; border-radius:50%; border:none; background:var(--cc); color:#fff;
+    cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 3px 10px rgba(194,90,46,.35); transition:transform .12s, box-shadow .2s; }
+  #playbtn:hover { box-shadow:0 4px 14px rgba(194,90,46,.5); }
+  #playbtn:active { transform:scale(.94); }
+  #playbtn svg { display:block; }
+  #pmid { flex:1; min-width:0; }
+  #ptrack { font-size:11px; font-family:ui-monospace,monospace; color:var(--dim); margin-bottom:7px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #ptrack em { color:var(--cc); font-style:normal; }
+  #prow { display:flex; align-items:center; gap:9px; }
+  #ptrackbar { flex:1; height:4px; background:rgba(120,112,92,.25); border-radius:3px; position:relative; cursor:pointer; }
+  #pfill { position:absolute; left:0; top:0; bottom:0; width:0%; background:var(--cc); border-radius:3px; }
+  #ptime { font-size:10px; font-family:ui-monospace,monospace; color:var(--dim); white-space:nowrap; }
+  #tip { font-size:11px; color:var(--dim); margin-top:26px; }
+</style>
+</head>
+<body>
+  <h1><b>自制暖纸风播放器</b> · demo · 30 秒预览(iTunes 源)</h1>
+  <div id="chips"></div>
+  <div id="card">
+    <div><span id="ctag">—</span><span id="cnote"></span></div>
+    <div id="csong">点上面任意一条流,听它的 30 秒</div>
+    <div id="player">
+      <button id="playbtn" aria-label="播放/暂停"></button>
+      <div id="pmid">
+        <div id="ptrack"><em>—</em></div>
+        <div id="prow"><div id="ptrackbar"><div id="pfill"></div></div><span id="ptime">0:00 / 0:30</span></div>
+      </div>
+    </div>
+  </div>
+  <div id="tip">这是交互示意 · 只放 30 秒,喜欢就去流媒体听全曲</div>
+
+<script>
+const STREAMS = [
+  { tag:"FUSION", c:"#E98C01", song:"Weather Report —〈Birdland〉· 1977", note:"jazz 插上了电", url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/a1/46/59/a1465951-4545-ec05-9f16-071e1599ea3b/mzaf_1383570784239501222.plus.aac.p.m4a" },
+  { tag:"ECM", c:"#6E93A0", song:"Keith Jarrett —《Köln Concert》I · 1975", note:"冷、空、留白", url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/30/7d/e5/307de5f8-df67-96f7-946c-5a3c21c5cc97/mzaf_11949216584413146431.plus.aac.p.m4a" },
+  { tag:"ACID JAZZ", c:"#E6B23C", song:"The Brand New Heavies —〈Never Stop〉· 1991", note:"把 jazz 拉回舞池", url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c6/43/7b/c6437b1a-06a8-1d54-0993-33a53a3303fc/mzaf_15561177147255312187.plus.aac.p.m4a" },
+  { tag:"HIP-HOP", c:"#7ea87e", song:"A Tribe Called Quest —〈Excursions〉· 1991", note:"采样台上的 jazz", url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/41/61/ce/4161cea7-595c-8078-0f4e-a131c003ebb1/mzaf_13875437190266539430.plus.aac.p.m4a" },
+  { tag:"NU JAZZ", c:"#8d7fc7", song:"St Germain —〈Rose Rouge〉· 2000", note:"喂给机器的 jazz", url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/0f/77/91/0f77911e-9f82-004c-a80d-7963bf2fddcc/mzaf_7960251369127517046.plus.aac.p.m4a" },
+  { tag:"JAPAN", c:"#CB5A48", song:"Casiopea —〈Asayake〉· 1979", note:"自成生态的精密", url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/79/d7/18/79d71875-ba10-a4ec-0455-fdc101657a59/mzaf_7022956667452698548.plus.aac.p.m4a" },
+  { tag:"SPIRITUAL", c:"#D6A32E", song:"Kamasi Washington —〈Change of the Guard〉· 2015", note:"大、向上、迷狂", url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/6f/6b/21/6f6b21bc-41be-1d3e-685d-42642403af1a/mzaf_3266234963051955895.plus.aac.p.m4a" },
+  { tag:"UK WAVE", c:"#2E9C8E", song:"Ezra Collective —〈Victory Dance〉· 2022", note:"年轻、跳舞、diaspora", url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8c/e7/c4/8ce7c4ef-f3a8-9a4b-199b-46de44665e5b/mzaf_16163462553233051056.plus.aac.p.m4a" },
+  { tag:"LATIN", c:"#B21E38", song:"Irakere —〈Bacalao con Pan〉· 1970s", note:"加勒比的节奏心脏", url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/8a/65/2e/8a652ecf-9f43-79a8-3ebb-bf71187578a4/mzaf_2005191244083269136.plus.aac.p.m4a" },
+  { tag:"JAM", c:"#2F6DB5", song:"Snarky Puppy —〈Lingus〉· 2014", note:"现场为王,groove 管够", url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ca/af/6b/caaf6bff-0066-68fc-6865-feea79f74355/mzaf_15966489191812358741.plus.aac.p.m4a" },
+  { tag:"NEW STD", c:"#8A6BB0", song:"Ambrose Akinmusire —〈Henya〉· 2011", note:"当代原声,作曲驱动", url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/15/29/e5/1529e53d-0aba-397c-ae18-8fe473960125/mzaf_6783620634132354717.plus.aac.p.m4a" },
+];
+const ICON_PLAY = '<svg width="16" height="16" viewBox="0 0 16 16"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>';
+const ICON_PAUSE = '<svg width="14" height="14" viewBox="0 0 14 14"><rect x="2" y="1.5" width="3.4" height="11" fill="currentColor"/><rect x="8.6" y="1.5" width="3.4" height="11" fill="currentColor"/></svg>';
+
+const audio = new Audio(); audio.preload = "none";
+let cur = -1, playing = false;
+const $ = id => document.getElementById(id);
+const chips = $("chips");
+STREAMS.forEach((s,i)=>{ const b=document.createElement("button"); b.className="chip"; b.style.setProperty("--cc",s.c);
+  b.textContent=s.tag; b.onclick=()=>select(i); chips.appendChild(b); s._chip=b; });
+const setVar = c => { document.documentElement.style.setProperty("--cc",c);
+  $("card").style.setProperty("--cc",c); $("playbtn").style.setProperty("--cc",c); };
+
+function fmt(t){ if(!isFinite(t))t=0; const m=Math.floor(t/60),s=Math.floor(t%60); return m+":"+String(s).padStart(2,"0"); }
+function select(i){ const s=STREAMS[i];
+  STREAMS.forEach(x=>x._chip.classList.toggle("on",x===s));
+  setVar(s.c);
+  $("ctag").textContent=s.tag; $("cnote").textContent=s.note; $("csong").textContent=s.song;
+  $("ptrack").innerHTML="▶ <em>"+s.song+"</em>"; $("pfill").style.width="0%"; $("ptime").textContent="0:00 / 0:30";
+  audio.src=s.url; cur=i; audio.play().then(()=>setPlaying(true)).catch(()=>setPlaying(false)); }
+function setPlaying(p){ playing=p; $("playbtn").innerHTML = p?ICON_PAUSE:ICON_PLAY; }
+$("playbtn").innerHTML = ICON_PLAY;
+$("playbtn").onclick=()=>{ if(cur<0){ select(0); return; }
+  if(playing){ audio.pause(); setPlaying(false); } else { audio.play().then(()=>setPlaying(true)); } };
+audio.ontimeupdate=()=>{ const d=audio.duration||30; $("pfill").style.width=(audio.currentTime/d*100)+"%";
+  $("ptime").textContent=fmt(audio.currentTime)+" / "+fmt(d); };
+audio.onended=()=>{ setPlaying(false); $("pfill").style.width="100%"; };
+$("ptrackbar").onclick=(e)=>{ if(cur<0)return; const r=e.currentTarget.getBoundingClientRect();
+  audio.currentTime=(e.clientX-r.left)/r.width*(audio.duration||30); };
+</script>
+</body>
+</html>

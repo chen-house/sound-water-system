@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第二段 · 平行水文 · v12(3D 星空 + 调音台 + 30s 音乐)</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { height:100%; overflow:hidden; background:#0d0f14; font-family:Georgia,"Songti SC",serif; color:#E8E0CF; }
+  #scene { position:fixed; inset:0; z-index:0; }
+  #labels { position:fixed; inset:0; z-index:1; pointer-events:none; }
+  .lab { position:absolute; transform:translate(-50%,-150%); white-space:nowrap; text-align:center;
+    font-size:12px; color:#EDE4D2; text-shadow:0 1px 6px #000; opacity:0; transition:opacity .2s; }
+  .lab .yr { font-size:9px; color:#a89f8c; }
+  #ui { position:fixed; left:22px; top:18px; z-index:3; pointer-events:none; }
+  #ui h1 { font-size:14px; font-weight:400; color:#CDBFA6; letter-spacing:.04em; }
+  #ui p { font-size:11px; color:#8A8474; margin-top:3px; max-width:300px; line-height:1.6; }
+
+  /* 当前流 · 顶部播放横条(不挡中间的星与连线)*/
+  #tbtag { font-size:10px; font-family:ui-monospace,monospace; letter-spacing:.05em; color:#fff;
+    background:var(--cc,#E07A45); padding:3px 9px; border-radius:5px; white-space:nowrap; }
+  #pbtn { width:32px; height:32px; border-radius:50%; border:none; background:var(--cc,#E07A45); color:#fff; cursor:pointer;
+    flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:transform .12s; }
+  #pbtn:active { transform:scale(.92); }
+  #tbsong { flex:1; min-width:0; font-size:12px; color:#EDE4D2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* 进度窄条 · 放在调音台上沿 */
+  /* 调音台表头 = 播放器,在玻璃台面内部(与推子一体,同块玻璃) */
+  #deckwrap { display:flex; align-items:center; gap:12px; width:100%; padding:8px 14px 10px;
+    border-bottom:1px solid rgba(255,255,255,.12); margin-bottom:11px; }
+  #decktime { font-size:9.5px; font-family:ui-monospace,monospace; color:#a89f8c; white-space:nowrap; }
+  #deckbar { width:min(300px,32%); height:4px; background:rgba(255,255,255,.14); border-radius:3px; position:relative; cursor:pointer; flex-shrink:0; }
+  #deckfill { position:absolute; left:0; top:0; bottom:0; width:0%; background:var(--cc,#E07A45); border-radius:3px; box-shadow:0 0 8px -1px var(--cc,#E07A45); }
+  .lab.cur { font-size:13px; color:#fff; }
+  .lab.cur .yr { color:var(--cc,#E07A45); opacity:.95; }
+
+  /* 调音台(底部,暗玻璃,俯视)*/
+  #stage { position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:3; width:100%; max-width:1000px;
+    perspective:1000px; perspective-origin:50% 44%; }
+  #glass { transform:rotateX(52deg); transform-origin:50% 100%;
+    background:linear-gradient(158deg, rgba(40,44,54,.5), rgba(22,24,30,.42));
+    border:1px solid rgba(255,255,255,.14); border-radius:16px; padding:10px 14px 12px;
+    display:flex; flex-direction:column; width:100%;
+    -webkit-backdrop-filter:blur(5px); backdrop-filter:blur(5px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 20px 46px rgba(0,0,0,.5); }
+  #deckrow { display:flex; gap:12px; justify-content:space-between; width:100%; }
+  .zone { display:flex; flex-direction:column; padding:7px 9px 5px;
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); border-radius:11px; }
+  .zone-label { font-size:8.5px; color:#8A8474; letter-spacing:.14em; margin:0 0 6px 0; white-space:nowrap; text-align:center; }
+  .zone-row { display:flex; gap:7px; justify-content:center; align-items:flex-end; flex:1; }
+  .strip { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); border-radius:9px;
+    padding:6px 5px 8px; display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer;
+    transition:box-shadow .3s, border-color .3s, background .3s; }
+  .strip:hover { background:rgba(255,255,255,.13); }
+  .strip.active { border-color:var(--accent); background:rgba(255,255,255,.16);
+    box-shadow:0 0 0 1px var(--accent), 0 0 20px -3px var(--accent); }
+  .tag { font-size:8px; font-family:ui-monospace,monospace; padding:2px 3px; border-radius:4px; color:#fff; width:100%;
+    text-align:center; background:var(--accent); opacity:.62; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    transition:opacity .3s, box-shadow .3s; text-shadow:0 1px 1px rgba(0,0,0,.35); }
+  .strip.active .tag { opacity:1; box-shadow:0 0 10px -1px var(--accent); }
+  .fadwrap { display:flex; gap:4px; align-items:center; }
+  input[type=range] { writing-mode:vertical-lr; direction:rtl; width:18px; accent-color:var(--accent); cursor:pointer; filter:drop-shadow(0 0 3px var(--accent)); }
+  .rail { width:6px; border-radius:4px; background:linear-gradient(to top, var(--c0), var(--c1)); }
+</style>
+</head>
+<body>
+  <div id="scene"></div>
+  <div id="labels"></div>
+  <div id="ui"><h1>爵士星空 · 1976—2026</h1><p>拖拽环绕空间 · 点一颗星或推子 = 选中那条流,听它的 30 秒,血缘光桥亮起。</p></div>
+
+  <div id="stage">
+    <div id="glass">
+      <div id="deckwrap">
+        <span id="tbtag">—</span>
+        <button id="pbtn" aria-label="播放/暂停"></button>
+        <div id="tbsong">选一条流 · 听它的 30 秒</div>
+        <div id="deckbar"><div id="deckfill"></div></div>
+        <span id="decktime">0:00 / 0:30</span>
+      </div>
+      <div id="deckrow"></div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>
+/* ===== 数据(星/流:色·份量·年·区·3D坐标·30s预览)===== */
+const DATA=[
+  { tag:"FUSION",c:"#F0A24A",size:"XL",yr:1976,zone:1,song:"Weather Report —〈Birdland〉· 1977",note:"jazz 插上了电",url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/a1/46/59/a1465951-4545-ec05-9f16-071e1599ea3b/mzaf_1383570784239501222.plus.aac.p.m4a" },
+  { tag:"JAPAN",c:"#E4735E",size:"L",yr:1976,zone:1,song:"Casiopea —〈Asayake〉· 1979",note:"自成生态的精密",url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/79/d7/18/79d71875-ba10-a4ec-0455-fdc101657a59/mzaf_7022956667452698548.plus.aac.p.m4a" },
+  { tag:"UK WAVE",c:"#3FB3A4",size:"L",yr:2016,zone:1,song:"Ezra Collective —〈Victory Dance〉· 2022",note:"年轻、跳舞、diaspora",url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8c/e7/c4/8ce7c4ef-f3a8-9a4b-199b-46de44665e5b/mzaf_16163462553233051056.plus.aac.p.m4a" },
+  { tag:"ACID JAZZ",c:"#EEBE52",size:"S",yr:1987,zone:1,song:"The Brand New Heavies —〈Never Stop〉· 1991",note:"把 jazz 拉回舞池",url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/c6/43/7b/c6437b1a-06a8-1d54-0993-33a53a3303fc/mzaf_15561177147255312187.plus.aac.p.m4a" },
+  { tag:"HIP-HOP",c:"#95BE8E",size:"XL",yr:1991,zone:2,song:"A Tribe Called Quest —〈Excursions〉· 1991",note:"采样台上的 jazz",url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/41/61/ce/4161cea7-595c-8078-0f4e-a131c003ebb1/mzaf_13875437190266539430.plus.aac.p.m4a" },
+  { tag:"NU JAZZ",c:"#9d8fd4",size:"M",yr:1998,zone:2,song:"St Germain —〈Rose Rouge〉· 2000",note:"喂给机器的 jazz",url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/0f/77/91/0f77911e-9f82-004c-a80d-7963bf2fddcc/mzaf_7960251369127517046.plus.aac.p.m4a" },
+  { tag:"ECM",c:"#82A6B2",size:"M",yr:1975,zone:0,song:"Keith Jarrett —《Köln Concert》I · 1975",note:"冷、空、留白",url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/30/7d/e5/307de5f8-df67-96f7-946c-5a3c21c5cc97/mzaf_11949216584413146431.plus.aac.p.m4a" },
+  { tag:"LATIN",c:"#CE384F",size:"L",yr:1973,zone:0,song:"Irakere —〈Bacalao con Pan〉· 1970s",note:"加勒比的节奏心脏",url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/8a/65/2e/8a652ecf-9f43-79a8-3ebb-bf71187578a4/mzaf_2005191244083269136.plus.aac.p.m4a" },
+  { tag:"JAM",c:"#4A82C4",size:"M",yr:1991,zone:0,song:"Snarky Puppy —〈Lingus〉· 2014",note:"现场为王,groove 管够",url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/ca/af/6b/caaf6bff-0066-68fc-6865-feea79f74355/mzaf_15966489191812358741.plus.aac.p.m4a" },
+  { tag:"NEW STD",c:"#9C7EC0",size:"L",yr:2008,zone:0,song:"Ambrose Akinmusire —〈Henya〉· 2011",note:"当代原声,作曲驱动",url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/15/29/e5/1529e53d-0aba-397c-ae18-8fe473960125/mzaf_6783620634132354717.plus.aac.p.m4a" },
+  { tag:"SPIRITUAL",c:"#E4B24A",size:"L",yr:2015,zone:0,song:"Kamasi Washington —〈Change of the Guard〉· 2015",note:"大、向上、迷狂",url:"https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/6f/6b/21/6f6b21bc-41be-1d3e-685d-42642403af1a/mzaf_3266234963051955895.plus.aac.p.m4a" },
+];
+const idxByTag={}; DATA.forEach((d,i)=>idxByTag[d.tag]=i);
+const RSTAR={XL:5.5,L:4,M:3,S:2.3};
+const CONST={1:[["FUSION","JAPAN"],["JAPAN","UK WAVE"],["UK WAVE","ACID JAZZ"],["ACID JAZZ","FUSION"]],
+  2:[["HIP-HOP","NU JAZZ"]],0:[["ECM","LATIN"],["LATIN","JAM"],["JAM","NEW STD"],["NEW STD","SPIRITUAL"]]};
+const TIES=[["FUSION","HIP-HOP"],["ACID JAZZ","HIP-HOP"],["JAPAN","HIP-HOP"],["SPIRITUAL","HIP-HOP"],["SPIRITUAL","UK WAVE"],["ACID JAZZ","UK WAVE"],["ECM","NU JAZZ"]];
+const ZONES=["原声 · 活人","电声 · 插电乐队","电子 · 采样/编程"];
+const CLUSTER={1:new THREE.Vector3(-64,28,8),2:new THREE.Vector3(72,32,-38),0:new THREE.Vector3(6,-16,34)};
+const OFF={FUSION:[-24,6,4],JAPAN:[-2,26,-6],"UK WAVE":[30,4,8],"ACID JAZZ":[6,-20,-4],
+  "HIP-HOP":[-14,10,6],"NU JAZZ":[18,-14,-8],
+  ECM:[-60,20,-6],LATIN:[-24,-16,10],JAM:[6,8,-8],"NEW STD":[36,-10,6],SPIRITUAL:[64,18,-4]};
+DATA.forEach(d=>{const o=OFF[d.tag],C=CLUSTER[d.zone];d.pos=new THREE.Vector3(C.x+o[0],C.y+o[1],C.z+o[2]);});
+const P=t=>DATA[idxByTag[t]];
+
+/* ===== three 场景 ===== */
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x0d0f14,0.0021);
+const cam=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,0.1,2000);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight); renderer.setPixelRatio(Math.min(2,devicePixelRatio));
+document.getElementById("scene").appendChild(renderer.domElement);
+{ const g=new THREE.SphereGeometry(900,32,32);
+  const m=new THREE.ShaderMaterial({side:THREE.BackSide,vertexShader:
+   `varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+   fragmentShader:`varying vec3 vP;void main(){float t=clamp((vP.y/900.0)*0.5+0.5,0.0,1.0);
+    vec3 top=vec3(0.031,0.047,0.086),mid=vec3(0.043,0.070,0.118),bot=vec3(0.075,0.113,0.157);
+    gl_FragColor=vec4(mix(bot,mix(mid,top,smoothstep(0.5,1.0,t)),smoothstep(0.0,1.0,t)),1.0);}`});
+  scene.add(new THREE.Mesh(g,m)); }
+function radialTex(stops){ const c=document.createElement("canvas");c.width=c.height=128;const x=c.getContext("2d");
+  const gr=x.createRadialGradient(64,64,0,64,64,64); stops.forEach(([o,col])=>gr.addColorStop(o,col));
+  x.fillStyle=gr;x.fillRect(0,0,128,128);return new THREE.CanvasTexture(c); }
+const DTEX=radialTex([[0,"rgba(255,255,255,1)"],[.32,"rgba(255,255,255,.7)"],[.66,"rgba(255,255,255,.1)"],[1,"rgba(255,255,255,0)"]]);
+const GTEX=radialTex([[0,"rgba(255,255,255,1)"],[.25,"rgba(255,255,255,.9)"],[.5,"rgba(255,255,255,.35)"],[1,"rgba(255,255,255,0)"]]);
+{ const N=1400,pos=new Float32Array(N*3),col=new Float32Array(N*3);
+  for(let i=0;i<N;i++){const r=200+Math.random()*560,th=Math.random()*6.283,ph=Math.acos(Math.random()*2-1);
+   pos[i*3]=r*Math.sin(ph)*Math.cos(th);pos[i*3+1]=r*Math.sin(ph)*Math.sin(th)*.7;pos[i*3+2]=r*Math.cos(ph);
+   const w=Math.random();col[i*3]=.80+w*.15;col[i*3+1]=.88+w*.08;col[i*3+2]=1.0;}   /* 冷白→淡蓝 */
+  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(pos,3));g.setAttribute("color",new THREE.BufferAttribute(col,3));
+  scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:1.5,map:DTEX,vertexColors:true,transparent:true,opacity:.85,depthWrite:false,blending:THREE.AdditiveBlending}))); }
+function lineBetween(a,b,color,op){ const g=new THREE.BufferGeometry().setFromPoints([P(a).pos,P(b).pos]);
+  return new THREE.Line(g,new THREE.LineBasicMaterial({color,transparent:true,opacity:op})); }
+Object.values(CONST).flat().forEach(([a,b])=>scene.add(lineBetween(a,b,0xbcd0e6,.22)));
+const tieObj={}; TIES.forEach(([a,b])=>{ const l=lineBetween(a,b,0xE07A45,.42); scene.add(l); tieObj[a+"|"+b]=l; });
+DATA.forEach(d=>{ const r=RSTAR[d.size];
+  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:GTEX,color:new THREE.Color(d.c),transparent:true,opacity:.9,depthWrite:false,blending:THREE.AdditiveBlending}));
+  halo.scale.set(r*6,r*6,1);halo.position.copy(d.pos);scene.add(halo);
+  const core=new THREE.Sprite(new THREE.SpriteMaterial({map:GTEX,color:0xffffff,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));
+  core.scale.set(r*2.2,r*2.2,1);core.position.copy(d.pos);scene.add(core);
+  d._halo=halo;d._core=core;d._r=r; });
+
+/* 标签 */
+const labWrap=document.getElementById("labels");
+DATA.forEach(d=>{const e=document.createElement("div");e.className="lab";e.innerHTML=`${d.tag}<div class="yr">${d.yr}</div>`;labWrap.appendChild(e);d._lab=e;});
+
+/* ===== 轨道相机 ===== */
+const target=new THREE.Vector3(0,8,0);
+let radius=290,theta=0.62,phi=1.12,autorot=false;
+function applyCam(){cam.position.set(target.x+radius*Math.sin(phi)*Math.cos(theta),target.y+radius*Math.cos(phi),target.z+radius*Math.sin(phi)*Math.sin(theta));cam.lookAt(target);}
+let drag=false,moved=0,lx=0,ly=0,dx0=0,dy0=0;
+const dom=renderer.domElement;
+dom.addEventListener("pointerdown",e=>{drag=true;autorot=false;moved=0;lx=dx0=e.clientX;ly=dy0=e.clientY;});
+addEventListener("pointerup",e=>{ if(drag && moved<6) pickAt(e.clientX,e.clientY); drag=false; });
+addEventListener("pointermove",e=>{ if(!drag)return; moved+=Math.abs(e.clientX-lx)+Math.abs(e.clientY-ly);
+  theta-=(e.clientX-lx)*.005; phi=Math.max(.25,Math.min(2.7,phi-(e.clientY-ly)*.005)); lx=e.clientX;ly=e.clientY; });
+dom.addEventListener("wheel",e=>{e.preventDefault();radius=Math.max(70,Math.min(560,radius+e.deltaY*.25));},{passive:false});
+
+/* 点击拾取:投影找最近的星 */
+const _v=new THREE.Vector3();
+function pickAt(sx,sy){ let best=-1,bd=44;
+  DATA.forEach((d,i)=>{ _v.copy(d.pos).project(cam); if(_v.z>1)return;
+    const x=(_v.x*.5+.5)*innerWidth,y=(-_v.y*.5+.5)*innerHeight,dd=Math.hypot(x-sx,y-sy);
+    if(dd<bd){bd=dd;best=i;} });
+  if(best>=0) activate(best); }
+
+/* ===== 调音台 ===== */
+const desk=document.getElementById("deckrow"); const strips=[]; const SIZE={XL:{w:70,fh:96},L:{w:62,fh:84},M:{w:54,fh:72},S:{w:46,fh:60}};
+const byZone=z=>DATA.map((d,i)=>({d,i})).filter(o=>o.d.zone===z);
+[0,1,2].forEach(z=>{ const zone=document.createElement("div");zone.className="zone";
+  zone.innerHTML=`<div class="zone-label">${ZONES[z]}</div>`; const row=document.createElement("div");row.className="zone-row";
+  byZone(z).forEach(({d,i})=>{ const sz=SIZE[d.size];const el=document.createElement("div");el.className="strip";
+    el.style.setProperty("--accent",d.c);el.style.width=sz.w+"px";
+    el.innerHTML=`<div class="tag">${d.tag}</div><div class="fadwrap"><input type="range" min="-48" max="0" value="-48" step="1" data-id="${i}" style="height:${sz.fh}px"></div>`;
+    el.addEventListener("click",(e)=>{if(e.target.tagName==="INPUT")return;activate(i);});
+    row.appendChild(el);strips[i]=el; });
+  zone.appendChild(row);desk.appendChild(zone); });
+const faders=[...document.querySelectorAll("input[type=range]")];
+
+/* ===== 音频 + 播放卡片 ===== */
+const audio=new Audio(); audio.preload="none";
+const ICON_PLAY='<svg width="15" height="15" viewBox="0 0 16 16"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>';
+const ICON_PAUSE='<svg width="13" height="13" viewBox="0 0 14 14"><rect x="2" y="1.5" width="3.4" height="11" fill="currentColor"/><rect x="8.6" y="1.5" width="3.4" height="11" fill="currentColor"/></svg>';
+const $=id=>document.getElementById(id);
+let playing=false;
+$("pbtn").innerHTML=ICON_PLAY;
+function setCC(c){ document.documentElement.style.setProperty("--cc",c); }
+function fmt(t){if(!isFinite(t))t=0;const m=Math.floor(t/60),s=Math.floor(t%60);return m+":"+String(s).padStart(2,"0");}
+function setPlaying(p){playing=p;$("pbtn").innerHTML=p?ICON_PAUSE:ICON_PLAY;}
+$("pbtn").onclick=()=>{ if(active<0)return; if(playing){audio.pause();setPlaying(false);} else {audio.play().then(()=>setPlaying(true)).catch(()=>{});} };
+audio.ontimeupdate=()=>{const d=audio.duration||30;$("deckfill").style.width=(audio.currentTime/d*100)+"%";$("decktime").textContent=fmt(audio.currentTime)+" / "+fmt(d);};
+audio.onended=()=>{setPlaying(false);$("deckfill").style.width="100%";};
+$("deckbar").onclick=e=>{if(active<0)return;const r=e.currentTarget.getBoundingClientRect();audio.currentTime=(e.clientX-r.left)/r.width*(audio.duration||30);};
+
+
+/* ===== 选中一条流 ===== */
+let active=-1;
+function activate(i){ if(i===active) return; const d=DATA[i];
+  if(active>=0){ strips[active].classList.remove("active"); const of=faders.find(f=>+f.dataset.id===active); if(of)of.value=-48; }
+  active=i; strips[i].classList.add("active");
+  const f=faders.find(f=>+f.dataset.id===i); if(f&&parseFloat(f.value)<=-46) f.value=-16;
+  // 星高亮:整体不动,只有选中的原地放大+强发光(其余保持原位原大)
+  DATA.forEach((s,k)=>{ const on=k===i;
+    s._halo.material.opacity=on?1:.3; s._halo.scale.setScalar(on?s._r*10:s._r*6);
+    s._core.material.opacity=on?1:.7; s._core.scale.setScalar(on?s._r*3.4:s._r*2.2);
+    s._lab.classList.toggle("cur",on);
+    s._lab.innerHTML = on ? `${s.tag}<div class="yr">${s.note}</div>` : `${s.tag}<div class="yr">${s.yr}</div>`; });
+  // 血缘高亮
+  Object.entries(tieObj).forEach(([key,l])=>{ const [a,b]=key.split("|"); const lit=(a===d.tag||b===d.tag); l.material.opacity=lit?.95:.12; });
+  // 调音台表头 + 播放(相机不动)
+  setCC(d.c);
+  $("tbtag").textContent=d.tag; $("tbsong").textContent=d.song;
+  $("deckfill").style.width="0%"; $("decktime").textContent="0:00 / 0:30";
+  audio.src=d.url; audio.play().then(()=>setPlaying(true)).catch(()=>setPlaying(false));
+}
+faders.forEach(f=>f.addEventListener("input",e=>{ const id=+e.target.dataset.id,v=parseFloat(e.target.value);
+  if(v>-30 && id!==active) activate(id); }));
+
+/* ===== 标签投影 + 渲染 ===== */
+function updateLabels(){ DATA.forEach(d=>{ _v.copy(d.pos).project(cam); const vis=_v.z<1,dist=cam.position.distanceTo(d.pos);
+  d._lab.style.left=((_v.x*.5+.5)*innerWidth)+"px"; d._lab.style.top=((-_v.y*.5+.5)*innerHeight)+"px";
+  d._lab.style.opacity=(vis&&(dist<210||idxByTag[d.tag]===active))?Math.max(.15,Math.min(1,(230-dist)/130)).toFixed(2):0; }); }
+function loop(){ requestAnimationFrame(loop); if(autorot&&!drag) theta+=.0008; applyCam(); updateLabels(); renderer.render(scene,cam); }
+applyCam(); loop();
+addEventListener("resize",()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+</script>
+</body>
+</html>
